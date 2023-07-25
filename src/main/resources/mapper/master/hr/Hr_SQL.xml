@@ -330,6 +330,7 @@
     <delete id ="deleteSalaryBasic" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" >
         delete from hr_salary_basic
         where  company_id = #{companyId}
+          and   attribute2 = #{yyyymm}
     </delete>
 
     <insert id="insertSalaryItem" parameterType="kr.co.seedit.domain.hr.dto.ErpIUDto$SalaryItemDto">
@@ -372,6 +373,7 @@
         , basic_code
         , basic_name
         , basic_amount
+        , attribute2
         , created_by
         , creation_date
         , last_updated_by
@@ -388,6 +390,7 @@
             , #{item.basicCode}
             , #{item.basicName}
             , #{item.basicAmount}
+            , #{item.yyyymm}
             , #{item.loginUserId}
             , now()
             , #{item.loginUserId}
@@ -487,6 +490,7 @@
                                 AND fcd03.defined_cd = he.position_type
                  INNER JOIN (SELECT employee_id
                                   , company_id
+                                  , attribute2
                                   , GROUP_CONCAT(case basic_code WHEN 100 THEN basic_amount end) AS basic_salary
                                   , GROUP_CONCAT(case basic_code WHEN 101 THEN basic_amount end) AS hourly_pay
                                   , GROUP_CONCAT(case basic_code WHEN 102 THEN basic_amount end) AS overtime_allowance
@@ -494,9 +498,10 @@
                                   , GROUP_CONCAT(case basic_code WHEN 104 THEN basic_amount end) AS holiday_allowance
                                   , GROUP_CONCAT(case basic_code WHEN 105 THEN basic_amount end) AS prepayment
                              FROM hr_salary_basic
-                             GROUP BY employee_id, company_id) hsb
+                             GROUP BY employee_id, company_id, attribute2) hsb
                             ON he.company_id = hsb.company_id
                                 AND he.employee_id = hsb.employee_id
+                                AND he.attribute1 = hsb.attribute2
                  INNER JOIN (SELECT company_id
                                   , employee_id
                                   , attribute1
@@ -516,7 +521,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             "D22740"
+--             "D18717"
 --             )
         UNION ALL
         SELECT he.employee_id
@@ -572,6 +577,7 @@
                                 AND fcd03.defined_cd = he.position_type
                  INNER JOIN (SELECT employee_id
                                   , company_id
+                                  , attribute2
                                   , GROUP_CONCAT(case basic_code WHEN 100 THEN basic_amount end) AS basic_salary
                                   , GROUP_CONCAT(case basic_code WHEN 101 THEN basic_amount end) AS hourly_pay
                                   , GROUP_CONCAT(case basic_code WHEN 102 THEN basic_amount end) AS overtime_allowance
@@ -579,9 +585,10 @@
                                   , GROUP_CONCAT(case basic_code WHEN 104 THEN basic_amount end) AS holiday_allowance
                                   , GROUP_CONCAT(case basic_code WHEN 105 THEN basic_amount end) AS prepayment
                              FROM hr_salary_basic
-                             GROUP BY employee_id, company_id) hsb
+                             GROUP BY employee_id, company_id, attribute2) hsb
                             ON he.company_id = hsb.company_id
                                 AND he.employee_id = hsb.employee_id
+                                AND he.attribute1 = hsb.attribute2
                  LEFT JOIN hr_bonus hb
                            ON he.company_id = hb.company_id
                                AND he.employee_id = hb.employee_id
