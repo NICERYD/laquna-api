@@ -87,7 +87,7 @@
     	<if test="estId !=999">
 		AND	he.est_id = #{estId}
 		</if>
-    AND   he.attribute1  = #{attribute1}
+    AND   he.attribute1  = #{yyyymm}
     ORDER BY he.korean_name, hadt.work_date
 	</select>
 

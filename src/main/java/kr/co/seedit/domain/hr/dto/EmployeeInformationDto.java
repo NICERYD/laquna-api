@@ -41,4 +41,5 @@ public class EmployeeInformationDto implements Serializable {
     private Integer companyId;
     private String attribute1;
     private Integer estId;
+    private String yyyymm;
 }
