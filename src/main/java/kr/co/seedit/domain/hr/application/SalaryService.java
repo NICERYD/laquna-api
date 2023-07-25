@@ -311,10 +311,14 @@ public class SalaryService {
             BigDecimal overtimeAmount01 = BigDecimal.ZERO;
             BigDecimal nightAmount01 = BigDecimal.ZERO;
             BigDecimal holidayAmount01 = BigDecimal.ZERO;
-
+            // 수당2 저장 변수
             BigDecimal overtimeAmount02 = BigDecimal.ZERO;
             BigDecimal nightAmount02 = BigDecimal.ZERO;
             BigDecimal holidayAmount02 = BigDecimal.ZERO;
+            // 기타, 교통비, 식비
+            BigDecimal otherAmount = BigDecimal.ZERO;
+            BigDecimal transportationAmount = BigDecimal.ZERO;
+            BigDecimal mealsAmount = BigDecimal.ZERO;
 
             LocalDate hireDate = LocalDate.parse(basicSalaryDto.getHireDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             LocalDate retireDate = LocalDate.parse(basicSalaryDto.getRetireDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -423,7 +427,7 @@ public class SalaryService {
                     annualAllowance = calcNonPay(nonPaycnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
                 }
             } else if (basicSalaryDto.getEmployeeType().equals("200") && !(basicSalaryDto.getHourlyPay() == null)) {
-
+                // 야간조 근무일수
                 Integer nightCnt = 0;
                 hourlyPay = new BigDecimal(basicSalaryDto.getHourlyPay());
                 // 유급휴가 count 변수
@@ -432,37 +436,40 @@ public class SalaryService {
                 // 평일 실근무일수
                 Integer workcnt = 0;
 
-                // 연차수당
-                // 연차사용여부를 알 수 없어 불가
-                //
-                //
+                // 유급휴가 지난달 index값 있으면 해당값으로 초기화( 추후 개발)
+//                paidHolidayindex = salaryDao.selectpaidHolidayindex();
+
                 List<ADTDataDto> adtDataDtos = salaryDao.selectADTData(requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
                 for (ADTDataDto adtDataDto : adtDataDtos) {
-                    System.out.println(basicSalaryDto.getEmployeeId() + " " + adtDataDto.getWorkDate());
+                    // 연차수당
+
                     // 연장수당1
-                    if (!(adtDataDto.getOvertime() == null)) {
+                    if (!adtDataDto.getOvertime().equals("00:00") && adtDataDto.getDateType().equals("1")) {
                         LocalTime overTime = LocalTime.parse(adtDataDto.getOvertime().toString(), DateTimeFormatter.ofPattern("HH:mm"));
                         if (overTime.getHour() >= 1)
                             overtimeAmount01 = overtimeAmount01.add(new BigDecimal(overTime.getHour()).multiply(hourlyPay).multiply(new BigDecimal("1.5")));
                     }
                     // 야간수당1
-                    if (!(adtDataDto.getNightTime() == null)) {
+                    if (!adtDataDto.getNightTime().equals("00:00")) {
                         LocalTime nightTime = LocalTime.parse(adtDataDto.getNightTime().toString(), DateTimeFormatter.ofPattern("HH:mm"));
-                        System.out.println(basicSalaryDto.getEmployeeId() + " " + adtDataDto.getWorkDate());
                         if (adtDataDto.getWorkStatus().equals("야간")) {
                             // 야간조
                             nightCnt++;
                         } else {
                             // 주간조
                             // 1시간 미만 30분 이상은???
-                            if (nightTime.getHour() >= 0 && nightTime.getMinute() >= 30)
-                                nightAmount01 = nightAmount01.add(new BigDecimal(nightTime.getHour()).multiply(hourlyPay).multiply(new BigDecimal("2")));
+//                            if (nightTime.getHour() >= 0 && nightTime.getMinute() >= 30)
+//                                nightAmount01 = nightAmount01.add(new BigDecimal(nightTime.getHour()).multiply(hourlyPay).multiply(new BigDecimal("2")));
                         }
                     }
-                    System.out.println(basicSalaryDto.getEmployeeId() + " " + nightAmount01);
-                    System.out.println(basicSalaryDto.getEmployeeId() + " " + nightCnt);
-                    // 야간조 계산식 확인 필요
-                    nightAmount01 = nightAmount01.add(new BigDecimal(nightCnt).multiply(hourlyPay.multiply(new BigDecimal("6.5")).multiply(new BigDecimal("0.5"))));
+                    // 휴일수당1
+                    if (!adtDataDto.getHolidayTime().equals("00:00")) {
+                        LocalTime nightTime = LocalTime.parse(adtDataDto.getNightTime().toString(), DateTimeFormatter.ofPattern("HH:mm"));
+                        holidayAmount01 = holidayAmount01.add(new BigDecimal(nightTime.getHour()).multiply(hourlyPay).multiply(new BigDecimal("1.5")));
+                    }
+                    // 기타수당
+                    //
+                    //
 
                     // 유급휴일 count
                     if (adtDataDto.getDateType().equals("1")) {
@@ -478,7 +485,6 @@ public class SalaryService {
                     // 마지막근무일이면서 마지막주이면서 금요일이 아니면 다음달에 연속하여 유급휴일 count
                     if ((adtDataDto == adtDataDtos.get(adtDataDtos.size() - 1)) && salaryDao.selectLastWeek(adtDataDto.getWorkDate())
                             && !adtDataDto.getDateWeek().equals("5")) {
-                        System.out.println(basicSalaryDto.getEmployeeId() + " " + paidHoliday + " " + "insert into");
                         salaryDao.insertNonPayDay(paidHolidayindex, requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
                     }
                 }
@@ -491,10 +497,19 @@ public class SalaryService {
                 } else {
                     basicAmount = hourlyPay.multiply(BigDecimal.valueOf((workcnt + paidHoliday) * 8));
                 }
+
+                // 교통비, 식대
+                if (!(nightCnt == 0)) {
+                    transportationAmount = BigDecimal.valueOf(20000).multiply(BigDecimal.valueOf(nightCnt));
+                    mealsAmount = BigDecimal.valueOf(14000).multiply(BigDecimal.valueOf(nightCnt));
+                }
             }
 
             if (!basicAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setBasicSalary(basicAmount.toString());
+            if (!annualAllowance.equals(BigDecimal.ZERO))
+                basicSalaryDto.setAnnualAllowance(annualAllowance.toString());
+
             if (!overtimeAmount01.equals(BigDecimal.ZERO))
                 basicSalaryDto.setOvertimeAllowance01(overtimeAmount01.toString());
             if (!nightAmount01.equals(BigDecimal.ZERO))
@@ -508,8 +523,11 @@ public class SalaryService {
                 basicSalaryDto.setNightAllowance02(nightAmount02.toString());
             if (!holidayAmount02.equals(BigDecimal.ZERO))
                 basicSalaryDto.setHolidayAllowance02(holidayAmount02.toString());
-            if (!annualAllowance.equals(BigDecimal.ZERO))
-                basicSalaryDto.setAnnualAllowance(annualAllowance.toString());
+
+            if (!transportationAmount.equals(BigDecimal.ZERO))
+                basicSalaryDto.setTransportationExpenses(transportationAmount.toString());
+            if (!mealsAmount.equals(BigDecimal.ZERO))
+                basicSalaryDto.setMealsExpenses(mealsAmount.toString());
 
             resultData.add(basicSalaryDto);
         }

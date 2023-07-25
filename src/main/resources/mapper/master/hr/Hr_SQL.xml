@@ -514,7 +514,7 @@
                                AND he.attribute1 = hb.yyyymm
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
---           AND   he.employee_type  = '200'
+--           AND he.employee_type  = '200'
 --           AND he.employee_number in (
 --             "D22740"
 --             )
@@ -589,6 +589,7 @@
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
           AND fcd03.defined_cd IN ('100', '910')
+--           and 1=2
     </select>
 
     <insert id="insertCalcSalary" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
@@ -611,6 +612,7 @@
         , attribute10
         , attribute11
         , attribute12
+        , attribute13
         , created_by
         , creation_date
         , last_updated_by
@@ -635,6 +637,7 @@
             , #{item.otherAllowance}
             , #{item.subsidies}
             , #{item.transportationExpenses}
+            , #{item.mealsExpenses}
             , #{item.bonusAmount}
             , #{item.loginUserId}
             , now()
