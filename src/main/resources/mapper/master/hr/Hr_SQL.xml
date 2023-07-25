@@ -95,6 +95,7 @@
         /*SalaryDao.getCalcSalaryList*/
         SELECT he.employee_number
         , he.korean_name
+        , fbe.est_name
         , hd.department_name
         , fcd02.defined_name
         , he.employee_type
@@ -113,10 +114,13 @@
         , hdcs.attribute12 AS meals_expenses
         , IFNULL(hb.bonus_amount,0) AS bonus_amount
         FROM   hr_dh_calc_salary hdcs
+        INNER JOIN fnd_business_est fbe
+        ON hdcs.company_id = fbe.company_id
         INNER JOIN hr_employee he
         ON hdcs.company_id  = he.company_id
         AND hdcs.employee_id  = he.employee_id
         AND hdcs.yyyymm  = he.attribute1
+        AND he.est_id = fbe.est_id
         INNER JOIN hr_department  hd
         ON he.company_id = hd.company_id
         AND he.department_id = hd.department_id

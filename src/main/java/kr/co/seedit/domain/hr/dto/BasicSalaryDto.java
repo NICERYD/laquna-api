@@ -39,5 +39,6 @@ public class BasicSalaryDto {
     private String employeeType;
     private String hireDate;
     private String retireDate;
+    private String definedName;
 
 }
