@@ -1,7 +1,7 @@
 spring:
   config:
     activate:
-      on-profile: local
+      on-profile: mybatis-local
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
@@ -9,13 +9,13 @@ mybatis:
 #  type-aliases-package: kr.co.seedit.domain
 #  config-location: classpath:/mybatis-config.xml
 ---
-#spring:
-#  config:
-#    activate:
-#      on-profile: dev
-#mybatis:
-#  configuration:
-#    map-underscore-to-camel-case: true
-#  mapper-locations: classpath:mapper/**/*_SQL.xml
+spring:
+  config:
+    activate:
+      on-profile: mybatis-dh
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+#  mapper-locations: classpath:mapper/master/**/*_SQL.xml
 #  type-aliases-package: kr.co.seedit.domain
-  #  config-location: classpath:/mybatis-config.xml
+#  config-location: classpath:/mybatis-config.xml

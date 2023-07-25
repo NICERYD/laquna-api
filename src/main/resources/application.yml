@@ -6,5 +6,16 @@ spring:
   pid:
     file: "dh.pid"
   profiles:
-    include: datasource, mybatis
-    default: local
+    active:
+      - local
+    group:
+      local:
+        - db-local
+        - mybatis-local
+      dh:
+        - db-dh
+        - mybatis-dh
+    include:
+      - datasource
+      - mybatis
+

@@ -1,28 +1,14 @@
-#spring:
-#  config:
-#    activate:
-#      on-profile: local
-#  datasource:
-#    username: seedit
-#    password: asdfqwer1!
-#    url: jdbc:log4jdbc:mariadb://seedit.iptime.org:2755/SEEDIT?&serverTimezone=UTC&autoReconnect=true&allowMultiQueries=true&characterEncoding=UTF-8
-#    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-
+--- # local 설정
 spring:
   config:
     activate:
-      on-profile: local
+      on-profile: db-local
   datasources:
     seedit:
       username: seedit
       password: asdfqwer1!
       jdbc-url: jdbc:log4jdbc:mariadb://seedit.iptime.org:2755/SEEDIT?&serverTimezone=UTC&autoReconnect=true&allowMultiQueries=true&characterEncoding=UTF-8
       driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-#    neoe:
-#      username: dhpic
-#      password: Dhpic1@#
-#      jdbc-url: jdbc:log4jdbc:mysql://172.16.1.35:2755/SEEDIT?&serverTimezone=UTC&autoReconnect=true&allowMultiQueries=true&characterEncoding=UTF-8
-#      driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
     neoe:
       username: NEOE
       password: NEOE
@@ -40,32 +26,30 @@ seedit:
     jwt-refresh-reissue-in: 3
     database-encrypt-key: "32132"
 
----
+--- # dh 설정
+
 spring:
   config:
     activate:
-      on-profile: dev
-  datasource:
-    username: dhpic
-    password: Dhpic1@#
-    url: jdbc:log4jdbc:mysql://172.16.1.35:2755/SEEDIT?&serverTimezone=UTC&autoReconnect=true&allowMultiQueries=true&characterEncoding=UTF-8
-    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-
-logging:
-  level:
-    org:
-      springframework:
-        web:
-          servlet:
-            mvc:
-              method:
-                annotation: TRACE
+      on-profile: db-dh
+  datasources:
+    seedit:
+      username: dhpic
+      password: Dhpic1@#
+      jdbc-url: jdbc:log4jdbc:mysql://172.16.1.35:2755/SEEDIT?&serverTimezone=UTC&autoReconnect=true&allowMultiQueries=true&characterEncoding=UTF-8
+      driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    neoe:
+      username: NEOE
+      password: NEOE
+      jdbc-url: jdbc:sqlserver://172.16.1.32:31433;databaseName=NEOE;encrypt=true;trustServerCertificate=true
+      driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
 seedit:
   common:
     password-encrypt-key: "2q3sdfsafweawedfasd22as"
     jwt-secret: "P7EEtdSwtK9YHw5hnJkbCszB3E72V78eB9xgBp5CSJp7z2rpTxjbjvTSB4DskXY"
     jwt-expiration-in: 86400
+    jwt-iss: "seedit-api.dev.co.kr"
     jwt-refresh-secret: "P7EEtdSwtK9YHw5hnJkbCszB3E72V78eB9xgBp5CSJp7z2rpTxjbjvTSB4DskXY"
     jwt-refresh-expiration-in: 3
     jwt-refresh-reissue-in: 3
