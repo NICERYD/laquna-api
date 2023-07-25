@@ -25,4 +25,7 @@ public class ADTDataDto {
     private String realWorkTime;
     private String defaultTime;
     private String employeeType;
+    private String dateType;
+    private String dateWeek;
+    private String description;
 }

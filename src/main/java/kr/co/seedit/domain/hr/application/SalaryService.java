@@ -321,21 +321,25 @@ public class SalaryService {
 
             YearMonth yearMonth = YearMonth.parse(requestDto.getYyyymm(), DateTimeFormatter.ofPattern("yyyyMM"));
             String midStatus = "000";
-            // 무급count 변수
+            // 무급 count 변수
             Integer nonPaycnt = 0;
+            // 출산휴가 count 변수
+            Integer maternityLeavecnt = 0;
+
+            // 해당 월(YYYYMM) 기준 중도 입사/퇴사 날짜계산
+            long diff;
+            // 중도 입사/퇴사 체크
+            if (basicSalaryDto.getHireDate().startsWith(requestDto.getYyyymm())) {
+                diff = ChronoUnit.DAYS.between(hireDate, yearMonth.atEndOfMonth());
+                midStatus = "001";
+            } else if (basicSalaryDto.getRetireDate().startsWith(requestDto.getYyyymm())) {
+                diff = ChronoUnit.DAYS.between(yearMonth.atDay(1), retireDate);
+                midStatus = "002";
+            } else {
+                diff = 0;
+            }
 
             if (basicSalaryDto.getEmployeeType().equals("100")) {
-                long diff;
-                // 중도 입사/퇴사
-                if (basicSalaryDto.getHireDate().startsWith(requestDto.getYyyymm())) {
-                    diff = ChronoUnit.DAYS.between(hireDate, yearMonth.atEndOfMonth());
-                    midStatus = "001";
-                } else if (basicSalaryDto.getRetireDate().startsWith(requestDto.getYyyymm())) {
-                    diff = ChronoUnit.DAYS.between(yearMonth.atDay(1), retireDate);
-                    midStatus = "002";
-                } else {
-                    diff = 0;
-                }
                 basicAmount = new BigDecimal(basicSalaryDto.getBasicSalary()).multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 2, BigDecimal.ROUND_UP)).setScale(0, BigDecimal.ROUND_UP);
                 overtimeAmount02 = Optional.ofNullable(basicSalaryDto.getOvertimeAllowance02())
                         .map(amount -> new BigDecimal(amount)
@@ -407,40 +411,20 @@ public class SalaryService {
                     if (adtDataDto.getWorkStatus().equals("무급")) {
                         nonPaycnt++;
                     }
+                    // 출산휴가 count
+                    if (adtDataDto.getWorkStatus().equals("출산휴가")) {
+                        maternityLeavecnt++;
+                    }
                 }
                 // 무급처리
                 // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
                 if (!(nonPaycnt == 0)) {
                     annualAllowance = calcNonPay(nonPaycnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
                 }
-
             } else if (basicSalaryDto.getEmployeeType().equals("200") && !(basicSalaryDto.getHourlyPay() == null)) {
                 Integer paidHoliday = 0;
                 Integer nightCnt = 0;
                 hourlyPay = new BigDecimal(basicSalaryDto.getHourlyPay());
-                // 기본급 퇴직여부
-                // Y : 계약서 상의 시급 × 209H
-                // N : 일할 계산 시 "(실근무일+유급휴일)×8H" 로 계산
-                if (midStatus.equals("000")) {
-                    basicAmount = basicAmount.add(hourlyPay.multiply(new BigDecimal("209")));
-                } else {
-//                    List<WorkDayDto> workDayDtos = salaryDao.selectWorkDay(requestDto.getCompanyId(), requestDto.getYyyymm(), midStatus, hireDate, retireDate);
-//                    Integer paidHolidaycnt = 0;
-//                    for (WorkDayDto workDayDto : workDayDtos) {
-//                        if workday {
-//                            paidHolidaycnt++;
-//                        }
-//                        if (paidHolidaycnt == 5 && 마지막날이토요일이아니면) {
-//                            유급 ++
-//
-//                            insert 유급휴일table;
-//                            paidHolidaycnt = 0;
-//                        }
-//                        if (workDayDto.getDateType().equals("1")) {
-//
-//                        }
-//                    }
-                }
                 // 연차수당
                 // 연차사용여부를 알 수 없어 불가
                 //
@@ -448,8 +432,6 @@ public class SalaryService {
                 List<ADTDataDto> adtDataDtos = salaryDao.selectADTData(requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
                 for (ADTDataDto adtDataDto : adtDataDtos) {
                     System.out.println(basicSalaryDto.getEmployeeId() + " " + adtDataDto.getWorkDate());
-
-
                     // 연장수당1
                     if (!(adtDataDto.getOvertime() == null)) {
                         LocalTime overTime = LocalTime.parse(adtDataDto.getOvertime().toString(), DateTimeFormatter.ofPattern("HH:mm"));
@@ -474,8 +456,16 @@ public class SalaryService {
                     System.out.println(basicSalaryDto.getEmployeeId() + " " + nightCnt);
                     // 야간조 계산식 확인 필요
                     nightAmount01 = nightAmount01.add(new BigDecimal(nightCnt).multiply(hourlyPay.multiply(new BigDecimal("6.5")).multiply(new BigDecimal("0.5"))));
+
+
                 }
                 System.out.println(basicSalaryDto.getEmployeeId() + " " + overtimeAmount01);
+                // 기본급 퇴직여부
+                // Y : 계약서 상의 시급 × 209H
+                // N : 일할 계산 시 "(실근무일+유급휴일)×8H" 로 계산
+                if (midStatus.equals("000")) {
+                    basicAmount = basicAmount.add(hourlyPay.multiply(new BigDecimal("209")));
+                }
             }
 
             if (!basicAmount.equals(BigDecimal.ZERO))

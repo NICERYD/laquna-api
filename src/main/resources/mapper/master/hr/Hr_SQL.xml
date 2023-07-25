@@ -98,7 +98,7 @@
         , hd.department_name
         , fcd02.defined_name
         , he.employee_type
-        , hdcs.base_salary
+        , hdcs.basic_salary
         , hdcs.attribute01 AS annual_allowance
         , hdcs.attribute02 AS overtime_allowance01
         , hdcs.attribute03 AS overtime_allowance02
@@ -506,9 +506,9 @@
                                AND he.attribute1 = hb.yyyymm
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
-          AND   he.employee_type  = '100'
+          AND   he.employee_type  = '200'
 --           AND he.employee_number in (
---             "D07706"
+--             "D22740"
 --             )
         UNION ALL
         SELECT he.employee_id
@@ -590,7 +590,7 @@
         , company_id
         , employee_id
         , yyyymm
-        , base_salary
+        , basic_salary
         , attribute01
         , attribute02
         , attribute03
@@ -658,11 +658,17 @@
              , hadt.real_work_time -- 실제근무시간
              , hadt.default_time  -- 정상근무시간
              , he.employee_type
+             , fc.date_type
+             , fc.date_week
+             , fc.description
         FROM   hr_employee he
                    INNER JOIN hr_dh_adt_manage hadt
                               ON hadt.company_id  = he.company_id
                                   AND hadt.employee_id = he.employee_id
                                   AND hadt.attribute1 = he.attribute1
+                   INNER JOIN fnd_calendar fc
+                              ON fc.company_id  = hadt.company_id
+                                  AND STR_TO_DATE(fc.yyyymmdd, '%Y%m%d') = STR_TO_DATE(hadt.work_date, '%Y-%m-%d')
         WHERE he.company_id  = #{companyId}
           AND he.attribute1  = #{yyyymm}
           AND he.employee_id = #{employeeID}
