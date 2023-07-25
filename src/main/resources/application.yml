@@ -1,0 +1,10 @@
+server:
+  shutdown: graceful
+  port: 3000
+
+spring:
+  pid:
+    file: "dh.pid"
+  profiles:
+    include: datasource, mybatis
+    default: local

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.seedit.domain.mapper.seedit.MenuDao">
+    <select id="selectMenuList" resultType="kr.co.seedit.domain.menu.dto.MenuDto">
+        SELECT frb.resp_group_id
+               , frg.resp_group_name
+               , frb.menu_id
+               , CASE WHEN parent_id = 0
+                        THEN fm.menu_name
+                      ELSE CONCAT('  ',fm.menu_name)
+                  END AS menu_name
+               , fm.menu_api
+               , fm.menu_type
+               , fm.menu_url
+        FROM   fnd_responsibility frb
+               INNER JOIN fnd_menu fm
+                   ON fm.menu_id  = frb.menu_id
+               INNER JOIN fnd_resp_group frg
+                   ON  frg.company_id  = frb.company_id
+                   AND frg.resp_group_id  = frb.resp_group_id
+               INNER JOIN fnd_resp_assignments fra
+                   ON fra.company_id = frg.company_id
+                   AND fra.resp_group_id  = frg.resp_group_id
+               INNER JOIN fnd_user fu
+                   ON fu.company_id  = fra.company_id
+                   AND fu.user_id  = fra.user_id
+        WHERE  frb.resp_group_id  = #{respGroupId} -- 권한종류
+        AND    fu.user_id  = #{userId} -- 유저아이디
+        AND    fu.company_id = #{companyId} -- 회사코드
+        ORDER BY menu_seq
+    </select>
+</mapper>

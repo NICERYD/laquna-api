@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.seedit.domain.mapper.neoe.ErpIUDao">
+    <select id="selectTest" resultType="int">
+        select count(*)
+        from   MA_BIZAREA
+    </select>
+
+    <select id="getDepartment" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" resultType="kr.co.seedit.domain.hr.dto.ErpIUDto$DepartmentDto">
+        SELECT MD.nm_dept as department_name
+             , MD.dt_start as start_date
+             , MD.dt_end as end_date
+             , MD.TP_DEPT as distal_yn
+             , MD.CD_DEPT as department_code
+             , MD.cd_bizarea AS est_id
+             , #{yyyymm} as yyyymm
+             , #{companyId} as company_id
+             , #{loginUserId} AS loginUserId
+        FROM   MA_DEPT MD
+               INNER JOIN MA_BIZAREA MB
+               ON MD.CD_COMPANY = MB.CD_COMPANY
+               AND MD.CD_BIZAREA = MB.CD_BIZAREA
+        WHERE  MD.cd_company = '1000'
+          AND  MD.tp_dept = 'Y'
+          -- AND  (MD.DT_END IS NULL OR MD.DT_END = '' OR ISNULL(MD.DT_END, '') >= ISNULL('20230712', ''))
+    </select>
+
+    <select id="getEmployee" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" resultType="kr.co.seedit.domain.hr.dto.ErpIUDto$EmployemeeDto">
+        select nm_kor as korean_name
+             , nm_eng as english_name
+             , NO_EMP AS employee_number
+             , CD_DUTY_RANK as position_code
+             , CD_DUTY_RESP as position_type
+             , DT_ENTER as hire_date
+             , DT_RETIRE as retire_date
+             , CD_INCOM as employment_code
+             , DT_BIRTH as birth_date
+             , YN_USE AS USE_YN
+             , CD_DEPT AS department_code
+             , TP_EMP as employee_type
+             , cd_bizarea AS est_id
+             , #{yyyymm} as yyyymm
+             , #{companyId} as company_id
+             , #{loginUserId} AS loginUserId
+        from   MA_EMP
+        where  cd_company = '1000'
+    </select>
+
+    <select id="getSalaryItem" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" resultType="kr.co.seedit.domain.hr.dto.ErpIUDto$SalaryItemDto">
+        SELECT	HP.CD_PAYDEDUCT as itemCode
+             , HP.NM_PAYDEDUCT as itemName
+             , HP.YN_CHECK as useYn
+             , #{yyyymm} as yyyymm
+             , #{companyId} as company_id
+             , #{loginUserId} AS loginUserId
+        FROM	HR_PCODE HP
+        WHERE 	HP.CD_COMPANY = '1000'
+          AND		HP.TP_PAYDEDUCT = '001'
+    </select>
+    <select id="getSalaryBasic" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" resultType="kr.co.seedit.domain.hr.dto.ErpIUDto$SalaryBasicDto">
+        SELECT 	NO_EMP as attribute1
+                , DT_FROM as startDate
+                , CD_FIX as basicCode
+                , MCD.NM_SYSDEF as basicName
+                , AM_FIXPAY as basicAmount
+                , #{yyyymm} as yyyymm
+                , #{companyId} as company_id
+                , #{loginUserId} AS loginUserId
+        FROM	HR_PFIX HP
+        INNER JOIN MA_CODEDTL MCD
+                   ON HP.CD_COMPANY = MCD.CD_COMPANY
+                       AND MCD.CD_FIELD = 'HR_P000003'
+                       AND MCD.CD_SYSDEF = HP.CD_FIX
+        WHERE	HP.CD_COMPANY = '1000'
+        AND     DT_TO = '99999999'
+        AND     AM_FIXPAY != 0
+    </select>
+
+    <select id="getBonus" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" resultType="kr.co.seedit.domain.hr.dto.ErpIUDto$BonusDtos">
+        SELECT NO_EMP as attribute1
+               , AM_TOTPAY as bonusAmount
+               , #{yyyymm} as yyyymm
+               , #{companyId} as company_id
+               , #{loginUserId} AS loginUserId
+        FROM   HR_PCALCPAY
+        WHERE  CD_COMPANY = '1000'
+        AND    YM = #{yyyymm}
+        AND    TP_PAY = '002'
+    </select>
+
+
+    <select id="getCalendar" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" resultType="kr.co.seedit.domain.hr.dto.ErpIUDto$CalendarDto">
+        SELECT DT_DATE as yyyymmdd
+               , TP_DATE as dateType
+               , TP_WEEK as dateWeek
+               , NM_NOTE as description
+               , #{yyyymm} as yyyymm
+               , #{companyId} as company_id
+               , #{loginUserId} AS loginUserId
+        FROM FI_CALENDARDAY
+        WHERE CD_COMPANY = '1000'
+          AND LEFT(DT_DATE,4) = LEFT(#{yyyymm},4)
+    </select>
+
+</mapper>

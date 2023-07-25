@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.seedit.domain.mapper.seedit.CompanyDao">
+    <select id="selectUserAuthInfo" resultType="kr.co.seedit.domain.company.dto.CompanyAuthInfoDto">
+        /*유저 권한 찾기*/
+        SELECT fu.user_id
+               , fu.email_id
+               , fu.company_id
+               , fra.resp_group_id
+               , frg.resp_group_name
+        FROM  fnd_user fu
+              INNER JOIN fnd_resp_assignments fra
+              ON   fra.company_id = fu.company_id
+              AND  fra.user_id = fu.user_id
+              INNER JOIN fnd_resp_group  frg
+              ON  frg.company_id  = fra.company_id
+              AND frg.resp_group_id  = fra.resp_group_id
+        WHERE fu.email_id  = #{emailId}
+    </select>
+    <select id="selectTokenInfo" resultType="kr.co.seedit.domain.company.dto.CompanyDto">
+        select
+              fu.email_id
+             ,fu.user_id
+             ,fc.business_registration_number
+             ,fc.company_name
+             ,fc.company_type
+             ,fc.nick_name
+             ,fc.company_id
+             ,fu.created_by
+             ,fu.last_updated_by
+             ,fu.creation_date
+             ,fu.last_update_date
+        from fnd_user fu
+        inner join fnd_company fc on fu.company_id = fc.company_id
+        where fu.email_id = #{emailId}
+    </select>
+    <select id="selectMemberAccountChk" resultType="int">
+        select
+        count(user_id)
+        from fnd_user
+        where email_id = #{emailId}
+    </select>
+    <select id="selectFindByUsername" resultType="kr.co.seedit.domain.company.dto.CompanyDto">
+        select
+              fu.email_id
+             ,fu.user_id
+             ,fp.password
+             ,fc.business_registration_number
+             ,fc.company_id
+             ,fc.company_name
+             ,fc.company_type
+             ,fc.nick_name
+             ,fu.created_by
+             ,fu.last_updated_by
+             ,fu.creation_date
+             ,fu.last_update_date
+        from fnd_user fu
+        inner join fnd_password fp on fu.password_id = fp.password_id
+        inner join fnd_company fc on fu.company_id = fc.company_id
+        where fu.email_id = #{emailId}
+    </select>
+    <select id="selectIdCnt" resultType="int">
+        select
+            count(*)
+        from fnd_user
+        where email_id = #{emailId}
+    </select>
+    <select id = "signUpCheck" parameterType="kr.co.seedit.domain.company.dto.CompanyDto" resultType="kr.co.seedit.domain.company.dto.CompanyDto" >
+        SELECT count(*) as cnt
+               ,fa.approve_status
+        FROM   fnd_user fu
+            INNER JOIN fnd_company fc
+            ON fu.company_id = fc.company_id
+            INNER JOIN fnd_approve fa
+            ON fa.company_id  = fc.company_id
+            AND fa.approve_status != '02'
+        WHERE fu.email_id = #{emailId}
+        group by fa.approve_status
+    </select>
+    <insert id="insertUserTbJoinInfo" parameterType="kr.co.seedit.domain.company.dto.CompanyDto">
+        INSERT into SEEDIT.fnd_user
+        ( user_id
+        , authentication_id
+        , company_id
+        , email_id
+        , employee_id
+        , password_id
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date)
+        VALUES ( SEEDIT.nextval('fnd_user')
+               , SEEDIT.nextval('fnd_authentication')
+               , SEEDIT.nextval('fnd_company')
+               , #{emailId}
+               , SEEDIT.nextval('hr_employee')
+               , SEEDIT.nextval('fnd_password')
+               , SEEDIT.curval('fnd_user')
+               , now()
+               , SEEDIT.curval('fnd_user')
+               , now())
+    </insert>
+    <insert id="insertCompanyTbJoinInfo" parameterType="kr.co.seedit.domain.company.dto.CompanyDto">
+        INSERT INTO fnd_company
+        ( company_id
+        , business_registration_number
+        , company_name
+        , nick_name
+        , representative_id
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date)
+        VALUES ( SEEDIT.curval('fnd_company')
+               , #{businessRegistrationNumber}
+               , #{companyName}
+               , #{nickName}
+               , SEEDIT.curval('fnd_user')
+               , SEEDIT.curval('fnd_user')
+               , now()
+               , SEEDIT.curval('fnd_user')
+               , now())
+    </insert>
+    <insert id="insertApproveTbJoinInfo" parameterType="kr.co.seedit.domain.company.dto.CompanyDto">
+        INSERT into fnd_approve
+        ( approve_id
+        , company_id
+        , seq
+        , approve_status
+        , approve_date
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date)
+        VALUES ( SEEDIT.nextval('fnd_approve')
+               , SEEDIT.curval('fnd_company')
+               , 1
+               , '00'
+               , now()
+               , SEEDIT.curval('fnd_user')
+               , now()
+               , SEEDIT.curval('fnd_user')
+               , now())
+    </insert>
+    <insert id="insertPasswordTbJoinInfo" parameterType="kr.co.seedit.domain.company.dto.CompanyDto">
+        INSERT INTO fnd_password
+        ( password_id
+        , password
+        , salt
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date)
+        VALUES ( SEEDIT.curval('fnd_password')
+               , #{password}
+               , #{salt}
+               , SEEDIT.curval('fnd_user')
+               , now()
+               , SEEDIT.curval('fnd_user')
+               , now())
+    </insert>
+</mapper>

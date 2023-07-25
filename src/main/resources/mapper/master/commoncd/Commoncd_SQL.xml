@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.seedit.domain.mapper.seedit.CommoncdDao">
+    <select id="findCodeAllList" resultType="kr.co.seedit.domain.commoncd.dto.CommonCodeDto">
+        /*commoncdDao.findCodeAllList*/
+        SELECT code_id
+               , code_field
+               , code_name
+               , code_eng_name
+               , code_type
+               , remark
+               , module_id
+               , use_yn
+        FROM   fnd_code
+        order by code_id, code_field
+    </select>
+    <select id="commonCodelistSearch" parameterType="kr.co.seedit.domain.commoncd.dto.CommonCodeDto" resultType="kr.co.seedit.domain.commoncd.dto.CommonCodeDto">
+        /*commoncdDao.commonCodelistSearch*/
+        SELECT fc.code_id
+               , fc.code_field
+               , fc.code_name
+               , fc.code_eng_name
+               , fc.code_type
+               , fc.remark
+               , fc.module_id
+               , fc.use_yn
+        FROM   fnd_code fc
+        inner join fnd_module fm on fc.module_id = fm.module_id
+        where 1=1
+        <if test="moduleId != null and moduleId != '' and moduleId != 999">
+          and fm.module_id = #{moduleId}
+        </if>
+        <if test="keyword != null and keyword != ''">
+        <!-- 구분코드 검색 -->
+          and (fc.code_field LIKE CONCAT('%', #{keyword}, '%')
+        <!-- 구분코드명 검색 -->
+          OR fc.code_name LIKE CONCAT('%', #{keyword}, '%')
+          OR fc.code_eng_name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        order by code_id, code_field
+    </select>
+    <select id="findCommonModuleList" resultType="kr.co.seedit.domain.commoncd.dto.CommonModuleDto">
+        /*commoncdDao.findCommonModuleList*/
+        SELECT    999 as module_id
+        		, "all" as module_name
+		        , "전체" as description
+			UNION ALL
+	        SELECT module_id
+	               , module_name
+	               , description
+	        FROM   fnd_module
+	        ORDER BY CASE WHEN module_id = 999 THEN 1
+						  ELSE 2
+					 END,
+					 module_id
+    </select>
+    <select id="findCodeDetailList" parameterType="kr.co.seedit.domain.commoncd.dto.CommonCodeDetailDto" resultType="kr.co.seedit.domain.commoncd.dto.CommonCodeDetailDto">
+        /*commoncdDao.findCodeDetailList*/
+        SELECT code_detail_id
+               , code_id
+               , defined_cd
+               , defined_name
+               , defined_eng_name
+               , use_yn
+               , value01
+               , value02
+               , value03
+               , defined_type
+        FROM   fnd_code_detail
+        WHERE  company_id = #{companyId}
+        AND    code_id = #{codeId}
+        order by code_id, defined_cd
+    </select>
+    <insert id="insertCodeDetailComAdd" parameterType="kr.co.seedit.domain.commoncd.dto.CommonCodeDetailDto">
+    /*commoncdDao.insertCodeDetailComAdd*/
+    INSERT into fnd_code_detail
+        ( code_detail_id
+        , code_id
+        , company_id
+        , defined_cd
+        , defined_name
+        , defined_eng_name
+        , use_yn
+        , value01
+        , value02
+        , value03
+        , defined_type
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date)
+        VALUES ( SEEDIT.nextval('fnd_code_detail')
+               , #{codeId}
+               , #{companyId}
+               , #{definedCd}
+               , #{definedName}
+               , #{definedEngName}
+               , #{useYn}
+               , #{value01}
+               , #{value02}
+               , #{value03}
+               , 'COM'
+               , #{lastUpdatedBy}
+               , now()
+               , #{lastUpdatedBy}
+               , now()
+               )
+    </insert>
+    <update id="codeDetailComUpdate" parameterType="kr.co.seedit.domain.commoncd.dto.CommonCodeDetailDto">
+        /*commoncdDao.codeDetailComUpdate*/
+        UPDATE fnd_code_detail
+        SET company_id = #{companyId}
+          , defined_cd = #{definedCd}
+          , defined_name = #{definedName}
+          , defined_eng_name = #{definedEngName}
+          , use_yn = #{useYn}
+          , value01 = #{value01}
+          , value02 = #{value02}
+          , value03 = #{value03}
+          , last_updated_by = #{lastUpdatedBy}
+          , last_update_date = now()
+        WHERE code_detail_id = #{codeDetailId}
+  </update>
+    <delete id="codeDetailComDelete" parameterType="kr.co.seedit.domain.commoncd.dto.CommonCodeDetailDto">
+    /*commoncdDao.codeDetailComDelete*/
+    DELETE FROM fnd_code_detail
+         WHERE code_detail_id = #{codeDetailId}
+    </delete>
+</mapper>

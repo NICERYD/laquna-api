@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.seedit.domain.mapper.seedit.SalaryDao">
+	<select id="findCompanyList" resultType="kr.co.seedit.domain.hr.dto.SelectListDto">
+		/*SalaryDao.findCompanyList*/
+		SELECT   company_id		AS value
+				,company_name	AS name
+		FROM	fnd_company
+		WHERE 1=1
+		<if test="companyId != null">
+			AND company_id = #{companyId}
+		</if>
+		ORDER BY company_id
+	</select>
+	
+	<select id="findBusinessList" parameterType="Integer" resultType="kr.co.seedit.domain.hr.dto.SelectListDto">
+		/*SalaryDao.findCompanyList*/
+		SELECT   999 as value
+		         , "전체" as name
+			UNION ALL
+			SELECT   est_id		AS value
+					,est_name	AS name
+			FROM	fnd_business_est
+			WHERE 1=1
+			<if test="companyId != null">
+				AND company_id = #{companyId}
+			</if>
+			ORDER BY CASE WHEN value = 999 THEN 1
+						  ELSE 2
+					 END,
+					 value
+	</select>
+
+    <select id="findAdtList" parameterType="kr.co.seedit.domain.hr.dto.EmployeeInformationDto" resultType="kr.co.seedit.domain.hr.dto.EmployeeInformationDto">
+		/*SalaryDao.findAdtList*/
+        SELECT hadt.work_date -- 근태기준일
+           , fbe.est_name -- 사업장
+           , hd.department_name -- 부서
+           , he.employee_number  -- 사원번호
+           , he.korean_name -- 성명
+           , fcd02.defined_name -- 직급
+           , hadt.work_status -- 근무형태
+           , hadt.work_start_date -- 출근일시
+           , hadt.work_end_date -- 퇴근일시
+           , hadt.in_status -- 출근판정
+           , hadt.out_status -- 퇴근판정
+           , hadt.out_start_date
+           , hadt.out_end_date
+           , TIME_FORMAT(TIMEDIFF(hadt.out_end_date, hadt.out_start_date ), '%H:%i')  AS out_time
+           , hadt.late_time -- 지각
+           , hadt.over_time -- 연장근무기간
+           , hadt.night_time -- 야간근무시간
+           , hadt.holiday_time -- 휴일
+           , hadt.real_work_time -- 실제근무시간
+           , hadt.default_time  -- 정상근무시간
+           , fcd01.defined_name -- 급여구분
+    FROM   hr_employee he
+           INNER JOIN hr_department hd
+           ON he.company_id = hd.company_id
+           AND he.department_id = hd.department_id
+           AND he.attribute1 = hd.attribute2
+           -- 급여구분
+           INNER JOIN fnd_code fc01
+           ON fc01.company_id  = he.company_id
+           AND fc01.code_field = 'HR_A0002'
+           INNER JOIN fnd_code_detail fcd01
+           ON fcd01.company_id  = he.company_id
+           AND fcd01.code_id = fc01.code_id
+           AND fcd01.value01  = he.employee_type
+           -- 직급
+           INNER JOIN fnd_code fc02
+           ON fc02.company_id  = he.company_id
+           AND fc02.code_field = 'HR_A0003'
+           INNER JOIN fnd_code_detail fcd02
+           ON fcd02.company_id  = he.company_id
+           AND fcd02.code_id = fc02.code_id
+           AND fcd02.defined_cd = he.position_code
+           -- 사업장
+           INNER JOIN fnd_business_est fbe
+           ON fbe.company_id  = he.company_id
+           AND fbe.est_id  = he.est_id
+           INNER JOIN hr_dh_adt_manage hadt
+           ON hadt.company_id  = he.company_id
+           AND hadt.employee_id = he.employee_id
+           AND hadt.attribute1 = he.attribute1
+    WHERE he.company_id  = #{companyId}
+    	<if test="estId !=999">
+		AND	he.est_id = #{estId}
+		</if>
+    AND   he.attribute1  = #{attribute1}
+    ORDER BY he.korean_name, hadt.work_date
+	</select>
+
+    <select id="getCalcSalaryList" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto" resultType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
+        /*SalaryDao.getCalcSalaryList*/
+        SELECT he.employee_number
+        , he.korean_name
+        , hd.department_name
+        , fcd02.defined_name
+        , he.employee_type
+        , hdcs.base_salary
+        , hdcs.attribute01 AS annual_allowance
+        , hdcs.attribute02 AS overtime_allowance01
+        , hdcs.attribute03 AS overtime_allowance02
+        , hdcs.attribute04 AS night_allowance01
+        , hdcs.attribute05 AS night_allowance02
+        , hdcs.attribute06 AS holiday_allowance01
+        , hdcs.attribute07 AS holiday_allowance02
+        , hdcs.attribute08 AS position_allowance
+        , hdcs.attribute09 AS other_allowances
+        , hdcs.attribute10 AS subsidies
+        , hdcs.attribute11 AS transportation_expenses
+        , hdcs.attribute12 AS meals_expenses
+        , IFNULL(hb.bonus_amount,0) AS bonus_amount
+        FROM   hr_dh_calc_salary hdcs
+        INNER JOIN hr_employee he
+        ON hdcs.company_id  = he.company_id
+        AND hdcs.employee_id  = he.employee_id
+        AND hdcs.yyyymm  = he.attribute1
+        INNER JOIN hr_department  hd
+        ON he.company_id = hd.company_id
+        AND he.department_id = hd.department_id
+        AND he.attribute1  = hd.attribute2
+        INNER JOIN fnd_code fc02
+        ON fc02.company_id  = he.company_id
+        AND fc02.code_field = 'HR_A0003'
+        INNER JOIN fnd_code_detail fcd02
+        ON fcd02.company_id  = he.company_id
+        AND fcd02.code_id = fc02.code_id
+        AND fcd02.defined_cd = he.position_code
+        LEFT JOIN hr_bonus hb
+        ON he.company_id = hb.company_id
+        AND he.employee_id = hb.employee_id
+        AND he.attribute1 = hb.yyyymm
+        WHERE  he.company_id = #{companyId}
+        <if test="estId !=999">
+            AND   he.est_id = #{estId}
+        </if>
+        AND   he.attribute1  = #{yyyymm}
+        ORDER BY he.employee_type, he.employee_number
+    </select>
+
+    <delete id ="deleteADTData" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" >
+        delete from hr_dh_adt_manage
+        where  company_id = #{companyId}
+          and  attribute1 = #{yyyymm}
+    </delete>
+
+    <insert id="insetADTData" parameterType="kr.co.seedit.domain.hr.dto.ADTExcelDto">
+        INSERT INTO hr_dh_adt_manage
+        (
+        adt_id
+        , company_id
+        , work_date
+        , work_start_date
+        , work_end_date
+        , work_status
+        , in_status
+        , out_status
+        , late_time
+        , over_time
+        , night_time
+        , holiday_time
+        , real_work_time
+        , total_time
+        , default_time
+        , korean_name
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date
+        , employee_number
+        , employee_id
+        , attribute1
+        )
+        values
+        <foreach item="item" index="index" collection="list" separator=", ">
+        (
+        SEEDIT.nextval('hr_dh_adt_manage')
+        , #{item.companyId}
+        , #{item.workDate}
+        , #{item.workStartDate}
+        , #{item.workEndDate}
+        , #{item.workStatus}
+        , #{item.inStatus}
+        , #{item.outStatus}
+        , #{item.lateTime}
+        , #{item.overTime}
+        , #{item.nightTime}
+        , #{item.holidayTime}
+        , #{item.realWorkTime}
+        , #{item.totalTime}
+        , #{item.defaultTime}
+        , #{item.koreanName}
+        , #{item.loginUserId}
+        , now()
+        , #{item.loginUserId}
+        , now()
+        , #{item.employeeNumber}
+        , (select employee_id from hr_employee where company_id = #{item.companyId} and attribute1 = #{item.yyyymm} and employee_number = #{item.employeeNumber})
+        , #{item.yyyymm}
+        )
+        </foreach>
+    </insert>
+    
+    <update id="upadateOutAdTData" parameterType="kr.co.seedit.domain.hr.dto.ADTExcelDto">
+		/*SalaryDao.upadateOutAdTData*/
+			UPDATE hr_dh_adt_manage
+			SET	
+			<if test="eventType.equals('외출')">
+				out_start_date = #{eventTime}
+			</if>
+			<if test="eventType.equals('복귀')">
+				out_end_date = #{eventTime}
+			</if>
+				,last_updated_by = #{lastUpdatedBy}
+				,last_update_date = now()
+			WHERE	employee_number = #{employeeNumber}
+			AND		work_date = #{workDate}
+	</update>
+
+    <delete id ="deleteDepartment" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" >
+        delete from hr_department
+        where company_id = #{companyId}
+        and   attribute2 = #{yyyymm}
+    </delete>
+
+    <delete id ="deleteEmployee" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" >
+        delete from hr_employee
+        where  company_id = #{companyId}
+          and  attribute1 = #{yyyymm}
+    </delete>
+
+    <insert id="insertDepartment" parameterType="kr.co.seedit.domain.hr.dto.ErpIUDto$DepartmentDto">
+        INSERT INTO hr_department
+        (
+        department_id
+        , company_id
+        , department_name
+        , distal_yn
+        , attribute1
+        , attribute2
+        , est_id
+        , start_date
+        , end_date
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date
+        )
+        values
+        <foreach item="item" index="index" collection="list" separator=", ">
+            (
+            SEEDIT.nextval('hr_department')
+            , #{item.companyId}
+            , #{item.departmentName}
+            , #{item.distalYn}
+            , #{item.departmentCode}
+            , #{item.yyyymm}
+            , (select est_id from fnd_business_est where company_id = #{item.companyId} AND attribute1 = #{item.estId})
+            , NULLIF(TRIM(#{item.startDate}), '')
+            , NULLIF(TRIM(#{item.endDate}), '')
+            , #{item.loginUserId}
+            , now()
+            , #{item.loginUserId}
+            , now()
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertEmployee" parameterType="kr.co.seedit.domain.hr.dto.ErpIUDto$EmployemeeDto">
+        INSERT INTO hr_employee
+        (
+        employee_id
+        , company_id
+        , korean_name
+        , department_id
+        , employee_number
+        , position_code
+        , position_type
+        , hire_date
+        , retire_date
+        , employment_code
+        , employee_type
+        , est_id
+        , attribute1
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date
+        )
+        values
+        <foreach item="item" index="index" collection="list" separator=", ">
+            (
+            SEEDIT.nextval('hr_employee')
+            , #{item.companyId}
+            , #{item.koreanName}
+            , (select department_id from hr_department where attribute1 = #{item.departmentCode} AND attribute2 = #{item.yyyymm})
+            , #{item.employeeNumber}
+            , #{item.positionCode}
+            , #{item.positionType}
+            , NULLIF(TRIM(#{item.hireDate}), '')
+            , NULLIF(TRIM(#{item.retireDate}), '')
+            , #{item.employmentCode}
+            , #{item.employeeType}
+            , (select est_id from fnd_business_est where company_id = 5 AND attribute1 = #{item.estId})
+            , #{item.yyyymm}
+            , #{item.loginUserId}
+            , now()
+            , #{item.loginUserId}
+            , now()
+            )
+        </foreach>
+    </insert>
+
+    <delete id ="deleteSalaryItem" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" >
+        delete from hr_salary_item
+        where company_id = #{companyId}
+          and   yyyymm = #{yyyymm}
+    </delete>
+
+    <delete id ="deleteSalaryBasic" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" >
+        delete from hr_salary_basic
+        where  company_id = #{companyId}
+    </delete>
+
+    <insert id="insertSalaryItem" parameterType="kr.co.seedit.domain.hr.dto.ErpIUDto$SalaryItemDto">
+        INSERT INTO hr_salary_item
+        (
+        item_id
+        , company_id
+        , yyyymm
+        , item_code
+        , item_name
+        , use_yn
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date
+        )
+        values
+        <foreach item="item" index="index" collection="list" separator=", ">
+            (
+            SEEDIT.nextval('hr_salary_item')
+            , #{item.companyId}
+            , #{item.yyyymm}
+            , #{item.itemCode}
+            , #{item.itemName}
+            , #{item.useYn}
+            , #{item.loginUserId}
+            , now()
+            , #{item.loginUserId}
+            , now()
+            )
+        </foreach>
+    </insert>
+    <insert id="insertSalaryBasic" parameterType="kr.co.seedit.domain.hr.dto.ErpIUDto$SalaryBasicDto">
+        INSERT INTO hr_salary_basic
+        (
+        basic_salary_id
+        , company_id
+        , employee_id
+        , start_date
+        , basic_code
+        , basic_name
+        , basic_amount
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date
+        , attribute1
+        )
+        values
+        <foreach item="item" index="index" collection="list" separator=", ">
+            (
+            SEEDIT.nextval('hr_salary_basic')
+            , #{item.companyId}
+            , (select employee_id from hr_employee where company_id = #{item.companyId} and attribute1 = #{item.yyyymm} and employee_number = #{item.attribute1})
+            , #{item.startDate}
+            , #{item.basicCode}
+            , #{item.basicName}
+            , #{item.basicAmount}
+            , #{item.loginUserId}
+            , now()
+            , #{item.loginUserId}
+            , now()
+            , #{item.attribute1}
+            )
+        </foreach>
+    </insert>
+
+    <delete id ="deleteBonus" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" >
+        delete from hr_bonus
+        where  company_id = #{companyId}
+          and  yyyymm = #{yyyymm}
+    </delete>
+
+    <insert id="insertBonus" parameterType="kr.co.seedit.domain.hr.dto.ErpIUDto$BonusDtos">
+        INSERT INTO hr_bonus
+        (
+        bonus_id
+        , company_id
+        , yyyymm
+        , employee_id
+        , bonus_amount
+        , attribute1
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date
+        )
+        values
+        <foreach item="item" index="index" collection="list" separator=", ">
+            (
+            SEEDIT.nextval('hr_bonus')
+            , #{item.companyId}
+            , #{item.yyyymm}
+            , (select employee_id from hr_employee where company_id = #{item.companyId} and attribute1 = #{item.yyyymm} and employee_number = #{item.attribute1})
+            , #{item.bonusAmount}
+            , #{item.attribute1}
+            , #{item.loginUserId}
+            , now()
+            , #{item.loginUserId}
+            , now()
+            )
+        </foreach>
+    </insert>
+    <select id="selectBasicSalary" parameterType="kr.co.seedit.global.common.dto.RequestDto" resultType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
+        SELECT he.employee_id
+             , he.employee_number
+             , he.korean_name
+             , fbe.est_name
+             , hd.department_name
+             , fcd02.defined_cd                                              as position_code
+             , fcd03.defined_cd                                              as position_type
+             , hsb.basic_salary                                                                         -- 기본급
+             , hsb.hourly_pay                                                                           -- 시급
+             , 0                                                             AS annual_allowance        -- 연차수당
+             , 0                                                             AS overtime_allowance01    -- 연장수당1
+             , hsb.overtime_allowance                                        AS overtime_allowance02    -- 연장수당2
+             , 0                                                             AS night_allowance01       -- 야간수당1
+             , night_allowance                                               AS night_allowance02       -- 야간수당2
+             , 0                                                             AS holiday_allowance01     -- 휴일수당1
+             , holiday_allowance                                             AS holiday_allowance02     -- 휴일수당2
+             , 0                                                             AS position_allowance      -- 직책수당
+             , 0                                                             AS other_allowances        -- 기타수당
+             , 0                                                             AS subsidies               -- 보조금
+             , 0                                                             AS transportation_expenses -- 교통비
+             , IFNULL(hb.bonus_amount, 0)                                    AS bonus_amount            -- 상여금
+             , #{yyyymm}                                                     as yyyymm
+             , #{companyId}                                                  as company_id
+             , #{loginUserId}                                                AS loginUserId
+             , he.employee_type
+             , he.hire_date
+             , IF(he.retire_date = '00000000', '9999-12-31', he.retire_date) as retire_date
+        FROM hr_employee he
+                 INNER JOIN hr_department hd
+                            ON he.company_id = hd.company_id
+                                AND he.department_id = hd.department_id
+                                AND he.attribute1 = hd.attribute2
+                 INNER JOIN fnd_business_est fbe
+                            ON fbe.company_id = hd.company_id
+                                AND fbe.est_id = hd.est_id
+            -- 직급
+                 INNER JOIN fnd_code fc02
+                            ON fc02.company_id = he.company_id
+                                AND fc02.code_field = 'HR_A0003'
+                 INNER JOIN fnd_code_detail fcd02
+                            ON fcd02.company_id = fc02.company_id
+                                AND fcd02.code_id = fc02.code_id
+                                AND fcd02.defined_cd = he.position_code
+            -- 직책
+                 INNER JOIN fnd_code fc03
+                            ON fc03.company_id = he.company_id
+                                AND fc03.code_field = 'HR_A0005'
+                 INNER JOIN fnd_code_detail fcd03
+                            ON fcd03.company_id = fc03.company_id
+                                AND fcd03.code_id = fc03.code_id
+                                AND fcd03.defined_cd = he.position_type
+                 INNER JOIN (SELECT employee_id
+                                  , company_id
+                                  , GROUP_CONCAT(case basic_code WHEN 100 THEN basic_amount end) AS basic_salary
+                                  , GROUP_CONCAT(case basic_code WHEN 101 THEN basic_amount end) AS hourly_pay
+                                  , GROUP_CONCAT(case basic_code WHEN 102 THEN basic_amount end) AS overtime_allowance
+                                  , GROUP_CONCAT(case basic_code WHEN 103 THEN basic_amount end) AS night_allowance
+                                  , GROUP_CONCAT(case basic_code WHEN 104 THEN basic_amount end) AS holiday_allowance
+                                  , GROUP_CONCAT(case basic_code WHEN 105 THEN basic_amount end) AS prepayment
+                             FROM hr_salary_basic
+                             GROUP BY employee_id, company_id) hsb
+                            ON he.company_id = hsb.company_id
+                                AND he.employee_id = hsb.employee_id
+                 INNER JOIN (SELECT company_id
+                                  , employee_id
+                                  , attribute1
+                             FROM hr_dh_adt_manage
+                             WHERE attribute1 = #{yyyymm}
+                             GROUP BY company_id
+                                    , employee_id
+                                    , attribute1) hdam
+                            ON he.company_id = hdam.company_id
+                                AND he.employee_id = hdam.employee_id
+                                AND he.attribute1 = hdam.attribute1
+                 LEFT JOIN hr_bonus hb
+                           ON he.company_id = hb.company_id
+                               AND he.employee_id = hb.employee_id
+                               AND he.attribute1 = hb.yyyymm
+        WHERE he.company_id = #{companyId}
+          AND he.attribute1 = #{yyyymm}
+          AND   he.employee_type  = '100'
+--           AND he.employee_number in (
+--             "D07706"
+--             )
+        UNION ALL
+        SELECT he.employee_id
+             , he.employee_number
+             , he.korean_name
+             , fbe.est_name
+             , hd.department_name
+             , fcd02.defined_name
+             , fcd03.defined_name
+             , hsb.basic_salary                                                                         -- 기본급
+             , hsb.hourly_pay                                                                           -- 시급
+             , 0                                                             AS annual_allowance        -- 연차수당
+             , 0                                                             AS overtime_allowance01    -- 연장수당1
+             , hsb.overtime_allowance                                        AS overtime_allowance02    -- 연장수당2
+             , 0                                                             AS night_allowance01       -- 야간수당1
+             , night_allowance                                               AS night_allowance02       -- 야간수당2
+             , 0                                                             AS holiday_allowance01     -- 휴일수당1
+             , holiday_allowance                                             AS holiday_allowance02     -- 휴일수당2
+             , 0                                                             AS position_allowance      -- 직책수당
+             , 0                                                             AS other_allowances        -- 기타수당
+             , 0                                                             AS subsidies               -- 보조금
+             , 0                                                             AS transportation_expenses -- 교통비
+             , IFNULL(hb.bonus_amount, 0)                                    AS bonus_amount            -- 상여금
+             , #{yyyymm}                                                     as yyyymm
+             , #{companyId}                                                  as company_id
+             , #{loginUserId}                                                AS loginUserId
+             , he.employee_type
+             , he.hire_date
+             , IF(he.retire_date = '00000000', '9999-12-31', he.retire_date) as retire_date
+        FROM hr_employee he
+                 INNER JOIN hr_department hd
+                            ON he.company_id = hd.company_id
+                                AND he.department_id = hd.department_id
+                                AND he.attribute1 = hd.attribute2
+                 INNER JOIN fnd_business_est fbe
+                            ON fbe.company_id = hd.company_id
+                                AND fbe.est_id = hd.est_id
+            -- 직급
+                 INNER JOIN fnd_code fc02
+                            ON fc02.company_id = he.company_id
+                                AND fc02.code_field = 'HR_A0003'
+                 INNER JOIN fnd_code_detail fcd02
+                            ON fcd02.company_id = he.company_id
+                                AND fcd02.code_id = fc02.code_id
+                                AND fcd02.defined_cd = he.position_code
+            -- 직책
+                 INNER JOIN fnd_code fc03
+                            ON fc03.company_id = he.company_id
+                                AND fc03.code_field = 'HR_A0005'
+                 INNER JOIN fnd_code_detail fcd03
+                            ON fcd03.company_id = fc03.company_id
+                                AND fcd03.code_id = fc03.code_id
+                                AND fcd03.defined_cd = he.position_type
+                 INNER JOIN (SELECT employee_id
+                                  , company_id
+                                  , GROUP_CONCAT(case basic_code WHEN 100 THEN basic_amount end) AS basic_salary
+                                  , GROUP_CONCAT(case basic_code WHEN 101 THEN basic_amount end) AS hourly_pay
+                                  , GROUP_CONCAT(case basic_code WHEN 102 THEN basic_amount end) AS overtime_allowance
+                                  , GROUP_CONCAT(case basic_code WHEN 103 THEN basic_amount end) AS night_allowance
+                                  , GROUP_CONCAT(case basic_code WHEN 104 THEN basic_amount end) AS holiday_allowance
+                                  , GROUP_CONCAT(case basic_code WHEN 105 THEN basic_amount end) AS prepayment
+                             FROM hr_salary_basic
+                             GROUP BY employee_id, company_id) hsb
+                            ON he.company_id = hsb.company_id
+                                AND he.employee_id = hsb.employee_id
+                 LEFT JOIN hr_bonus hb
+                           ON he.company_id = hb.company_id
+                               AND he.employee_id = hb.employee_id
+                               AND he.attribute1 = hb.yyyymm
+        WHERE he.company_id = #{companyId}
+          AND he.attribute1 = #{yyyymm}
+          AND fcd03.defined_cd IN ('100', '910')
+    </select>
+
+    <insert id="insertCalcSalary" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
+        INSERT INTO hr_dh_calc_salary
+        (
+        salary_id
+        , company_id
+        , employee_id
+        , yyyymm
+        , base_salary
+        , attribute01
+        , attribute02
+        , attribute03
+        , attribute04
+        , attribute05
+        , attribute06
+        , attribute07
+        , attribute08
+        , attribute09
+        , attribute10
+        , attribute11
+        , attribute12
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date
+        )
+        values
+        <foreach item="item" index="index" collection="list" separator=", ">
+            (
+            SEEDIT.nextval('hr_dh_calc_salary')
+            , #{item.companyId}
+            , #{item.employeeId}
+            , #{item.yyyymm}
+            , #{item.basicSalary}
+            , #{item.annualAllowance}
+            , #{item.overtimeAllowance01}
+            , #{item.overtimeAllowance02}
+            , #{item.nightAllowance01}
+            , #{item.nightAllowance02}
+            , #{item.holidayAllowance01}
+            , #{item.holidayAllowance02}
+            , #{item.positionAllowance}
+            , #{item.otherAllowance}
+            , #{item.subsidies}
+            , #{item.transportationExpenses}
+            , #{item.bonusAmount}
+            , #{item.loginUserId}
+            , now()
+            , #{item.loginUserId}
+            , now()
+            )
+        </foreach>
+    </insert>
+
+    <delete id ="deleteCalcSalary" parameterType ="kr.co.seedit.global.common.dto.RequestDto" >
+        delete from hr_dh_calc_salary
+        where  company_id = #{companyId}
+          and  yyyymm = #{yyyymm}
+    </delete>
+
+    <select id="selectADTData" parameterType="map" resultType="kr.co.seedit.domain.hr.dto.ADTDataDto">
+        SELECT he.employee_id
+             , hadt.work_date -- 근태기준일
+             , hadt.work_status -- 근무형태
+             , hadt.work_start_date -- 출근일시
+             , hadt.work_end_date -- 퇴근일시
+             , hadt.in_status -- 출근판정
+             , hadt.out_status -- 퇴근판정
+             , TIME_FORMAT(TIMEDIFF(hadt.out_start_date, hadt.out_end_date ), '%H:%i')  AS out_time
+             , hadt.late_time -- 지각
+             , hadt.over_time -- 연장근무기간
+             , hadt.night_time -- 야간근무시간
+             , hadt.holiday_time -- 휴일
+             , hadt.real_work_time -- 실제근무시간
+             , hadt.default_time  -- 정상근무시간
+             , he.employee_type
+        FROM   hr_employee he
+                   INNER JOIN hr_dh_adt_manage hadt
+                              ON hadt.company_id  = he.company_id
+                                  AND hadt.employee_id = he.employee_id
+                                  AND hadt.attribute1 = he.attribute1
+        WHERE he.company_id  = #{companyId}
+          AND he.attribute1  = #{yyyymm}
+          AND he.employee_id = #{employeeID}
+    </select>
+
+    <select id="selectCodeValues" parameterType="kr.co.seedit.global.common.dto.RequestDto" resultType="kr.co.seedit.domain.hr.dto.SalaryCodeValuesDto">
+        SELECT fc.code_field
+             , fcd.value01
+             , fcd.value02
+        FROM   fnd_code fc
+                   INNER JOIN fnd_code_detail fcd
+                              ON fc.company_id = fcd.company_id
+                                  AND fc.code_id = fcd.code_id
+        WHERE fc.company_id = #{companyId}
+          AND   fc.code_field LIKE 'HR_Z%'
+        GROUP BY fc.code_field, fcd.value01
+    </select>
+
+    <delete id ="deleteCalendar" parameterType ="kr.co.seedit.global.common.dto.RequestDto" >
+        delete from fnd_calendar
+        where  company_id = #{companyId}
+          AND  LEFT(yyyymmdd,4) = LEFT(#{yyyymm},4)
+    </delete>
+
+    <insert id="insertCalendar" parameterType="kr.co.seedit.domain.hr.dto.ErpIUDto$CalendarDto">
+        INSERT INTO fnd_calendar
+        (
+        calendar_id
+        , company_id
+        , yyyymmdd
+        , date_type
+        , date_week
+        , description
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date
+        )
+        values
+        <foreach item="item" index="index" collection="list" separator=", ">
+            (
+            SEEDIT.nextval('fnd_calendar')
+            , #{item.companyId}
+            , #{item.yyyymmdd}
+            , #{item.dateType}
+            , #{item.dateWeek}
+            , #{item.description}
+            , #{item.loginUserId}
+            , now()
+            , #{item.loginUserId}
+            , now()
+            )
+        </foreach>
+    </insert>
+</mapper>
