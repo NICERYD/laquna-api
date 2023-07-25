@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -302,9 +303,10 @@ public class SalaryService {
 
         List<BasicSalaryDto> basicSalaryDtos = salaryDao.selectBasicSalary(requestDto);
         for (BasicSalaryDto basicSalaryDto : basicSalaryDtos) {
-            // 기본급, 시급
+            // 기본급, 시급, 연차수당
             BigDecimal basicAmount = BigDecimal.ZERO;
             BigDecimal hourlyPay = BigDecimal.ZERO;
+            BigDecimal annualAllowance = BigDecimal.ZERO;
             // 수당1 저장 변수
             BigDecimal overtimeAmount01 = BigDecimal.ZERO;
             BigDecimal nightAmount01 = BigDecimal.ZERO;
@@ -401,14 +403,17 @@ public class SalaryService {
                             holidayAmount01 = holidayAmount01.add(holidayBaseAmount);
                         }
                     }
-                    // 무급처리
-                    // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
+                    // 무급처리 count
                     if (adtDataDto.getWorkStatus().equals("무급")) {
                         nonPaycnt++;
                     }
-
-
                 }
+                // 무급처리
+                // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
+                if (!(nonPaycnt == 0)) {
+                    annualAllowance = calcNonPay(nonPaycnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
+                }
+
             } else if (basicSalaryDto.getEmployeeType().equals("200") && !(basicSalaryDto.getHourlyPay() == null)) {
                 Integer paidHoliday = 0;
                 Integer nightCnt = 0;
@@ -488,6 +493,9 @@ public class SalaryService {
                 basicSalaryDto.setNightAllowance02(nightAmount02.toString());
             if (!holidayAmount02.equals(BigDecimal.ZERO))
                 basicSalaryDto.setHolidayAllowance02(holidayAmount02.toString());
+            if (!annualAllowance.equals(BigDecimal.ZERO))
+                basicSalaryDto.setAnnualAllowance(annualAllowance.toString());
+
             resultData.add(basicSalaryDto);
         }
         salaryDao.deleteCalcSalary(requestDto);
@@ -500,21 +508,33 @@ public class SalaryService {
         LocalDateTime endTimeWithLunch = workStartTime.with(lunchEndTime);
 
         boolean isLunchTimeIncluded = false;
-//        10:30   16:30
-//        12:30   13:30
-//        10:30 12:30 16:30
-//        10:30 13:30 16:30
-
         if ((startTimeWithLunch.isAfter(workStartTime) || startTimeWithLunch.equals(workStartTime))
                 && (startTimeWithLunch.isBefore(workEndTime) || startTimeWithLunch.equals(workEndTime))
                 && (endTimeWithLunch.isAfter(workStartTime) || endTimeWithLunch.equals(workStartTime))
                 && (endTimeWithLunch.isBefore(workEndTime) || endTimeWithLunch.equals(workEndTime))) {
             isLunchTimeIncluded = true;
         }
-//        boolean isLunchTimeIncluded = !workStartTime.isBefore(startTimeWithLunch) && !workStartTime.isAfter(endTimeWithLunch);
-//        boolean isLunchTimeIncluded02 = !workEndTime.isBefore(startTimeWithLunch) && !workEndTime.isAfter(endTimeWithLunch);
-
         return isLunchTimeIncluded;
+    }
 
+    public static BigDecimal calcNonPay(Integer nonPaycnt, String basicSalary, String overtimeAllowance02, String nightAllowance02, String holidayAllowance02) {
+        BigDecimal nonPayBasicSalary = BigDecimal.ZERO;
+        BigDecimal nonPayOvertimeAllowance02 = BigDecimal.ZERO;
+        BigDecimal nonPayNightAllowance02 = BigDecimal.ZERO;
+        BigDecimal nonPayHolidayAllowance02 = BigDecimal.ZERO;
+        if ( basicSalary != null ) {
+            nonPayBasicSalary = new BigDecimal(basicSalary).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, RoundingMode.HALF_UP)).setScale(0, RoundingMode.HALF_UP);
+        }
+        if ( overtimeAllowance02 != null ) {
+            nonPayOvertimeAllowance02 = new BigDecimal(overtimeAllowance02).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, BigDecimal.ROUND_HALF_UP)).setScale(0, RoundingMode.HALF_UP);
+        }
+        if ( nightAllowance02 != null ) {
+            nonPayNightAllowance02 = new BigDecimal(nightAllowance02).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, BigDecimal.ROUND_HALF_UP)).setScale(0, RoundingMode.HALF_UP);
+        }
+        if ( holidayAllowance02 != null ) {
+            nonPayHolidayAllowance02 = new BigDecimal(holidayAllowance02).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, BigDecimal.ROUND_HALF_UP)).setScale(0, RoundingMode.HALF_UP);
+        }
+
+        return (nonPayBasicSalary.add(nonPayOvertimeAllowance02).add(nonPayNightAllowance02).add(nonPayHolidayAllowance02)).multiply(BigDecimal.valueOf(-1));
     }
 }
