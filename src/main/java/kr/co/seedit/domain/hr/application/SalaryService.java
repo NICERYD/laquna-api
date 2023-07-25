@@ -329,17 +329,18 @@ public class SalaryService {
             // 해당 월(YYYYMM) 기준 중도 입사/퇴사 날짜계산
             long diff;
             // 중도 입사/퇴사 체크
-            if (basicSalaryDto.getHireDate().startsWith(requestDto.getYyyymm())) {
+            if (basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
                 diff = ChronoUnit.DAYS.between(hireDate, yearMonth.atEndOfMonth());
                 midStatus = "001";
-            } else if (basicSalaryDto.getRetireDate().startsWith(requestDto.getYyyymm())) {
+            } else if (basicSalaryDto.getRetireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
                 diff = ChronoUnit.DAYS.between(yearMonth.atDay(1), retireDate);
                 midStatus = "002";
             } else {
                 diff = 0;
             }
-
-            if (basicSalaryDto.getEmployeeType().equals("100")) {
+            // 중도 입사/퇴사
+            // 각 항목 금액(기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 근무일 로 각 항목 금액으로 표기
+            if (basicSalaryDto.getEmployeeType().equals("100") && !midStatus.equals("000")) {
                 basicAmount = new BigDecimal(basicSalaryDto.getBasicSalary()).multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 2, BigDecimal.ROUND_UP)).setScale(0, BigDecimal.ROUND_UP);
                 overtimeAmount02 = Optional.ofNullable(basicSalaryDto.getOvertimeAllowance02())
                         .map(amount -> new BigDecimal(amount)
@@ -422,9 +423,15 @@ public class SalaryService {
                     annualAllowance = calcNonPay(nonPaycnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
                 }
             } else if (basicSalaryDto.getEmployeeType().equals("200") && !(basicSalaryDto.getHourlyPay() == null)) {
-                Integer paidHoliday = 0;
+
                 Integer nightCnt = 0;
                 hourlyPay = new BigDecimal(basicSalaryDto.getHourlyPay());
+                // 유급휴가 count 변수
+                Integer paidHolidayindex = 0;
+                Integer paidHoliday = 0;
+                // 평일 실근무일수
+                Integer workcnt = 0;
+
                 // 연차수당
                 // 연차사용여부를 알 수 없어 불가
                 //
@@ -457,14 +464,32 @@ public class SalaryService {
                     // 야간조 계산식 확인 필요
                     nightAmount01 = nightAmount01.add(new BigDecimal(nightCnt).multiply(hourlyPay.multiply(new BigDecimal("6.5")).multiply(new BigDecimal("0.5"))));
 
-
+                    // 유급휴일 count
+                    if (adtDataDto.getDateType().equals("1")) {
+                        paidHolidayindex++;
+                        workcnt++;
+                    } else {
+                        paidHolidayindex = 0;
+                    }
+                    if (paidHolidayindex == 5) {
+                        paidHoliday++;
+                        paidHolidayindex = 0;
+                    }
+                    // 마지막근무일이면서 마지막주이면서 금요일이 아니면 다음달에 연속하여 유급휴일 count
+                    if ((adtDataDto == adtDataDtos.get(adtDataDtos.size() - 1)) && salaryDao.selectLastWeek(adtDataDto.getWorkDate())
+                            && !adtDataDto.getDateWeek().equals("5")) {
+                        System.out.println(basicSalaryDto.getEmployeeId() + " " + paidHoliday + " " + "insert into");
+                        salaryDao.insertNonPayDay(paidHolidayindex, requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
+                    }
                 }
-                System.out.println(basicSalaryDto.getEmployeeId() + " " + overtimeAmount01);
+
                 // 기본급 퇴직여부
-                // Y : 계약서 상의 시급 × 209H
-                // N : 일할 계산 시 "(실근무일+유급휴일)×8H" 로 계산
+                // Y "000": 계약서 상의 시급 × 209H
+                // N "001", "002": 일할 계산 시 "(실근무일+유급휴일)×8H" 로 계산
                 if (midStatus.equals("000")) {
                     basicAmount = basicAmount.add(hourlyPay.multiply(new BigDecimal("209")));
+                } else {
+                    basicAmount = hourlyPay.multiply(BigDecimal.valueOf((workcnt + paidHoliday) * 8));
                 }
             }
 
@@ -512,16 +537,16 @@ public class SalaryService {
         BigDecimal nonPayOvertimeAllowance02 = BigDecimal.ZERO;
         BigDecimal nonPayNightAllowance02 = BigDecimal.ZERO;
         BigDecimal nonPayHolidayAllowance02 = BigDecimal.ZERO;
-        if ( basicSalary != null ) {
+        if (basicSalary != null) {
             nonPayBasicSalary = new BigDecimal(basicSalary).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, RoundingMode.HALF_UP)).setScale(0, RoundingMode.HALF_UP);
         }
-        if ( overtimeAllowance02 != null ) {
+        if (overtimeAllowance02 != null) {
             nonPayOvertimeAllowance02 = new BigDecimal(overtimeAllowance02).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, BigDecimal.ROUND_HALF_UP)).setScale(0, RoundingMode.HALF_UP);
         }
-        if ( nightAllowance02 != null ) {
+        if (nightAllowance02 != null) {
             nonPayNightAllowance02 = new BigDecimal(nightAllowance02).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, BigDecimal.ROUND_HALF_UP)).setScale(0, RoundingMode.HALF_UP);
         }
-        if ( holidayAllowance02 != null ) {
+        if (holidayAllowance02 != null) {
             nonPayHolidayAllowance02 = new BigDecimal(holidayAllowance02).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, BigDecimal.ROUND_HALF_UP)).setScale(0, RoundingMode.HALF_UP);
         }
 

@@ -510,7 +510,7 @@
                                AND he.attribute1 = hb.yyyymm
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
-          AND   he.employee_type  = '200'
+--           AND   he.employee_type  = '200'
 --           AND he.employee_number in (
 --             "D22740"
 --             )
@@ -726,5 +726,36 @@
             , now()
             )
         </foreach>
+    </insert>
+
+    <select id="selectLastWeek" parameterType="String" resultType="boolean">
+        SELECT WEEK(#{yyyymmdd}) = WEEK(DATE_ADD(LAST_DAY(#{yyyymmdd}), INTERVAL 1 DAY)) AS is_last_week;
+    </select>
+
+    <insert id="insertNonPayDay">
+        INSERT INTO hr_dh_paidLeave
+        (
+        paidLeave_id
+        , company_id
+        , employee_id
+        , yyyymm
+        , paidLeave_cnt
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date
+        )
+        values
+            (
+            SEEDIT.nextval('hr_dh_paidLeave')
+            , #{companyId}
+            , #{eployeeId}
+            , #{yyyymm}
+            , #{paidHolidayindex}
+            , 5
+            , now()
+            , 5
+            , now()
+            )
     </insert>
 </mapper>

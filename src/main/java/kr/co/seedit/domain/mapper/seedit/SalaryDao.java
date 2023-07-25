@@ -53,7 +53,8 @@ public interface SalaryDao {
 
     void deleteCalendar(ErpIUDto.RequestDto erpIUDto);
     void insertCalendar(List<ErpIUDto.CalendarDto> calendarDtos);
+    boolean selectLastWeek(String yyyymmdd);
 
-    List<WorkDayDto> selectWorkDay(Integer companyId, String yyyymm, String midStatus, LocalDate hireDate, LocalDate retireDate);
+    void insertNonPayDay(Integer paidHolidayindex, Integer companyId, String yyyymm, Integer eployeeId);
 
 }
