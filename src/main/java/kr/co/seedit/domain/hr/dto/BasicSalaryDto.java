@@ -40,5 +40,6 @@ public class BasicSalaryDto {
     private String hireDate;
     private String retireDate;
     private String definedName;
+    private String salarySum;
 
 }
