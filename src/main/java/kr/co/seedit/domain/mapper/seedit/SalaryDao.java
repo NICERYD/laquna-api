@@ -56,6 +56,8 @@ public interface SalaryDao {
     boolean selectLastWeek(String yyyymmdd);
 
     void insertNonPayDay(Integer paidHolidayindex, Integer companyId, String yyyymm, Integer eployeeId);
+    
+    List<SalaryExcelDto> findSalaryExcel(BasicSalaryDto basicSalaryDto);
 
     Integer selectpaidHolidayindex(Integer companyId, String yyyymm, String employeeNumber);
 

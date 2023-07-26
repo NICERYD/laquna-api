@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 @RestController
@@ -81,6 +83,15 @@ public class SalaryApi {
     @PostMapping("/hr/calcSalary")
     public ResponseEntity<ResponseDto> calcSalary(@RequestBody RequestDto requestDto, HttpServletRequest request ) throws IOException, InvalidFormatException {
         ResponseDto responseDto = salaryService.calcSalary(requestDto);
+        return new ResponseEntity<>(responseDto
+                .builder()
+                .code("200").build(), HttpStatus.OK);
+    }
+    
+    @PostMapping("/hr/downloadSalaryExcel")
+    public ResponseEntity<ResponseDto> downloadSalaryExcel(@RequestBody BasicSalaryDto basicSalaryDto, HttpServletResponse response) throws Exception {
+        ResponseDto responseDto = salaryService.downloadSalaryExcel(basicSalaryDto, response);
+        
         return new ResponseEntity<>(responseDto
                 .builder()
                 .code("200").build(), HttpStatus.OK);
