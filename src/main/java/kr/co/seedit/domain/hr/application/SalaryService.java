@@ -649,8 +649,8 @@ public class SalaryService {
         }
         
         try {
-        	File xlsFile = new File("C:/Users/admin/Downloads/"+ basicSalaryDto.getYyyymm()+"SalaryUpload" + ".xlsx");
-        	FileOutputStream fileOut = new FileOutputStream(xlsFile);
+        	File xlsxFile = new File("C:/Users/admin/Downloads/"+ basicSalaryDto.getYyyymm()+"SalaryUpload" + ".xlsx");
+        	FileOutputStream fileOut = new FileOutputStream(xlsxFile);
         	workbook.write(fileOut);
         	workbook.close();
 		}catch (Exception e) {
