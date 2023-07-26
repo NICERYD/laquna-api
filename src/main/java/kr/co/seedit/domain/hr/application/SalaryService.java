@@ -436,11 +436,14 @@ public class SalaryService {
                 // 평일 실근무일수
                 Integer workcnt = 0;
 
-                // 유급휴가 지난달 index값 있으면 해당값으로 초기화( 추후 개발)
-//                paidHolidayindex = salaryDao.selectpaidHolidayindex();
+                // 유급휴가 지난달 index값 있으면 해당값으로 초기화
 
                 List<ADTDataDto> adtDataDtos = salaryDao.selectADTData(requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
                 for (ADTDataDto adtDataDto : adtDataDtos) {
+                    // 유급휴가 지난달 index값 있으면 해당값으로 초기화
+                    Integer paidLeaveCnt = salaryDao.selectpaidHolidayindex(info.getCompanyId(), String.valueOf(Integer.parseInt(requestDto.getYyyymm())-1), adtDataDto.getEmployeeNumber());
+                    paidHolidayindex = Optional.ofNullable(paidLeaveCnt).orElse(0);
+
                     // 연차수당
 
                     // 연장수당1

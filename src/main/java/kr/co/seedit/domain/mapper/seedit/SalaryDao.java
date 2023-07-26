@@ -57,4 +57,6 @@ public interface SalaryDao {
 
     void insertNonPayDay(Integer paidHolidayindex, Integer companyId, String yyyymm, Integer eployeeId);
 
+    Integer selectpaidHolidayindex(Integer companyId, String yyyymm, String employeeNumber);
+
 }

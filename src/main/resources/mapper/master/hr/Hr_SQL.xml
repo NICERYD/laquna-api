@@ -672,6 +672,7 @@
              , fc.date_type
              , fc.date_week
              , fc.description
+             , he.employee_number
         FROM   hr_employee he
                    INNER JOIN hr_dh_adt_manage hadt
                               ON hadt.company_id  = he.company_id
@@ -765,4 +766,13 @@
             , now()
             )
     </insert>
+
+    <select id="selectpaidHolidayindex" resultType="Integer">
+        SELECT paidLeave_cnt
+          FROM hr_dh_paidLeave
+         WHERE company_id = #{companyId}
+           AND yyyymm = #{yyyymm}
+           AND employee_id = (select employee_id from hr_employee where company_id = #{companyId} and attribute2 = #{yyyymm} and employee_number = #{employeeNumber})
+    </select>
+
 </mapper>

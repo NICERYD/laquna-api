@@ -28,4 +28,5 @@ public class ADTDataDto {
     private String dateType;
     private String dateWeek;
     private String description;
+    private String employeeNumber;
 }
