@@ -467,8 +467,8 @@ public class SalaryService {
                     }
                     // 휴일수당1
                     if (!adtDataDto.getHolidayTime().equals("00:00")) {
-                        LocalTime nightTime = LocalTime.parse(adtDataDto.getNightTime().toString(), DateTimeFormatter.ofPattern("HH:mm"));
-                        holidayAmount01 = holidayAmount01.add(new BigDecimal(nightTime.getHour()).multiply(hourlyPay).multiply(new BigDecimal("1.5")));
+                        LocalTime holidayTime = LocalTime.parse(adtDataDto.getHolidayTime().toString(), DateTimeFormatter.ofPattern("HH:mm"));
+                        holidayAmount01 = holidayAmount01.add(new BigDecimal(holidayTime.getHour()).multiply(hourlyPay).multiply(new BigDecimal("1.5")));
                     }
                     // 기타수당
                     //
