@@ -59,6 +59,6 @@ public interface SalaryDao {
     
     List<SalaryExcelDto> findSalaryExcel(BasicSalaryDto basicSalaryDto);
 
-    Integer selectpaidHolidayindex(Integer companyId, String yyyymm, String employeeNumber);
+    Integer selectpaidHolidayindex(@Param("companyId") Integer companyId,@Param("yyyymm") String yyyymm,@Param("employeeNumber")  String employeeNumber);
 
 }
