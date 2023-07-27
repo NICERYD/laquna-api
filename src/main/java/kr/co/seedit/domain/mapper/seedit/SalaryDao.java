@@ -53,9 +53,9 @@ public interface SalaryDao {
 
     void deleteCalendar(ErpIUDto.RequestDto erpIUDto);
     void insertCalendar(List<ErpIUDto.CalendarDto> calendarDtos);
-    boolean selectLastWeek(String yyyymmdd);
+    boolean selectLastWeek(@Param("yyyymmdd") String yyyymmdd);
 
-    void insertNonPayDay(Integer paidHolidayindex, Integer companyId, String yyyymm, Integer eployeeId);
+    void insertNonPayDay(@Param("paidHolidayindex") Integer paidHolidayindex,@Param("companyId") Integer companyId,@Param("yyyymm") String yyyymm,@Param("eployeeId") Integer eployeeId);
     
     List<SalaryExcelDto> findSalaryExcel(BasicSalaryDto basicSalaryDto);
 
