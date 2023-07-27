@@ -231,8 +231,6 @@ public class SalaryService {
                     salaryDao.upadateOutAdTData(item);
                 }
             }
-
-
         } catch (Exception e) {
             logger.error("Exception", e);
             throw e;

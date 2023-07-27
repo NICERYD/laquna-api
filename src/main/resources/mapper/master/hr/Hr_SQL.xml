@@ -536,7 +536,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             "D16018"
+--             "D20011"
 --             )
         UNION ALL
         SELECT he.employee_id
@@ -727,7 +727,7 @@
                                   AND fc.code_id = fcd.code_id
         WHERE fc.company_id = #{companyId}
           AND   fc.code_field LIKE 'HR_Z%'
-        GROUP BY fc.code_field, fcd.value01
+        GROUP BY fc.code_field, fcd.value01, fcd.value02
     </select>
 
     <delete id ="deleteCalendar" parameterType ="kr.co.seedit.global.common.dto.RequestDto" >
