@@ -475,14 +475,22 @@ public class SalaryService {
                     if (adtDataDto.getWorkStatus().equals("연차")) {
                         annualLeave++;
                     }
-                    if (adtDataDto.getWorkStatus().contains("오전반차") && !workStartTime.isBefore(workStartTime.with(LocalTime.of(8, 30)))) {
-                        Duration duration = Duration.between(workStartTime.with(LocalTime.of(8, 30)), workStartTime);
-                        halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 1 : 0.5);
+                    if (adtDataDto.getWorkStatus().contains("오전반차")) {
+                        if (!workStartTime.isBefore(workEndTime.with(LocalTime.of(8, 30)))) {
+                            halfDayLeaveTime = halfDayLeaveTime + 4.0;
+                        } else {
+                            Duration duration = Duration.between(workStartTime.with(LocalTime.of(8, 30)), workStartTime);
+                            halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 1 : 0.5);
+                        }
                         halfDayLeave++;
                     }
-                    if (adtDataDto.getWorkStatus().contains("오후반차") && !workEndTime.isAfter(workEndTime.with(LocalTime.of(13, 00)))) {
-                        Duration duration = Duration.between(workEndTime.with(LocalTime.of(13, 00)), workEndTime);
-                        halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 1 : 0.5);
+                    if (adtDataDto.getWorkStatus().contains("오후반차")) {
+                        if (!workEndTime.isAfter(workEndTime.with(LocalTime.of(13, 00)))) {
+                            halfDayLeaveTime = halfDayLeaveTime + 4.0;
+                        } else {
+                            Duration duration = Duration.between(workEndTime, workEndTime.with(LocalTime.of(17, 30)));
+                            halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 1 : 0.5);
+                        }
                         halfDayLeave++;
                     }
 
@@ -562,7 +570,7 @@ public class SalaryService {
                 if (!(halfDayLeave == 0)) {
                     annualAllowance = annualAllowance.subtract(hourlyPay.multiply(BigDecimal.valueOf(halfDayLeaveTime))).setScale(0, RoundingMode.CEILING);
                 }
-                if (!basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
+                if (basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
                     annualAllowance = BigDecimal.ZERO;
                 }
 
@@ -621,7 +629,8 @@ public class SalaryService {
         return responseDto;
     }
 
-    public static boolean checkLunchTime(LocalDateTime workStartTime, LocalDateTime workEndTime, LocalTime lunchStartTime, LocalTime lunchEndTime) {
+    public static boolean checkLunchTime(LocalDateTime workStartTime, LocalDateTime workEndTime, LocalTime
+            lunchStartTime, LocalTime lunchEndTime) {
         LocalDateTime startTimeWithLunch = workStartTime.with(lunchStartTime);
         LocalDateTime endTimeWithLunch = workStartTime.with(lunchEndTime);
 
@@ -635,7 +644,8 @@ public class SalaryService {
         return isLunchTimeIncluded;
     }
 
-    public static BigDecimal calcNonPay(Integer nonPaycnt, String basicSalary, String overtimeAllowance02, String nightAllowance02, String holidayAllowance02) {
+    public static BigDecimal calcNonPay(Integer nonPaycnt, String basicSalary, String overtimeAllowance02, String
+            nightAllowance02, String holidayAllowance02) {
         BigDecimal nonPayBasicSalary = BigDecimal.ZERO;
         BigDecimal nonPayOvertimeAllowance02 = BigDecimal.ZERO;
         BigDecimal nonPayNightAllowance02 = BigDecimal.ZERO;
@@ -657,15 +667,16 @@ public class SalaryService {
     }
 
     @Transactional
-    public ResponseDto downloadSalaryExcel(BasicSalaryDto basicSalaryDto, HttpServletResponse response) throws Exception {
-    	ResponseDto responseDto = ResponseDto.builder().build();
+    public ResponseDto downloadSalaryExcel(BasicSalaryDto basicSalaryDto, HttpServletResponse response) throws
+            Exception {
+        ResponseDto responseDto = ResponseDto.builder().build();
 
-    	//Excel Data Select
-    	List<SalaryExcelDto> salaryExcelDtoList = new ArrayList<>();
-    	salaryExcelDtoList = salaryDao.findSalaryExcel(basicSalaryDto);
+        //Excel Data Select
+        List<SalaryExcelDto> salaryExcelDtoList = new ArrayList<>();
+        salaryExcelDtoList = salaryDao.findSalaryExcel(basicSalaryDto);
 
-    	XSSFWorkbook workbook = new XSSFWorkbook();
-        XSSFSheet sheet = workbook.createSheet(basicSalaryDto.getYyyymm()+"SalaryUpload");
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet(basicSalaryDto.getYyyymm() + "SalaryUpload");
         int rowindex = 0;
         int cellindex = 0;
 
@@ -700,41 +711,41 @@ public class SalaryService {
 //        }
 
         //Data Insert
-        for(SalaryExcelDto s: salaryExcelDtoList) {
-        	cellindex = 0;
-        	XSSFRow row = sheet.createRow(rowindex++);
-        	row.createCell(cellindex++).setCellValue(s.getCdCompany());
-        	row.createCell(cellindex++).setCellValue(s.getCdBizarea());
-        	row.createCell(cellindex++).setCellValue(s.getYm());
-        	row.createCell(cellindex++).setCellValue(s.getCdEmp());
-        	row.createCell(cellindex++).setCellValue(s.getTpEmp());
-        	row.createCell(cellindex++).setCellValue(s.getTpPay());
-        	row.createCell(cellindex++).setCellValue(s.getNoSeq());
-        	row.createCell(cellindex++).setCellValue(s.getNoEmp());
-        	row.createCell(cellindex++).setCellValue(s.getAmPay01());
-        	row.createCell(cellindex++).setCellValue(s.getAmPay02());
-        	row.createCell(cellindex++).setCellValue(s.getAmPay03());
-        	row.createCell(cellindex++).setCellValue(s.getAmPay04());
-        	row.createCell(cellindex++).setCellValue(s.getAmPay05());
-        	row.createCell(cellindex++).setCellValue(s.getAmPay06());
-        	row.createCell(cellindex++).setCellValue(s.getAmPay07());
-        	row.createCell(cellindex++).setCellValue(s.getAmPay08());
-        	row.createCell(cellindex++).setCellValue(s.getAmPay09());
-        	row.createCell(cellindex++).setCellValue(s.getAmPay10());
-        	row.createCell(cellindex++).setCellValue(s.getAmPay11());
-        	row.createCell(cellindex++).setCellValue(s.getAmPay12());
-        	row.createCell(cellindex++).setCellValue(s.getAmPay13());
+        for (SalaryExcelDto s : salaryExcelDtoList) {
+            cellindex = 0;
+            XSSFRow row = sheet.createRow(rowindex++);
+            row.createCell(cellindex++).setCellValue(s.getCdCompany());
+            row.createCell(cellindex++).setCellValue(s.getCdBizarea());
+            row.createCell(cellindex++).setCellValue(s.getYm());
+            row.createCell(cellindex++).setCellValue(s.getCdEmp());
+            row.createCell(cellindex++).setCellValue(s.getTpEmp());
+            row.createCell(cellindex++).setCellValue(s.getTpPay());
+            row.createCell(cellindex++).setCellValue(s.getNoSeq());
+            row.createCell(cellindex++).setCellValue(s.getNoEmp());
+            row.createCell(cellindex++).setCellValue(s.getAmPay01());
+            row.createCell(cellindex++).setCellValue(s.getAmPay02());
+            row.createCell(cellindex++).setCellValue(s.getAmPay03());
+            row.createCell(cellindex++).setCellValue(s.getAmPay04());
+            row.createCell(cellindex++).setCellValue(s.getAmPay05());
+            row.createCell(cellindex++).setCellValue(s.getAmPay06());
+            row.createCell(cellindex++).setCellValue(s.getAmPay07());
+            row.createCell(cellindex++).setCellValue(s.getAmPay08());
+            row.createCell(cellindex++).setCellValue(s.getAmPay09());
+            row.createCell(cellindex++).setCellValue(s.getAmPay10());
+            row.createCell(cellindex++).setCellValue(s.getAmPay11());
+            row.createCell(cellindex++).setCellValue(s.getAmPay12());
+            row.createCell(cellindex++).setCellValue(s.getAmPay13());
         }
 
         try {
-        	File xlsxFile = new File("C:/Users/admin/Downloads/"+ basicSalaryDto.getYyyymm()+"SalaryUpload" + ".xlsx");
-        	FileOutputStream fileOut = new FileOutputStream(xlsxFile);
-        	workbook.write(fileOut);
-        	workbook.close();
-		}catch (Exception e) {
-			logger.error("Exception", e);
-	        throw e;
-    	}
+            File xlsxFile = new File("C:/Users/admin/Downloads/" + basicSalaryDto.getYyyymm() + "SalaryUpload" + ".xlsx");
+            FileOutputStream fileOut = new FileOutputStream(xlsxFile);
+            workbook.write(fileOut);
+            workbook.close();
+        } catch (Exception e) {
+            logger.error("Exception", e);
+            throw e;
+        }
 
 
         return responseDto;
