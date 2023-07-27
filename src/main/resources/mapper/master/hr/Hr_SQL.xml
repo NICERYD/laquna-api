@@ -304,13 +304,17 @@
             SEEDIT.nextval('hr_employee')
             , #{item.companyId}
             , #{item.koreanName}
-            , (select department_id from hr_department where attribute1 = #{item.departmentCode} AND attribute2 = #{item.yyyymm})
+            , (select department_id from hr_department where attribute1 = #{item.departmentCode} AND attribute2 =
+            #{item.yyyymm})
             , #{item.employeeNumber}
             , #{item.positionCode}
             , #{item.positionType}
             , #{item.dutyType}
             , NULLIF(TRIM(#{item.hireDate}), '')
-            , NULLIF(TRIM(#{item.retireDate}), '')
+            , CASE
+            WHEN NULLIF(TRIM(#{item.hireDate}), '') = '0000000' THEN '99991231'
+            ELSE NULLIF(TRIM(#{item.hireDate}), '')
+            END AS converted_hire_date
             , #{item.employmentCode}
             , #{item.employeeType}
             , (select est_id from fnd_business_est where company_id = 5 AND attribute1 = #{item.estId})
@@ -532,7 +536,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             "D19006"
+--             "D16018"
 --             )
         UNION ALL
         SELECT he.employee_id
