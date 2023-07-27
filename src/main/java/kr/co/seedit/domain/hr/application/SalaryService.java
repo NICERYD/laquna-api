@@ -466,7 +466,9 @@ public class SalaryService {
                         workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                     }
                     // 유급휴가 지난달 index값 있으면 해당값으로 초기화
-                    Integer paidLeaveCnt = salaryDao.selectpaidHolidayindex(info.getCompanyId(), String.valueOf(Integer.parseInt(requestDto.getYyyymm()) - 1), adtDataDto.getEmployeeNumber());
+//                    String yyyymm = LocalDate.parse(requestDto.getYyyymm(), DateTimeFormatter.ofPattern("yyyyMM")).minusMonths(1).toString();
+                    String yyyymm = LocalDate.parse(requestDto.getYyyymm()+"01", DateTimeFormatter.ofPattern("yyyyMMdd")).minusMonths(1).toString().substring(0,7).replace("-","");
+                    Integer paidLeaveCnt = salaryDao.selectpaidHolidayindex(info.getCompanyId(), yyyymm,  adtDataDto.getEmployeeNumber());
                     paidHolidayindex = Optional.ofNullable(paidLeaveCnt).orElse(0);
 
                     // 연차/반차 count
