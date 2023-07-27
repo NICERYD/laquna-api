@@ -31,6 +31,7 @@
              , NO_EMP AS employee_number
              , CD_DUTY_RANK as position_code
              , CD_DUTY_RESP as position_type
+             , CD_DUTY_TYPE as duty_type
              , DT_ENTER as hire_date
              , DT_RETIRE as retire_date
              , CD_INCOM as employment_code

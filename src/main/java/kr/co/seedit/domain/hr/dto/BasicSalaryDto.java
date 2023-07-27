@@ -20,6 +20,7 @@ public class BasicSalaryDto {
     private String departmentName;
     private String positionCode;
     private String positionType;
+    private String dutyType;
     private String basicSalary;
     private String hourlyPay;
     private String annualAllowance;
