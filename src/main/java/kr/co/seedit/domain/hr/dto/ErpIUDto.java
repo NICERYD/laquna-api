@@ -46,6 +46,7 @@ public class ErpIUDto {
         private String employeeNumber;
         private String positionCode;
         private String positionType;
+        private String dutyType;
         private String hireDate;
         private String retireDate;
         private String employmentCode;

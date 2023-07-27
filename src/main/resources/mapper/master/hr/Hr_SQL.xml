@@ -286,6 +286,7 @@
         , employee_number
         , position_code
         , position_type
+        , duty_type
         , hire_date
         , retire_date
         , employment_code
@@ -307,6 +308,7 @@
             , #{item.employeeNumber}
             , #{item.positionCode}
             , #{item.positionType}
+            , #{item.dutyType}
             , NULLIF(TRIM(#{item.hireDate}), '')
             , NULLIF(TRIM(#{item.retireDate}), '')
             , #{item.employmentCode}
@@ -444,6 +446,7 @@
              , hd.department_name
              , fcd02.defined_cd                                              as position_code
              , fcd03.defined_cd                                              as position_type
+             , fcd04.defined_cd                                              as duty_type
              , hsb.basic_salary                                                                         -- 기본급
              , hsb.hourly_pay                                                                           -- 시급
              , 0                                                             AS annual_allowance        -- 연차수당
@@ -488,6 +491,14 @@
                             ON fcd03.company_id = fc03.company_id
                                 AND fcd03.code_id = fc03.code_id
                                 AND fcd03.defined_cd = he.position_type
+            -- 직군
+                 INNER JOIN fnd_code fc04
+                            ON fc04.company_id = he.company_id
+                                AND fc04.code_field = 'HR_A0006'
+                 INNER JOIN fnd_code_detail fcd04
+                            ON fcd04.company_id = fc04.company_id
+                                AND fcd04.code_id = fc04.code_id
+                                AND fcd04.defined_cd = he.duty_type
                  INNER JOIN (SELECT employee_id
                                   , company_id
                                   , attribute2
@@ -521,7 +532,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             "D22740"
+--             "D19006"
 --             )
         UNION ALL
         SELECT he.employee_id
@@ -531,6 +542,7 @@
              , hd.department_name
              , fcd02.defined_name
              , fcd03.defined_name
+             , fcd04.defined_cd
              , hsb.basic_salary                                                                         -- 기본급
              , hsb.hourly_pay                                                                           -- 시급
              , 0                                                             AS annual_allowance        -- 연차수당
@@ -575,6 +587,14 @@
                             ON fcd03.company_id = fc03.company_id
                                 AND fcd03.code_id = fc03.code_id
                                 AND fcd03.defined_cd = he.position_type
+            -- 직군
+                 INNER JOIN fnd_code fc04
+                            ON fc04.company_id = he.company_id
+                                AND fc04.code_field = 'HR_A0006'
+                 INNER JOIN fnd_code_detail fcd04
+                            ON fcd04.company_id = fc04.company_id
+                                AND fcd04.code_id = fc04.code_id
+                                AND fcd04.defined_cd = he.duty_type
                  INNER JOIN (SELECT employee_id
                                   , company_id
                                   , attribute2
