@@ -32,7 +32,15 @@ public class CommoncdService {
    */
   @Transactional
   public List<CommonCodeDto> getCodeAllList() throws Exception {
-    return commoncdDao.findCodeAllList();
+	  
+	  CompanyDto companyDto = new CompanyDto();
+      Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+      String userName = ((UserDetails) principal).getUsername();
+      companyDto.setEmailId(userName);
+      CompanyDto info = companyDao.selectTokenInfo(companyDto);
+      Integer companyId = info.getCompanyId();
+	  
+    return commoncdDao.findCodeAllList(companyId);
   }
 
   /**

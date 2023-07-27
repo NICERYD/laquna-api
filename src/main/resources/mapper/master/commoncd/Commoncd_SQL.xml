@@ -12,6 +12,8 @@
                , module_id
                , use_yn
         FROM   fnd_code
+        WHERE  1=1
+        AND company_id = #{companyId}
         order by code_id, code_field
     </select>
     <select id="commonCodelistSearch" parameterType="kr.co.seedit.domain.commoncd.dto.CommonCodeDto" resultType="kr.co.seedit.domain.commoncd.dto.CommonCodeDto">
@@ -27,6 +29,7 @@
         FROM   fnd_code fc
         inner join fnd_module fm on fc.module_id = fm.module_id
         where 1=1
+        AND fc.company_id = #{companyId}
         <if test="moduleId != null and moduleId != '' and moduleId != 999">
           and fm.module_id = #{moduleId}
         </if>

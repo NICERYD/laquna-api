@@ -16,7 +16,7 @@ public interface CommoncdDao {
    *
    * @return 그룹및상세코드 리스트
    */
-    List<CommonCodeDto> findCodeAllList();
+    List<CommonCodeDto> findCodeAllList(Integer companyId);
     List<CommonCodeDto> commonCodelistSearch(CommonCodeDto commonCodeDto);
     List<CommonCodeDto> findCommonModuleList();
     List<CommonCodeDetailDto> findCodeDetailList(CommonCodeDetailDto commonCodeDetailDto);
