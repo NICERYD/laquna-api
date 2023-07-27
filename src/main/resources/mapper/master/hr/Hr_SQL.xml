@@ -470,7 +470,7 @@
              , #{loginUserId}                                                AS loginUserId
              , he.employee_type
              , he.hire_date
-             , IF(he.retire_date = '00000000', '9999-12-31', he.retire_date) as retire_date
+             , he.retire_date
         FROM hr_employee he
                  INNER JOIN hr_department hd
                             ON he.company_id = hd.company_id
@@ -566,7 +566,7 @@
              , #{loginUserId}                                                AS loginUserId
              , he.employee_type
              , he.hire_date
-             , IF(he.retire_date = '00000000', '9999-12-31', he.retire_date) as retire_date
+             , he.retire_date
         FROM hr_employee he
                  INNER JOIN hr_department hd
                             ON he.company_id = hd.company_id
