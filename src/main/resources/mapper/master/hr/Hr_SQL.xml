@@ -312,9 +312,9 @@
             , #{item.dutyType}
             , NULLIF(TRIM(#{item.hireDate}), '')
             , CASE
-            WHEN NULLIF(TRIM(#{item.hireDate}), '') = '0000000' THEN '99991231'
-            ELSE NULLIF(TRIM(#{item.hireDate}), '')
-            END AS converted_hire_date
+            WHEN NULLIF(TRIM(#{item.retireDate}), '') = '0000000' THEN '99991231'
+            ELSE NULLIF(TRIM(#{item.retireDate}), '')
+            END AS retire_date
             , #{item.employmentCode}
             , #{item.employeeType}
             , (select est_id from fnd_business_est where company_id = 5 AND attribute1 = #{item.estId})
