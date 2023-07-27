@@ -73,8 +73,8 @@ public class SalaryApi {
 
     @PostMapping("/hr/uploadADTExcel")
     public ResponseEntity<ResponseDto> uploadADTExcel(@RequestParam(value="file01" , required=false)MultipartFile adtExcel01
-            , @RequestParam(value="file02", required=false)MultipartFile adtExcel02 , @RequestParam(value="attribute1", required=false)String attribute1, HttpServletRequest request ,ErpIUDto.RequestDto erpIUDto ) throws IOException, InvalidFormatException {
-        ResponseDto responseDto = salaryService.uploadADTExcel(adtExcel01, adtExcel02, attribute1, erpIUDto, request);
+            , @RequestParam(value="file02", required=false)MultipartFile adtExcel02 , @RequestParam(value="yyyymm", required=false)String yyyymm, HttpServletRequest request ,ErpIUDto.RequestDto erpIUDto ) throws IOException, InvalidFormatException {
+        ResponseDto responseDto = salaryService.uploadADTExcel(adtExcel01, adtExcel02, yyyymm, erpIUDto, request);
         return new ResponseEntity<>(responseDto
                 .builder()
                 .code("200").build(), HttpStatus.OK);

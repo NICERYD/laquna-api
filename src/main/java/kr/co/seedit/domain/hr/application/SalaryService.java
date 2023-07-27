@@ -89,7 +89,7 @@ public class SalaryService {
     }
 
     @Transactional
-    public ResponseDto uploadADTExcel(MultipartFile adtExcel01, MultipartFile adtExcel02, String attribute1, ErpIUDto.RequestDto erpIUDto, HttpServletRequest request) throws CustomException, IOException, InvalidFormatException {
+    public ResponseDto uploadADTExcel(MultipartFile adtExcel01, MultipartFile adtExcel02, String yyyymm, ErpIUDto.RequestDto erpIUDto, HttpServletRequest request) throws CustomException, IOException, InvalidFormatException {
         ResponseDto responseDto = ResponseDto.builder().build();
 
         CompanyDto companyDto = new CompanyDto();
@@ -99,7 +99,7 @@ public class SalaryService {
         CompanyDto info = companyDao.selectTokenInfo(companyDto);
         erpIUDto.setCompanyId(info.getCompanyId());
         erpIUDto.setLoginUserId(info.getUserId());
-        erpIUDto.setYyyymm(attribute1);
+        erpIUDto.setYyyymm(yyyymm);
 
         List<ADTExcelDto> listADT = new ArrayList<>();
         List<ADTExcelDto> OutlistADT = new ArrayList<>();
@@ -117,7 +117,7 @@ public class SalaryService {
                 ADTExcelDto adtExcelDto = new ADTExcelDto();
                 adtExcelDto.setCompanyId(info.getCompanyId());
                 adtExcelDto.setLoginUserId(info.getUserId());
-                adtExcelDto.setYyyymm(attribute1);
+                adtExcelDto.setYyyymm(yyyymm);
                 XSSFRow row = sheet.getRow(rowindex);
                 int cells = row.getPhysicalNumberOfCells();
 
