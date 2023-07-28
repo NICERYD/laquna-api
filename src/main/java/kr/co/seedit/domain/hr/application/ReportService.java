@@ -67,7 +67,7 @@ public class ReportService {
             row.createCell(cellindex++).setCellValue("0");
             row.createCell(cellindex++).setCellValue("0");
 
-            File xlsxFile = new File("C:/Users/admin/Downloads/"+ "seedSample" + ".xlsx");
+            File xlsxFile = new File("C:/"+ "seedSample2" + ".xlsx");
             FileOutputStream fileOut = new FileOutputStream(xlsxFile);
             workbook.write(fileOut);
             workbook.close();
