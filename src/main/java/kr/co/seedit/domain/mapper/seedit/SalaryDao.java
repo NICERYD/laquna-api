@@ -55,7 +55,8 @@ public interface SalaryDao {
     void insertCalendar(List<ErpIUDto.CalendarDto> calendarDtos);
     boolean selectLastWeek(@Param("yyyymmdd") String yyyymmdd);
 
-    void insertNonPayDay(@Param("paidHolidayindex") Integer paidHolidayindex,@Param("companyId") Integer companyId,@Param("yyyymm") String yyyymm,@Param("eployeeId") Integer eployeeId);
+    void insertNonPayDay(@Param("paidHolidayindex") Integer paidHolidayindex,@Param("companyId") Integer companyId,@Param("yyyymm") String yyyymm,@Param("employeeId") Integer employeeId);
+    void insertnightTeamDay(@Param("nightTeamDay") Integer nightTeamDay,@Param("companyId") Integer companyId,@Param("yyyymm") String yyyymm,@Param("employeeId") Integer employeeId);
     
     List<SalaryExcelDto> findSalaryExcel(BasicSalaryDto basicSalaryDto);
 

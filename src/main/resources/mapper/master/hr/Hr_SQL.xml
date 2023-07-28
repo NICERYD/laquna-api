@@ -534,10 +534,10 @@
                                AND he.attribute1 = hb.yyyymm
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
---           AND he.employee_type  = '200'
---           AND he.employee_number in (
---             "D20011"
---             )
+          AND he.employee_type  = '200'
+          AND he.employee_number in (
+            "D14025"
+            )
         UNION ALL
         SELECT he.employee_id
              , he.employee_number
@@ -788,12 +788,39 @@
             (
             SEEDIT.nextval('hr_dh_paidLeave')
             , #{companyId}
-            , #{eployeeId}
+            , #{employeeId}
             , #{yyyymm}
             , #{paidHolidayindex}
-            , 5
+            , 78
             , now()
-            , 5
+            , 78
+            , now()
+            )
+    </insert>
+
+    <insert id="insertnightTeamDay">
+        INSERT INTO hr_dh_nightteamday
+        (
+        nightteamday_id
+        , company_id
+        , employee_id
+        , yyyymm
+        , nightteamday_cnt
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date
+        )
+        values
+            (
+            SEEDIT.nextval('hr_dh_nightTeamDay')
+            , #{companyId}
+            , #{employeeId}
+            , #{yyyymm}
+            , #{nightTeamDay}
+            , 78
+            , now()
+            , 78
             , now()
             )
     </insert>
