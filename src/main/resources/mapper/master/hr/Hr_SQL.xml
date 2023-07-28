@@ -470,7 +470,7 @@
              , #{loginUserId}                                                AS loginUserId
              , he.employee_type
              , he.hire_date
-             , IF(he.retire_date = '00000000', '9999-12-31', he.retire_date) as retire_date
+             , he.retire_date
         FROM hr_employee he
                  INNER JOIN hr_department hd
                             ON he.company_id = hd.company_id
@@ -534,10 +534,10 @@
                                AND he.attribute1 = hb.yyyymm
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
---           AND he.employee_type  = '200'
---           AND he.employee_number in (
---             "D16018"
---             )
+          AND he.employee_type  = '200'
+          AND he.employee_number in (
+            "D14025"
+            )
         UNION ALL
         SELECT he.employee_id
              , he.employee_number
@@ -566,7 +566,7 @@
              , #{loginUserId}                                                AS loginUserId
              , he.employee_type
              , he.hire_date
-             , IF(he.retire_date = '00000000', '9999-12-31', he.retire_date) as retire_date
+             , he.retire_date
         FROM hr_employee he
                  INNER JOIN hr_department hd
                             ON he.company_id = hd.company_id
@@ -727,7 +727,7 @@
                                   AND fc.code_id = fcd.code_id
         WHERE fc.company_id = #{companyId}
           AND   fc.code_field LIKE 'HR_Z%'
-        GROUP BY fc.code_field, fcd.value01
+        GROUP BY fc.code_field, fcd.value01, fcd.value02
     </select>
 
     <delete id ="deleteCalendar" parameterType ="kr.co.seedit.global.common.dto.RequestDto" >
@@ -788,12 +788,39 @@
             (
             SEEDIT.nextval('hr_dh_paidLeave')
             , #{companyId}
-            , #{eployeeId}
+            , #{employeeId}
             , #{yyyymm}
             , #{paidHolidayindex}
-            , 5
+            , 78
             , now()
-            , 5
+            , 78
+            , now()
+            )
+    </insert>
+
+    <insert id="insertnightTeamDay">
+        INSERT INTO hr_dh_nightteamday
+        (
+        nightteamday_id
+        , company_id
+        , employee_id
+        , yyyymm
+        , nightteamday_cnt
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date
+        )
+        values
+            (
+            SEEDIT.nextval('hr_dh_nightTeamDay')
+            , #{companyId}
+            , #{employeeId}
+            , #{yyyymm}
+            , #{nightTeamDay}
+            , 78
+            , now()
+            , 78
             , now()
             )
     </insert>
