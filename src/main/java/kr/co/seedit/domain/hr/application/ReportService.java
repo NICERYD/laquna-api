@@ -6,8 +6,7 @@ import kr.co.seedit.global.common.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -19,10 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URLEncoder;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +32,9 @@ public class ReportService {
 
         try{
             //local
-//            File formPath = new File("C:/Users/admin/Downloads/sample.xlsx");
+            File formPath = new File("C:/Users/admin/Downloads/sample.xlsx");
             //server
-            File formPath = new File("/server/seedit-dh-dev/files/SalarySample.xlsx");
+//            File formPath = new File("/server/seedit-dh-dev/files/SalarySample.xlsx");
             InputStream fis = new FileInputStream(formPath);
             XSSFWorkbook workbook = new XSSFWorkbook(fis);
             XSSFSheet sheet = workbook.getSheetAt(0);
@@ -67,7 +64,7 @@ public class ReportService {
             row.createCell(cellindex++).setCellValue("0");
             row.createCell(cellindex++).setCellValue("0");
 
-            File xlsxFile = new File("C:/files/"+ "SalarySample" + ".xlsx");
+            File xlsxFile = new File("C:\\files\\"+ "SalarySample3" + ".xlsx");
             FileOutputStream fileOut = new FileOutputStream(xlsxFile);
             workbook.write(fileOut);
             workbook.close();
