@@ -534,10 +534,10 @@
                                AND he.attribute1 = hb.yyyymm
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
-          AND he.employee_type  = '200'
-          AND he.employee_number in (
-            "D14025"
-            )
+--           AND he.employee_type  = '200'
+--           AND he.employee_number in (
+--             "D22747"
+--             )
         UNION ALL
         SELECT he.employee_id
              , he.employee_number
@@ -680,6 +680,12 @@
 
     <delete id ="deleteCalcSalary" parameterType ="kr.co.seedit.global.common.dto.RequestDto" >
         delete from hr_dh_calc_salary
+        where  company_id = #{companyId}
+          and  yyyymm = #{yyyymm}
+    </delete>
+
+    <delete id ="deleteMonthlyKeunTae" parameterType ="kr.co.seedit.global.common.dto.RequestDto" >
+        delete from hr_dh_monthly_keun_tae
         where  company_id = #{companyId}
           and  yyyymm = #{yyyymm}
     </delete>
@@ -871,5 +877,72 @@
 		</if>
 	    AND hdcs.yyyymm =  #{yyyymm};
 	</select>
+
+    <insert id="insertMonthlyKeunTae" parameterType="kr.co.seedit.domain.hr.dto.MonthlyKeunTaeDto">
+        INSERT INTO hr_dh_monthly_keun_tae
+        (
+        keun_tae_id
+        , company_id
+        , employee_id
+        , yyyymm
+        , annual_leave_used
+        , annual_leave_used_day
+        , overtime_1
+        , overtime_2
+        , night_shift_1
+        , night_shift_2
+        , daytime_hours
+        , nighttime_hours
+        , holiday_saturday_1
+        , holiday_sunday_1
+        , holiday_2
+        , transportation
+        , meal
+        , other
+        , half_day
+        , half_time
+        , early_leave_day
+        , early_leave_time
+        , late_day
+        , late_time
+        , created_by
+        , creation_date
+        , last_updated_by
+         ,last_update_date
+        )
+        values
+        <foreach item="item" index="index" collection="list" separator=", ">
+            (
+            SEEDIT.nextval('hr_dh_monthly_keun_tae')
+            , #{item.companyId}
+            , #{item.employeeId}
+            , #{item.yyyymm}
+            , #{item.annualLeaveUsed}
+            , #{item.annualLeaveUsedDay}
+            , #{item.overTime01}
+            , #{item.overTime02}
+            , #{item.nightShift01}
+            , #{item.nightShift02}
+            , #{item.dayTimeHours}
+            , #{item.nightTimeHours}
+            , #{item.holidaySaturday01}
+            , #{item.holidaySunday01}
+            , #{item.holiday02}
+            , #{item.transportation}
+            , #{item.meal}
+            , #{item.other}
+            , #{item.halfDay}
+            , #{item.halfTime}
+            , #{item.earlyLeaveDay}
+            , #{item.earlyLeaveTime}
+            , #{item.lateDay}
+            , #{item.lateTime}
+            , #{item.loginUserId}
+            , now()
+            , #{item.loginUserId}
+            , now()
+            )
+        </foreach>
+    </insert>
 
 </mapper>

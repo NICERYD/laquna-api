@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -62,4 +63,6 @@ public interface SalaryDao {
 
     Integer selectpaidHolidayindex(@Param("companyId") Integer companyId,@Param("yyyymm") String yyyymm,@Param("employeeNumber")  String employeeNumber);
 
+    void deleteMonthlyKeunTae(RequestDto requestDto);
+    void insertMonthlyKeunTae(List<MonthlyKeunTaeDto> monthlyKeunTaeDtos);
 }
