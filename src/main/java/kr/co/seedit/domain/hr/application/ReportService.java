@@ -65,10 +65,18 @@ public class ReportService {
             row.createCell(cellindex++).setCellValue("0");
 
 //            File xlsxFile = new File("C:/Users/admin/Downloads/" + basicSalaryDto.getYyyymm() + "SalarySample" + ".xlsx");
-            File xlsxFile = new File("C:\\files\\" + "20230731_" + "SalarySample" + ".xlsx");
-            FileOutputStream fileOut = new FileOutputStream(xlsxFile);
-            workbook.write(fileOut);
-            workbook.close();
+//            File xlsxFile = new File("C:\\files\\" + "20230731_" + "SalarySample" + ".xlsx");
+//            FileOutputStream fileOut = new FileOutputStream(xlsxFile);
+//            workbook.write(fileOut);
+//            workbook.close();
+
+        // 컨텐츠 타입과 파일명 지정
+        response.setContentType("ms-vnd/excel");
+        response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
+
+        // Excel File Output
+        workbook.write(response.getOutputStream());
+        workbook.close();
 
         } catch (Exception e){
             logger.error("Exception", e);
