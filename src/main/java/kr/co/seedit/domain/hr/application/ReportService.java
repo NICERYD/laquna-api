@@ -32,9 +32,9 @@ public class ReportService {
 
         try{
             //local
-            File formPath = new File("C:/Users/admin/Downloads/sample.xlsx");
+//            File formPath = new File("C:/Users/admin/Downloads/sample.xlsx");
             //server
-//            File formPath = new File("/server/seedit-dh-dev/files/SalarySample.xlsx");
+            File formPath = new File("/server/seedit-dh-dev/files/SalarySample.xlsx");
             InputStream fis = new FileInputStream(formPath);
             XSSFWorkbook workbook = new XSSFWorkbook(fis);
             XSSFSheet sheet = workbook.getSheetAt(0);
