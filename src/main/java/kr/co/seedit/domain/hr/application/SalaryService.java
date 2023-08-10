@@ -888,10 +888,12 @@ public class SalaryService {
         }
 
         try {
-            File xlsxFile = new File("C:/Users/admin/Downloads/" + basicSalaryDto.getYyyymm() + "SalaryUpload" + ".xlsx");
+//            File xlsxFile = new File("C:/Users/admin/Downloads/" + basicSalaryDto.getYyyymm() + "SalaryUpload" + ".xlsx");
+            File xlsxFile = new File("D:/" + basicSalaryDto.getYyyymm() + "monthlyKeunTae" + ".xlsx");
             FileOutputStream fileOut = new FileOutputStream(xlsxFile);
             workbook.write(fileOut);
             workbook.close();
+            fileOut.close();
         } catch (Exception e) {
             logger.error("Exception", e);
             throw e;

@@ -1,31 +1,33 @@
 package kr.co.seedit.domain.hr.application;
 
-import kr.co.seedit.domain.company.application.CompanyService;
-import kr.co.seedit.domain.hr.dto.BasicSalaryDto;
-import kr.co.seedit.domain.hr.dto.MonthlyKeunTaeDto;
-import kr.co.seedit.domain.hr.dto.ReportMonthlyKeunTaeDto;
-import kr.co.seedit.domain.hr.dto.SalaryExcelDto;
-import kr.co.seedit.domain.mapper.seedit.ReportDao;
-import kr.co.seedit.global.common.dto.ResponseDto;
-import lombok.RequiredArgsConstructor;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
+import kr.co.seedit.domain.hr.dto.MonthlyKeunTaeDto;
+import kr.co.seedit.domain.hr.dto.ReportMonthlyKeunTaeDto;
+import kr.co.seedit.domain.mapper.seedit.ReportDao;
+import kr.co.seedit.global.common.dto.ResponseDto;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -95,19 +97,44 @@ public class ReportService {
         return responseDto;
     }
     
+    @Autowired
+    ResourceLoader resourceLoader;
+
     @Transactional
     public ResponseDto monthlyKeunTaeReport(MonthlyKeunTaeDto monthlyKeunTaeDto, HttpServletResponse response) throws
             Exception {
         ResponseDto responseDto = ResponseDto.builder().build();
         
-        //Local Path
-        File formPath = new File("C:/Users/admin/Documents/reportSample/payrollSample.xlsx");
-        InputStream fis = new FileInputStream(formPath);
+        Resource resource = resourceLoader.getResource("classpath:hr/monthlyKeunTaeSample.xlsx");
+        InputStream fis = resource.getInputStream();
+        
+//        //Local Path
+//        File formPath = new File("C:/Users/admin/Documents/reportSample/payrollSample.xlsx");
+//        InputStream fis = new FileInputStream(formPath);
         XSSFWorkbook workbook = new XSSFWorkbook(fis);
         XSSFSheet sheet = workbook.getSheetAt(0);
         int rowindex = 5;
         int cellindex = 1;
         int no = 1;
+        
+        
+        // test
+        System.out.print("sheet.getLastRowNum():"+sheet.getLastRowNum());
+        System.out.print("oldSheet.getFirstRowNum():"+sheet.getFirstRowNum());
+        for (int i=1;i<6;i++)
+        {
+        	XSSFRow row = sheet.getRow(i);
+        	XSSFCell cell = row.getCell(i);
+        	switch(i) {
+        	case 1:cell.setCellValue(false);break;
+        	case 2:cell.setCellValue(2);break;
+        	case 3:cell.setCellValue("3");break;
+        	case 4:cell.setCellValue("4");break;
+        	case 5:cell.setCellValue(LocalDate.now());break;
+        	}
+        	
+        	;
+        }
 
         //Excel Data Select
         List<ReportMonthlyKeunTaeDto> reportMonthlyKeunTaeDtoList = new ArrayList<>();
@@ -174,10 +201,12 @@ public class ReportService {
         }
 
         try {
-            File xlsxFile = new File("C:/Users/admin/Downloads/" + monthlyKeunTaeDto.getYyyymm() + "monthlyKeunTae" + ".xlsx");
+//            File xlsxFile = new File("C:/Users/admin/Downloads/" + monthlyKeunTaeDto.getYyyymm() + "monthlyKeunTae" + ".xlsx");
+            File xlsxFile = new File("D:/" + monthlyKeunTaeDto.getYyyymm() + "monthlyKeunTae" + ".xlsx");
             FileOutputStream fileOut = new FileOutputStream(xlsxFile);
             workbook.write(fileOut);
             workbook.close();
+            fileOut.close();
         } catch (Exception e) {
             logger.error("Exception", e);
             throw e;
