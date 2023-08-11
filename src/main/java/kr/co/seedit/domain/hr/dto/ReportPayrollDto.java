@@ -31,7 +31,7 @@ public class ReportPayrollDto {
     private Integer holidayAllowance01;
     private Integer holidayAllowance02;
     private Integer positionAllowance;
-    private Integer otherAllowance;
+    private Integer otherAllowances;
     private Integer subsidies;
     private Integer transportationExpenses;
     private Integer mealsExpenses;
@@ -41,5 +41,5 @@ public class ReportPayrollDto {
     private String hireDate;
     private String retireDate;
     private String definedName;
-    private String salarySum;
+    private Integer salarySum;
 }

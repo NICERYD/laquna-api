@@ -96,7 +96,7 @@
         , he.employee_type
         , he.hire_date
         , IF(he.retire_date != '9999-12-31', he.retire_date, null)
-        , IFNULL(hdcs.basic_salary,0)
+        , IFNULL(hdcs.basic_salary,0) AS basic_salary
         , IFNULL(hdcs.attribute01,0) AS annual_allowance
         , IFNULL(hdcs.attribute02,0) AS overtime_allowance01
         , IFNULL(hdcs.attribute03,0) AS overtime_allowance02
@@ -142,5 +142,6 @@
             AND   he.est_id = #{estId}
         </if>
         AND   he.attribute1  = #{yyyymm}
+        ORDER BY he.department_id, he.position_code
 	</select>
 </mapper>
