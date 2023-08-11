@@ -1,6 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.seedit.domain.mapper.seedit.ReportDao">
+	
+	<select id="findSalaryExcel" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto" resultType="kr.co.seedit.domain.hr.dto.SalaryExcelDto">
+		 SELECT  fc.attribute1  AS cd_company -- 회사코드
+		      , fbe.attribute1 AS cd_bizarea -- 사업장코드
+		      , hdcs.yyyymm AS ym -- 년월
+		      , he.employment_code AS cd_emp -- 고용형태
+		      , he.employee_type AS tp_emp -- 사원구분
+		      , 001 AS tp_pay -- 급여구분
+		      , 1 AS no_seq -- 순번
+		      , he.employee_number AS no_emp -- 사번
+		      , hdcs.basic_salary  AS am_pay01 -- 기본급
+		      , hdcs.attribute01 AS am_pay02
+		      , hdcs.attribute02 AS am_pay03
+		      , hdcs.attribute03 AS am_pay04
+		      , hdcs.attribute04 AS am_pay05
+		      , hdcs.attribute05 AS am_pay06
+		      , hdcs.attribute06 AS am_pay07
+		      , hdcs.attribute07 AS am_pay08
+		      , hdcs.attribute08 AS am_pay09
+		      , hdcs.attribute09 AS am_pay10
+		      , hdcs.attribute10 AS am_pay11
+		      , hdcs.attribute11 AS am_pay12
+		      , hdcs.attribute12 AS am_pay13
+		FROM    hr_dh_calc_salary hdcs
+		      INNER JOIN fnd_company fc 
+		      ON hdcs.company_id = fc.company_id
+		      INNER JOIN fnd_business_est fbe 
+		      ON hdcs.company_id = fbe.company_id
+		      INNER JOIN hr_employee he 
+		      ON hdcs.company_id = he.company_id
+		      AND hdcs.employee_id = he.employee_id
+		      AND hdcs.yyyymm = he.attribute1
+		      AND he.est_id = fbe.est_id 
+		WHERE  fc.company_id  = #{companyId}
+		<if test="estId !=999 and estId != null">
+		AND	he.est_id = #{estId}
+		</if>
+	    AND hdcs.yyyymm =  #{yyyymm};
+	</select>
+	
 	<select id="findPayroll" parameterType="kr.co.seedit.domain.hr.dto.MonthlyKeunTaeDto" resultType="kr.co.seedit.domain.hr.dto.ReportMonthlyKeunTaeDto">
 		SELECT he.korean_name
 				,fcd02.defined_name
@@ -44,5 +84,63 @@
 						AND hd.attribute2 = he.attribute1
 		WHERE hdmkt.company_id = #{companyId}
 		AND hdmkt.yyyymm = #{yyyymm}
+	</select>
+	
+	<select id="findPayrollReport" parameterType="kr.co.seedit.domain.hr.dto.ReportPayrollDto" resultType="kr.co.seedit.domain.hr.dto.ReportPayrollDto">
+		/*ReportDao.findPayrollReport*/
+		SELECT he.employee_number
+        , he.korean_name
+        , fbe.est_name
+        , hd.department_name
+        , fcd02.defined_name
+        , he.employee_type
+        , he.hire_date
+        , IF(he.retire_date != '9999-12-31', he.retire_date, null)
+        , IFNULL(hdcs.basic_salary,0)
+        , IFNULL(hdcs.attribute01,0) AS annual_allowance
+        , IFNULL(hdcs.attribute02,0) AS overtime_allowance01
+        , IFNULL(hdcs.attribute03,0) AS overtime_allowance02
+        , IFNULL(hdcs.attribute04,0) AS night_allowance01
+        , IFNULL(hdcs.attribute05,0) AS night_allowance02
+        , IFNULL(hdcs.attribute06,0) AS holiday_allowance01
+        , IFNULL(hdcs.attribute07,0) AS holiday_allowance02
+        , IFNULL(hdcs.attribute08,0) AS position_allowance
+        , IFNULL(hdcs.attribute09,0) AS other_allowances
+        , IFNULL(hdcs.attribute10,0) AS subsidies
+        , IFNULL(hdcs.attribute11,0) AS transportation_expenses
+        , IFNULL(hdcs.attribute12,0) AS meals_expenses
+        , IFNULL(hb.bonus_amount,0) AS bonus_amount
+        , IFNULL(hdcs.basic_salary,0) + IFNULL(hdcs.attribute01,0) + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0) 
+		  + IFNULL(hdcs.attribute04,0) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0) 
+		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
+		  + IFNULL(hdcs.attribute12,0) + IFNULL(hb.bonus_amount,0)	AS salary_sum
+        FROM   hr_dh_calc_salary hdcs
+        INNER JOIN fnd_business_est fbe
+        ON hdcs.company_id = fbe.company_id
+        INNER JOIN hr_employee he
+        ON hdcs.company_id  = he.company_id
+        AND hdcs.employee_id  = he.employee_id
+        AND hdcs.yyyymm  = he.attribute1
+        AND he.est_id = fbe.est_id
+        INNER JOIN hr_department  hd
+        ON he.company_id = hd.company_id
+        AND he.department_id = hd.department_id
+        AND he.attribute1  = hd.attribute2
+        INNER JOIN fnd_code fc02
+        ON fc02.company_id  = he.company_id
+        AND fc02.code_field = 'HR_A0003'
+        INNER JOIN fnd_code_detail fcd02
+        ON fcd02.company_id  = he.company_id
+        AND fcd02.code_id = fc02.code_id
+        AND fcd02.defined_cd = he.position_code
+        LEFT JOIN hr_bonus hb
+        ON he.company_id = hb.company_id
+        AND he.employee_id = hb.employee_id
+        AND he.attribute1 = hb.yyyymm
+        WHERE  he.company_id = #{companyId}
+        <if test="estId !=999 and estId != null">
+            AND   he.est_id = #{estId}
+        </if>
+        AND   he.attribute1  = #{yyyymm}
 	</select>
 </mapper>

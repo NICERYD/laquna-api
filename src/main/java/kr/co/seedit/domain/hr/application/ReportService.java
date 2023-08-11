@@ -11,7 +11,19 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.sl.usermodel.Background;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -23,8 +35,11 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import kr.co.seedit.domain.hr.dto.BasicSalaryDto;
 import kr.co.seedit.domain.hr.dto.MonthlyKeunTaeDto;
 import kr.co.seedit.domain.hr.dto.ReportMonthlyKeunTaeDto;
+import kr.co.seedit.domain.hr.dto.ReportPayrollDto;
+import kr.co.seedit.domain.hr.dto.SalaryExcelDto;
 import kr.co.seedit.domain.mapper.seedit.ReportDao;
 import kr.co.seedit.global.common.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +51,93 @@ public class ReportService {
     private static final Logger logger = LoggerFactory.getLogger(ReportService.class);
     
     private final ReportDao reportDao;
+    
+    @Transactional
+    public ResponseDto downloadSalaryExcel(BasicSalaryDto basicSalaryDto, HttpServletResponse response) throws
+            Exception {
+        ResponseDto responseDto = ResponseDto.builder().build();
+
+        //Excel Data Select
+        List<SalaryExcelDto> salaryExcelDtoList = new ArrayList<>();
+        salaryExcelDtoList = reportDao.findSalaryExcel(basicSalaryDto);
+
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet(basicSalaryDto.getYyyymm() + "SalaryUpload");
+        int rowindex = 0;
+        int cellindex = 0;
+
+        //Excel Header Setting
+        XSSFRow headerRow = sheet.createRow(rowindex++);
+        headerRow.createCell(cellindex++).setCellValue("CD_COMPANY");
+        headerRow.createCell(cellindex++).setCellValue("CD_BIZAREA");
+        headerRow.createCell(cellindex++).setCellValue("YM");
+        headerRow.createCell(cellindex++).setCellValue("CD_EMP");
+        headerRow.createCell(cellindex++).setCellValue("TP_EMP");
+        headerRow.createCell(cellindex++).setCellValue("TP_PAY");
+        headerRow.createCell(cellindex++).setCellValue("NO_SEQ");
+        headerRow.createCell(cellindex++).setCellValue("NO_EMP");
+        headerRow.createCell(cellindex++).setCellValue("AM_PAY01");
+        headerRow.createCell(cellindex++).setCellValue("AM_PAY02");
+        headerRow.createCell(cellindex++).setCellValue("AM_PAY03");
+        headerRow.createCell(cellindex++).setCellValue("AM_PAY04");
+        headerRow.createCell(cellindex++).setCellValue("AM_PAY05");
+        headerRow.createCell(cellindex++).setCellValue("AM_PAY06");
+        headerRow.createCell(cellindex++).setCellValue("AM_PAY07");
+        headerRow.createCell(cellindex++).setCellValue("AM_PAY08");
+        headerRow.createCell(cellindex++).setCellValue("AM_PAY09");
+        headerRow.createCell(cellindex++).setCellValue("AM_PAY10");
+        headerRow.createCell(cellindex++).setCellValue("AM_PAY11");
+        headerRow.createCell(cellindex++).setCellValue("AM_PAY12");
+        headerRow.createCell(cellindex).setCellValue("AM_PAY13");
+
+        //Empty Row Create
+//        XSSFRow emptyRow = sheet.createRow(rowindex++);
+//        for(cellindex = 0; cellindex <= 20; cellindex++) {
+//        	emptyRow.createCell(cellindex).setCellValue("");
+//        }
+
+        //Data Insert
+        for (SalaryExcelDto s : salaryExcelDtoList) {
+            cellindex = 0;
+            XSSFRow row = sheet.createRow(rowindex++);
+            row.createCell(cellindex++).setCellValue(s.getCdCompany());
+            row.createCell(cellindex++).setCellValue(s.getCdBizarea());
+            row.createCell(cellindex++).setCellValue(s.getYm());
+            row.createCell(cellindex++).setCellValue(s.getCdEmp());
+            row.createCell(cellindex++).setCellValue(s.getTpEmp());
+            row.createCell(cellindex++).setCellValue(s.getTpPay());
+            row.createCell(cellindex++).setCellValue(s.getNoSeq());
+            row.createCell(cellindex++).setCellValue(s.getNoEmp());
+            row.createCell(cellindex++).setCellValue(s.getAmPay01());
+            row.createCell(cellindex++).setCellValue(s.getAmPay02());
+            row.createCell(cellindex++).setCellValue(s.getAmPay03());
+            row.createCell(cellindex++).setCellValue(s.getAmPay04());
+            row.createCell(cellindex++).setCellValue(s.getAmPay05());
+            row.createCell(cellindex++).setCellValue(s.getAmPay06());
+            row.createCell(cellindex++).setCellValue(s.getAmPay07());
+            row.createCell(cellindex++).setCellValue(s.getAmPay08());
+            row.createCell(cellindex++).setCellValue(s.getAmPay09());
+            row.createCell(cellindex++).setCellValue(s.getAmPay10());
+            row.createCell(cellindex++).setCellValue(s.getAmPay11());
+            row.createCell(cellindex++).setCellValue(s.getAmPay12());
+            row.createCell(cellindex++).setCellValue(s.getAmPay13());
+        }
+
+        try {
+            File xlsxFile = new File("C:/Users/admin/Downloads/" + basicSalaryDto.getYyyymm() + "SalaryUpload" + ".xlsx");
+//            File xlsxFile = new File("D:/" + basicSalaryDto.getYyyymm() + "SalaryUpload" + ".xlsx");
+            FileOutputStream fileOut = new FileOutputStream(xlsxFile);
+            workbook.write(fileOut);
+            workbook.close();
+            fileOut.close();
+        } catch (Exception e) {
+            logger.error("Exception", e);
+            throw e;
+        }
+
+
+        return responseDto;
+    }
     
     @Transactional
     public ResponseDto salaryReport(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -202,7 +304,7 @@ public class ReportService {
 
         try {
 //            File xlsxFile = new File("C:/Users/admin/Downloads/" + monthlyKeunTaeDto.getYyyymm() + "monthlyKeunTae" + ".xlsx");
-            File xlsxFile = new File("D:/" + monthlyKeunTaeDto.getYyyymm() + "monthlyKeunTae" + ".xlsx");
+            File xlsxFile = new File("C:/" + monthlyKeunTaeDto.getYyyymm() + "monthlyKeunTae" + ".xlsx");
             FileOutputStream fileOut = new FileOutputStream(xlsxFile);
             workbook.write(fileOut);
             workbook.close();
@@ -214,5 +316,226 @@ public class ReportService {
 
 
         return responseDto;
+    }
+    
+    @Transactional
+    public ResponseDto payrollReport(ReportPayrollDto reportPayrollDto, HttpServletResponse response) throws Exception{
+    	ResponseDto responseDto = ResponseDto.builder().build();
+        
+    	//Open Sample Excel
+        Resource resource = resourceLoader.getResource("classpath:hr/payrollSample.xlsx");
+        InputStream fis = resource.getInputStream();
+        
+        XSSFWorkbook workbook = new XSSFWorkbook(fis);
+        XSSFSheet sheet = workbook.getSheetAt(0);
+        int rowindex = 8;
+        int cellindex = 0;
+        XSSFRow row = null;
+        XSSFCell cell = null;
+        
+        //Style Setting
+        Font bodyFont = workbook.createFont();
+        bodyFont.setFontName("바탕체");
+        bodyFont.setFontHeightInPoints((short)8);
+        
+        CellStyle ThinBorderStyle = workbook.createCellStyle();
+        ThinBorderStyle.setBorderTop(BorderStyle.THIN);
+        ThinBorderStyle.setBorderBottom(BorderStyle.THIN);
+        ThinBorderStyle.setBorderLeft(BorderStyle.THIN);
+        ThinBorderStyle.setBorderRight(BorderStyle.THIN);
+        ThinBorderStyle.setFont(bodyFont);
+        ThinBorderStyle.setAlignment(HorizontalAlignment.CENTER);
+        ThinBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        
+        CellStyle RightBorderStyle = workbook.createCellStyle();
+        RightBorderStyle.setBorderTop(BorderStyle.THIN);
+        RightBorderStyle.setBorderBottom(BorderStyle.THIN);
+        RightBorderStyle.setBorderLeft(BorderStyle.THIN);
+        RightBorderStyle.setBorderRight(BorderStyle.MEDIUM);
+        RightBorderStyle.setFont(bodyFont);
+        RightBorderStyle.setAlignment(HorizontalAlignment.CENTER);
+        RightBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        
+        CellStyle TopBorderStyle = workbook.createCellStyle();
+        TopBorderStyle.setBorderTop(BorderStyle.MEDIUM);
+        TopBorderStyle.setBorderBottom(BorderStyle.THIN);
+        TopBorderStyle.setBorderLeft(BorderStyle.THIN);
+        TopBorderStyle.setBorderRight(BorderStyle.THIN);
+        TopBorderStyle.setFont(bodyFont);
+        TopBorderStyle.setAlignment(HorizontalAlignment.CENTER);
+        TopBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        
+        CellStyle TopRightBorderStyle = workbook.createCellStyle();
+        TopRightBorderStyle.setBorderTop(BorderStyle.MEDIUM);
+        TopRightBorderStyle.setBorderBottom(BorderStyle.THIN);
+        TopRightBorderStyle.setBorderLeft(BorderStyle.THIN);
+        TopRightBorderStyle.setBorderRight(BorderStyle.MEDIUM);
+        TopRightBorderStyle.setFont(bodyFont);
+        TopRightBorderStyle.setAlignment(HorizontalAlignment.CENTER);
+        TopRightBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        
+        CellStyle AllBorderStyle = workbook.createCellStyle();
+        AllBorderStyle.setBorderTop(BorderStyle.MEDIUM);
+        AllBorderStyle.setBorderBottom(BorderStyle.MEDIUM);
+        AllBorderStyle.setBorderLeft(BorderStyle.MEDIUM);
+        AllBorderStyle.setBorderRight(BorderStyle.MEDIUM);
+        AllBorderStyle.setFont(bodyFont);
+        AllBorderStyle.setAlignment(HorizontalAlignment.CENTER);
+        AllBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        
+        CellStyle GrayAllBorderStyle = workbook.createCellStyle();
+        GrayAllBorderStyle.setBorderTop(BorderStyle.MEDIUM);
+        GrayAllBorderStyle.setBorderBottom(BorderStyle.MEDIUM);
+        GrayAllBorderStyle.setBorderLeft(BorderStyle.MEDIUM);
+        GrayAllBorderStyle.setBorderRight(BorderStyle.MEDIUM);
+        GrayAllBorderStyle.setFont(bodyFont);
+        GrayAllBorderStyle.setAlignment(HorizontalAlignment.CENTER);
+        GrayAllBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        GrayAllBorderStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        GrayAllBorderStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        
+        //Get Data
+        List<ReportPayrollDto> reportPayrollDtoList = new ArrayList<>();
+        reportPayrollDtoList = reportDao.findPayrollReport(reportPayrollDto);
+        
+        
+        //Data Insert into Excel
+        for (ReportPayrollDto m : reportPayrollDtoList) {
+        	
+        	//1열
+            cellindex = 0;
+            row = sheet.createRow(rowindex++);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getEmployeeNumber());
+            cell.setCellStyle(TopBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getKoreanName());
+            cell.setCellStyle(TopRightBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getBasicSalary());
+            cell.setCellStyle(ThinBorderStyle);
+            cell.setCellType(CellType.NUMERIC);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getAnnualAllowance());
+            cell.setCellStyle(ThinBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getOvertimeAllowance01());
+            cell.setCellStyle(ThinBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getOvertimeAllowance02());
+            cell.setCellStyle(ThinBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getNightAllowance01());
+            cell.setCellStyle(ThinBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getNightAllowance02());
+            cell.setCellStyle(ThinBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getHolidayAllowance01());
+            cell.setCellStyle(ThinBorderStyle);
+
+            //2열
+            cellindex = 0;
+            row = sheet.createRow(rowindex++);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getHireDate());
+            cell.setCellStyle(ThinBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getDefinedName());
+            cell.setCellStyle(RightBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getHolidayAllowance02());
+            cell.setCellStyle(ThinBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getPositionAllowance());
+            cell.setCellStyle(ThinBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getOtherAllowance());
+            cell.setCellStyle(ThinBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getSubsidies());
+            cell.setCellStyle(ThinBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getTransportationExpenses());
+            cell.setCellStyle(ThinBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getMealsExpenses());
+            cell.setCellStyle(ThinBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setBlank();
+            cell.setCellStyle(ThinBorderStyle);
+            
+            //3열
+            cellindex = 0;
+            row = sheet.createRow(rowindex++);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getRetireDate());
+            cell.setCellStyle(ThinBorderStyle);
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getDepartmentName());
+            cell.setCellStyle(RightBorderStyle);
+            
+            for(int i=0; i<6 ; i++) {	//blank cell 6개
+            	cell = row.createCell(cellindex++);
+                cell.setBlank();
+                cell.setCellStyle(ThinBorderStyle);
+            }
+            
+            cell = row.createCell(cellindex++);
+            cell.setCellValue(m.getSalarySum());
+            cell.setCellStyle(AllBorderStyle);
+
+        }
+        
+        //리스트 하단 합계
+        for(int i=0 ; i<3 ; i++) {
+        	row = sheet.createRow(rowindex++);
+        	for(cellindex=0; cellindex<2; cellindex++) {
+            	cell = row.createCell(cellindex);
+                cell.setCellStyle(GrayAllBorderStyle);
+                cell.setCellValue("합계 ("+reportPayrollDtoList.size()+"명)");
+            }
+        }
+        
+        sheet.addMergedRegion(new CellRangeAddress((8+reportPayrollDtoList.size()*3), (9+reportPayrollDtoList.size()*3)+1, 0, 1));
+        
+//        cellindex = 0;
+//        row = sheet.createRow(rowindex++);
+//        cell = row.createCell(cellindex++);
+//        cell.setCellValue("합계 ("+basicSalaryDtoList.size()+"명)");
+//        cell.setCellStyle(AllBorderStyle);
+
+        try {
+            File xlsxFile = new File("C:/Users/admin/Downloads/" + reportPayrollDto.getYyyymm() + "payroll" + ".xlsx");
+            FileOutputStream fileOut = new FileOutputStream(xlsxFile);
+            workbook.write(fileOut);
+            workbook.close();
+            fileOut.close();
+        } catch (Exception e) {
+            logger.error("Exception", e);
+            throw e;
+        }
+        
+    	return responseDto;
     }
 }

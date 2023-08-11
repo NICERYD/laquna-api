@@ -88,12 +88,4 @@ public class SalaryApi {
                 .code("200").build(), HttpStatus.OK);
     }
     
-    @PostMapping("/hr/downloadSalaryExcel")
-    public ResponseEntity<ResponseDto> downloadSalaryExcel(@RequestBody BasicSalaryDto basicSalaryDto, HttpServletResponse response) throws Exception {
-        ResponseDto responseDto = salaryService.downloadSalaryExcel(basicSalaryDto, response);
-        
-        return new ResponseEntity<>(responseDto
-                .builder()
-                .code("200").build(), HttpStatus.OK);
-    }
 }

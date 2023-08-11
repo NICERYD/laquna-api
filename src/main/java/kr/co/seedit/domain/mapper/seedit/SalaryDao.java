@@ -59,7 +59,6 @@ public interface SalaryDao {
     void insertNonPayDay(@Param("paidHolidayindex") Integer paidHolidayindex,@Param("companyId") Integer companyId,@Param("yyyymm") String yyyymm,@Param("employeeId") Integer employeeId);
     void insertnightTeamDay(@Param("nightTeamDay") Integer nightTeamDay,@Param("companyId") Integer companyId,@Param("yyyymm") String yyyymm,@Param("employeeId") Integer employeeId);
     
-    List<SalaryExcelDto> findSalaryExcel(BasicSalaryDto basicSalaryDto);
 
     Integer selectpaidHolidayindex(@Param("companyId") Integer companyId,@Param("yyyymm") String yyyymm,@Param("employeeNumber")  String employeeNumber);
 
