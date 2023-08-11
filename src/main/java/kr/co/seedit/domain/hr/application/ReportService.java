@@ -417,7 +417,7 @@ public class ReportService {
         List<ReportPayrollDto> reportPayrollDtoList = new ArrayList<>();
         reportPayrollDtoList = reportDao.findPayrollReport(reportPayrollDto);
         
-        //양식에 포함되어있는 상단 날짜 변경
+        //양식 내 상단 날짜 변경
         String yyyy = reportPayrollDto.getYyyymm().substring(0,4);
         String mm = reportPayrollDto.getYyyymm().substring(4,6);
         
@@ -428,11 +428,18 @@ public class ReportService {
         row = sheet.getRow(0);
         cell = row.getCell(7);
         cell.setCellValue(yyyy +"년 "+ mm +"월분 "+"급여대장");
-        
-        
         row = sheet.getRow(2);
         cell = row.getCell(7);
         cell.setCellValue("[귀속:"+yyyy+"년"+mm+"월] [지급:"+ today +"]");
+        
+        //양식 내 상단 사업장 변경
+        row = sheet.getRow(2);
+    	cell = row.getCell(0);
+        if(reportPayrollDto.getEstId() != null && reportPayrollDto.getEstId() != 999) {
+        	cell.setCellValue(reportPayrollDtoList.get(0).getEstName());
+        }else {
+        	cell.setCellValue("전체 사업장");
+        }
         
         
         //Data Insert into Excel
