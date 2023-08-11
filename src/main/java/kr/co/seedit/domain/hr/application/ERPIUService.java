@@ -57,7 +57,7 @@ public class ERPIUService {
         CompanyDto info = companyDao.selectTokenInfo(companyDto);
         erpIUDto.setLoginUserId(info.getUserId());
 
-        // 부서, 사원, 책정임금, 상여금, 급여계산, 캘린더
+        // 부서, 사원, 책정임금, 상여금, 급여계산, 캘린더, 유급휴가data, 휴일수당(야간)data
         // DELETE
         salaryDao.deleteDepartment(erpIUDto);
         salaryDao.deleteEmployee(erpIUDto);

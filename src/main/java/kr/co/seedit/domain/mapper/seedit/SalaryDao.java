@@ -65,4 +65,7 @@ public interface SalaryDao {
 
     void deleteMonthlyKeunTae(RequestDto requestDto);
     void insertMonthlyKeunTae(List<MonthlyKeunTaeDto> monthlyKeunTaeDtos);
+
+    void deleteNightEeamDay(RequestDto requestDto);
+    void deletePaidLeave(RequestDto requestDto);
 }
