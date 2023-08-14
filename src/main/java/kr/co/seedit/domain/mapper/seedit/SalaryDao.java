@@ -62,6 +62,8 @@ public interface SalaryDao {
 
     Integer selectpaidHolidayindex(@Param("companyId") Integer companyId,@Param("yyyymm") String yyyymm,@Param("employeeNumber")  String employeeNumber);
 
+    Integer selectNightdayindex(@Param("companyId") Integer companyId,@Param("yyyymm") String yyyymm,@Param("employeeNumber")  String employeeNumber);
+
     void deleteMonthlyKeunTae(RequestDto requestDto);
     void insertMonthlyKeunTae(List<MonthlyKeunTaeDto> monthlyKeunTaeDtos);
 

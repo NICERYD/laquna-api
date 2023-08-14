@@ -535,9 +535,39 @@
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
-          AND he.employee_number in (
-            'D22747'
-            )
+--           AND he.employee_number in (
+--             'D01110'
+--             ,'D02046'
+--             ,'D06166'
+--             ,'D09262'
+--             ,'D09271'
+--             ,'D10210'
+--             ,'D14025'
+--             ,'D15006'
+--             ,'D16018'
+--             ,'D17026'
+--             ,'D18006'
+--             ,'D18011'
+--             ,'D18717'
+--             ,'D19006'
+--             ,'D19010'
+--             ,'D19011'
+--             ,'D19014'
+--             ,'D19718'
+--             ,'D20006'
+--             ,'D20011'
+--             ,'D20012'
+--             ,'D20725'
+--             ,'D21005'
+--             ,'D21014'
+--             ,'D21749'
+--             ,'D22710'
+--             ,'D22731'
+--             ,'D22736'
+--             ,'D22747'
+--             ,'D23706'
+--             ,'D23707'
+--             )
         UNION ALL
         SELECT he.employee_id
              , he.employee_number
@@ -836,7 +866,15 @@
           FROM hr_dh_paidLeave
          WHERE company_id = #{companyId}
            AND yyyymm = #{yyyymm}
-           AND employee_id = (select employee_id from hr_employee where company_id = #{companyId} and attribute2 = #{yyyymm} and employee_number = #{employeeNumber})
+           AND employee_id = (select employee_id from hr_employee where company_id = #{companyId} and attribute1 = #{yyyymm} and employee_number = #{employeeNumber})
+    </select>
+
+    <select id="selectNightdayindex" resultType="Integer">
+        SELECT nightteamday_cnt
+        FROM hr_dh_nightteamday
+        WHERE company_id = #{companyId}
+          AND yyyymm = #{yyyymm}
+          AND employee_id = (select employee_id from hr_employee where company_id = #{companyId} and attribute1 = #{yyyymm} and employee_number = #{employeeNumber})
     </select>
     
     <insert id="insertMonthlyKeunTae" parameterType="kr.co.seedit.domain.hr.dto.MonthlyKeunTaeDto">

@@ -305,7 +305,14 @@ public class SalaryService {
         Integer holidayBaseTime = 0;
         BigDecimal holidayBaseAmount = BigDecimal.ZERO;
 
+        // 초기화
+        salaryDao.deleteMonthlyKeunTae(requestDto);
+        salaryDao.deleteCalcSalary(requestDto);
+        salaryDao.deleteNightEeamDay(requestDto);
+        salaryDao.deletePaidLeave(requestDto);
+
         List<SalaryCodeValuesDto> salaryCodeValuesDto = salaryDao.selectCodeValues(requestDto);
+
 
         for (SalaryCodeValuesDto codeValues : salaryCodeValuesDto) {
             if (codeValues.getCodeField().equals("HR_Z0001")) {
@@ -484,6 +491,7 @@ public class SalaryService {
                 // 유급휴가 count 변수
                 Integer paidHolidayindex = 0;
                 Integer paidHoliday = 0;
+                Integer paidLeaveDay = 0;
                 // 야간조 count 변수
                 Integer nightTeamDay = 0;
                 Integer nightTeamPlus = 0;
@@ -497,6 +505,12 @@ public class SalaryService {
                 double lateTime = 0;
                 double earlyLeaveTime = 0;
                 double outingTime = 0;
+
+                String yyyymm = LocalDate.parse(requestDto.getYyyymm() + "01", DateTimeFormatter.ofPattern("yyyyMMdd")).minusMonths(1).format(DateTimeFormatter.ofPattern("yyyyMM"));
+                // 유급휴가 지난달 index값 있으면 해당값으로 초기화
+                paidLeaveDay = salaryDao.selectpaidHolidayindex(info.getCompanyId(), yyyymm, basicSalaryDto.getEmployeeNumber());
+                // 야간수당1 - 야간도(연장) 지난달 nightTeamDay 값이 있으면 가져와서 count
+                nightTeamDay = salaryDao.selectNightdayindex(info.getCompanyId(), yyyymm, basicSalaryDto.getEmployeeNumber());
 
                 List<ADTDataDto> adtDataDtos = salaryDao.selectADTData(requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
                 for (ADTDataDto adtDataDto : adtDataDtos) {
@@ -512,10 +526,7 @@ public class SalaryService {
                         workStartTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                     }
-                    // 유급휴가 지난달 index값 있으면 해당값으로 초기화
-                    String yyyymm = LocalDate.parse(requestDto.getYyyymm() + "01", DateTimeFormatter.ofPattern("yyyyMMdd")).minusMonths(1).format(DateTimeFormatter.ofPattern("yyyyMM"));
-                    Integer paidLeaveCnt = salaryDao.selectpaidHolidayindex(info.getCompanyId(), yyyymm, adtDataDto.getEmployeeNumber());
-                    paidHolidayindex = Optional.ofNullable(paidLeaveCnt).orElse(0);
+                    paidHolidayindex = Optional.ofNullable(paidLeaveDay).orElse(0);
                     // 유급휴일 count
                     if (adtDataDto.getDateType().equals("1")) {
                         paidHolidayindex++;
@@ -599,31 +610,38 @@ public class SalaryService {
                         }
                     }
                     // 야간수당1 - 야간조(연장)
+
                     if (adtDataDto.getWorkStatus().equals("야간")) {
                         nightAmount01 = nightAmount01.add(BigDecimal.valueOf(6.5).multiply(hourlyPay).multiply(BigDecimal.valueOf(0.5)));
                         rtNightShift01 = rtNightShift01 + 6.5;
                         rtNSDayTimeHours = rtNSDayTimeHours + 6.5;
                     }
-                    // 야간수당1 - count
+                    // 야간수당1 - 야간도(연장) 지난달 nightTeamDay 값이 있으면 가져와서 count
+//                    nightTeamDay = salaryDao.selectNightdayindex(info.getCompanyId(), yyyymm, adtDataDto.getEmployeeNumber());
+                    // 야간수당1 - 야간조(연장) count
                     if (adtDataDto.getWorkStatus().equals("야간")) {
                         nightTeamDay++;
                         nightCnt++;
                     } else {
                         nightTeamDay = 0;
                     }
+                    // 야간수당1 - 야간조(연장)
+                    //  (1) 마지막날이 마지막주이면서 금요일이면 다음달로 count이관하여 다음달급여에서 count이어간다.
+                    //      ex. 2023.06.26~30일 근무하였지만 휴일수당은 다음달에 줘야한다.
+                    if ((adtDataDto == adtDataDtos.get(adtDataDtos.size() - 1)) && salaryDao.selectLastWeek(adtDataDto.getWorkDate()) && adtDataDto.getDateWeek().equals("5") && nightTeamDay == 5) {
+                        salaryDao.insertnightTeamDay(nightTeamDay, requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
+                        nightTeamPlus--;
+                    }
+                    //  (2) count 중 다음달로 넘어가면 다음달에 count를 이어간다
+                    if ((adtDataDto == adtDataDtos.get(adtDataDtos.size() - 1)) && salaryDao.selectLastWeek(adtDataDto.getWorkDate()) && !adtDataDto.getDateWeek().equals("5")) {
+                        salaryDao.insertnightTeamDay(nightTeamDay, requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
+                    }
+
+                    // 야간수당1 - 야간조(연장) 초기화
                     if (nightTeamDay == 5) {
                         nightTeamPlus++;
                         nightTeamDay = 0;
                     }
-                    // 야간수당1
-                    //  (1) 마지막날이 금요일이면 다음달로 count이관하여 다음달급여에서 count이어간다.
-                    //      ex. 2023.06.26~30일 근무하였지만 휴일수당은 다음달에 줘야한다.
-                    //  (2) count 중 다음달로 넘어가면 다음달에 count를 이어간다
-
-                    if ((adtDataDto == adtDataDtos.get(adtDataDtos.size() - 1)) && salaryDao.selectLastWeek(adtDataDto.getWorkDate())) {
-                        salaryDao.insertnightTeamDay(nightTeamDay, requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
-                    }
-
 
                     // 휴일수당1 : 일반
                     if (!adtDataDto.getHolidayTime().equals("00:00")) {
@@ -751,11 +769,6 @@ public class SalaryService {
             monthlyKeunTaeDtos.add(monthlyKeunTaeDto);
             resultData.add(basicSalaryDto);
         }
-
-        salaryDao.deleteMonthlyKeunTae(requestDto);
-        salaryDao.deleteCalcSalary(requestDto);
-        salaryDao.deleteNightEeamDay(requestDto);
-        salaryDao.deletePaidLeave(requestDto);
 
         if (!basicSalaryDtos.isEmpty()) {
             salaryDao.insertCalcSalary(resultData);
