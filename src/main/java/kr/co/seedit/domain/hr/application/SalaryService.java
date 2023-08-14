@@ -599,7 +599,7 @@ public class SalaryService {
                         Duration duration = Duration.between(workStartTime.with(LocalTime.of(22, 00)), workEndTime);
                         // 휴게시간 빼기 ( 00:30 ~ 01:30 )
                         if (!workStartTime.toLocalDate().isEqual(workEndTime.toLocalDate())) {
-                            if (workEndTime.isAfter(workEndTime.plusDays(1).with(LocalTime.of(1, 30)))) {
+                            if (workEndTime.isAfter(workEndTime.with(LocalTime.of(1, 30)))) {
                                 duration = duration.minus(Duration.ofHours(1));
                             }
                         }
@@ -616,8 +616,6 @@ public class SalaryService {
                         rtNightShift01 = rtNightShift01 + 6.5;
                         rtNSDayTimeHours = rtNSDayTimeHours + 6.5;
                     }
-                    // 야간수당1 - 야간도(연장) 지난달 nightTeamDay 값이 있으면 가져와서 count
-//                    nightTeamDay = salaryDao.selectNightdayindex(info.getCompanyId(), yyyymm, adtDataDto.getEmployeeNumber());
                     // 야간수당1 - 야간조(연장) count
                     if (adtDataDto.getWorkStatus().equals("야간")) {
                         nightTeamDay++;
