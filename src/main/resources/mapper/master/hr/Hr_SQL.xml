@@ -926,4 +926,10 @@
           AND  yyyymm = #{yyyymm}
     </delete>
 
+    <delete id ="deleteMonthlyKeunae" parameterType ="kr.co.seedit.global.common.dto.RequestDto" >
+        delete from hr_dh_monthly_keun_tae
+        where  company_id = #{companyId}
+          AND  yyyymm = #{yyyymm}
+    </delete>
+
 </mapper>
