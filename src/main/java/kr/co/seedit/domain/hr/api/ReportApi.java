@@ -45,14 +45,14 @@ public class ReportApi {
                 .code("200").build(), HttpStatus.OK);
     }
     
-    @PostMapping("/hr/monthlyKeunTaeReport")
-    public ResponseEntity<ResponseDto> monthlyKeunTaeReport(@RequestBody MonthlyKeunTaeDto monthlyKeunTaeDto, HttpServletResponse response) throws Exception {
-        ResponseDto responseDto = reportService.monthlyKeunTaeReport(monthlyKeunTaeDto, response);
-        
-        return new ResponseEntity<>(responseDto
-                .builder()
-                .code("200").build(), HttpStatus.OK);
-    }
+//    @PostMapping("/hr/monthlyKeunTaeReport")
+//    public ResponseEntity<ResponseDto> monthlyKeunTaeReport(@RequestBody MonthlyKeunTaeDto monthlyKeunTaeDto, HttpServletResponse response) throws Exception {
+//        ResponseDto responseDto = reportService.monthlyKeunTaeReport(monthlyKeunTaeDto, response);
+//        
+//        return new ResponseEntity<>(responseDto
+//                .builder()
+//                .code("200").build(), HttpStatus.OK);
+//    }
     
     @PostMapping("/hr/payrollReport")
     public ResponseEntity<ResponseDto> payrollReport(@RequestBody ReportPayrollDto reportPayrollDto, HttpServletResponse response) throws Exception {

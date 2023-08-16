@@ -19,7 +19,7 @@ public interface ReportDao {
 	
 	List<SalaryExcelDto> findSalaryExcel(BasicSalaryDto basicSalaryDto);
 	
-	List<ReportMonthlyKeunTaeDto> findPayroll(MonthlyKeunTaeDto monthlyKeunTaeDto);
+//	List<ReportMonthlyKeunTaeDto> findPayroll(MonthlyKeunTaeDto monthlyKeunTaeDto);
 	
 	List<ReportPayrollDto> findPayrollReport(ReportPayrollDto reportPayrollDto);
 }

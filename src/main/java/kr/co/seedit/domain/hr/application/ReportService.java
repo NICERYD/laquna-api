@@ -56,6 +56,9 @@ public class ReportService {
     
     private final ReportDao reportDao;
     
+    @Autowired
+    ResourceLoader resourceLoader;
+    
     @Transactional
     public ResponseDto downloadSalaryExcel(BasicSalaryDto basicSalaryDto, HttpServletResponse response) throws
             Exception {
@@ -203,124 +206,123 @@ public class ReportService {
         return responseDto;
     }
     
-    @Autowired
-    ResourceLoader resourceLoader;
 
-    @Transactional
-    public ResponseDto monthlyKeunTaeReport(MonthlyKeunTaeDto monthlyKeunTaeDto, HttpServletResponse response) throws
-            Exception {
-        ResponseDto responseDto = ResponseDto.builder().build();
-        
-        Resource resource = resourceLoader.getResource("classpath:hr/monthlyKeunTaeSample.xlsx");
-        InputStream fis = resource.getInputStream();
-        
-//        //Local Path
-//        File formPath = new File("C:/Users/admin/Documents/reportSample/payrollSample.xlsx");
-//        InputStream fis = new FileInputStream(formPath);
-        XSSFWorkbook workbook = new XSSFWorkbook(fis);
-        XSSFSheet sheet = workbook.getSheetAt(0);
-        int rowindex = 5;
-        int cellindex = 1;
-        int no = 1;
-        
-        
-        // test
-        System.out.print("sheet.getLastRowNum():"+sheet.getLastRowNum());
-        System.out.print("oldSheet.getFirstRowNum():"+sheet.getFirstRowNum());
-        for (int i=1;i<6;i++)
-        {
-        	XSSFRow row = sheet.getRow(i);
-        	XSSFCell cell = row.getCell(i);
-        	switch(i) {
-        	case 1:cell.setCellValue(false);break;
-        	case 2:cell.setCellValue(2);break;
-        	case 3:cell.setCellValue("3");break;
-        	case 4:cell.setCellValue("4");break;
-        	case 5:cell.setCellValue(LocalDate.now());break;
-        	}
-        	
-        	;
-        }
-
-        //Excel Data Select
-        List<ReportMonthlyKeunTaeDto> reportMonthlyKeunTaeDtoList = new ArrayList<>();
-        reportMonthlyKeunTaeDtoList = reportDao.findPayroll(monthlyKeunTaeDto);
-
-//        XSSFWorkbook workbook = new XSSFWorkbook();
-//        XSSFSheet sheet = workbook.createSheet(monthlyKeunTaeDto.getYyyymm() + "SalaryUpload");
-//        int rowindex = 0;
-//        int cellindex = 0;
-
-        //Data Insert
-        for (ReportMonthlyKeunTaeDto m : reportMonthlyKeunTaeDtoList) {
-            cellindex = 1;
-            XSSFRow row = sheet.createRow(rowindex++);
-            row.createCell(cellindex++).setCellValue(no++);
-            row.createCell(cellindex++).setCellValue(m.getKoreanName());
-            row.createCell(cellindex++).setCellValue(m.getDefinedName());
-            row.createCell(cellindex++).setCellValue(m.getDepartmentName());
-            row.createCell(cellindex++).setCellValue(m.getHireDate());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getAnnualLeaveUsedDay());
-            row.createCell(cellindex++).setCellValue(m.getAnnualLeaveUsed());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getOverTime1());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getOverTime2());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getNightShift1());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getNightShift2());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getDayTimeHours());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getNightTimeHours());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getHolidaySaturday1());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getHolidaySunday1());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getHoliday2());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getTransportation());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getMeal());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setBlank();		//보조금
-            row.createCell(cellindex++).setCellValue(m.getOther());
-            row.createCell(cellindex++).setCellValue(m.getHalfDay());
-            row.createCell(cellindex++).setCellValue(m.getHalfTime());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getEarlyLeaveDay());
-            row.createCell(cellindex++).setCellValue(m.getEarlyLeaveTime());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setCellValue(m.getLateDay());
-            row.createCell(cellindex++).setCellValue(m.getLateTime());
-            row.createCell(cellindex++).setBlank();
-            row.createCell(cellindex++).setBlank();
-        }
-
-        try {
-//            File xlsxFile = new File("C:/Users/admin/Downloads/" + monthlyKeunTaeDto.getYyyymm() + "monthlyKeunTae" + ".xlsx");
-            File xlsxFile = new File("C:/" + monthlyKeunTaeDto.getYyyymm() + "monthlyKeunTae" + ".xlsx");
-            FileOutputStream fileOut = new FileOutputStream(xlsxFile);
-            workbook.write(fileOut);
-            workbook.close();
-            fileOut.close();
-        } catch (Exception e) {
-            logger.error("Exception", e);
-            throw e;
-        }
-
-
-        return responseDto;
-    }
+// 예전 급여대장
+//    @Transactional
+//    public ResponseDto monthlyKeunTaeReport(MonthlyKeunTaeDto monthlyKeunTaeDto, HttpServletResponse response) throws
+//            Exception {
+//        ResponseDto responseDto = ResponseDto.builder().build();
+//        
+//        Resource resource = resourceLoader.getResource("classpath:hr/monthlyKeunTaeSample.xlsx");
+//        InputStream fis = resource.getInputStream();
+//        
+////        //Local Path
+////        File formPath = new File("C:/Users/admin/Documents/reportSample/payrollSample.xlsx");
+////        InputStream fis = new FileInputStream(formPath);
+//        XSSFWorkbook workbook = new XSSFWorkbook(fis);
+//        XSSFSheet sheet = workbook.getSheetAt(0);
+//        int rowindex = 5;
+//        int cellindex = 1;
+//        int no = 1;
+//        
+//        
+//        // test
+//        System.out.print("sheet.getLastRowNum():"+sheet.getLastRowNum());
+//        System.out.print("oldSheet.getFirstRowNum():"+sheet.getFirstRowNum());
+//        for (int i=1;i<6;i++)
+//        {
+//        	XSSFRow row = sheet.getRow(i);
+//        	XSSFCell cell = row.getCell(i);
+//        	switch(i) {
+//        	case 1:cell.setCellValue(false);break;
+//        	case 2:cell.setCellValue(2);break;
+//        	case 3:cell.setCellValue("3");break;
+//        	case 4:cell.setCellValue("4");break;
+//        	case 5:cell.setCellValue(LocalDate.now());break;
+//        	}
+//        	
+//        	;
+//        }
+//
+//        //Excel Data Select
+//        List<ReportMonthlyKeunTaeDto> reportMonthlyKeunTaeDtoList = new ArrayList<>();
+//        reportMonthlyKeunTaeDtoList = reportDao.findPayroll(monthlyKeunTaeDto);
+//
+////        XSSFWorkbook workbook = new XSSFWorkbook();
+////        XSSFSheet sheet = workbook.createSheet(monthlyKeunTaeDto.getYyyymm() + "SalaryUpload");
+////        int rowindex = 0;
+////        int cellindex = 0;
+//
+//        //Data Insert
+//        for (ReportMonthlyKeunTaeDto m : reportMonthlyKeunTaeDtoList) {
+//            cellindex = 1;
+//            XSSFRow row = sheet.createRow(rowindex++);
+//            row.createCell(cellindex++).setCellValue(no++);
+//            row.createCell(cellindex++).setCellValue(m.getKoreanName());
+//            row.createCell(cellindex++).setCellValue(m.getDefinedName());
+//            row.createCell(cellindex++).setCellValue(m.getDepartmentName());
+//            row.createCell(cellindex++).setCellValue(m.getHireDate());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getAnnualLeaveUsedDay());
+//            row.createCell(cellindex++).setCellValue(m.getAnnualLeaveUsed());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getOverTime1());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getOverTime2());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getNightShift1());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getNightShift2());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getDayTimeHours());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getNightTimeHours());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getHolidaySaturday1());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getHolidaySunday1());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getHoliday2());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getTransportation());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getMeal());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setBlank();		//보조금
+//            row.createCell(cellindex++).setCellValue(m.getOther());
+//            row.createCell(cellindex++).setCellValue(m.getHalfDay());
+//            row.createCell(cellindex++).setCellValue(m.getHalfTime());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getEarlyLeaveDay());
+//            row.createCell(cellindex++).setCellValue(m.getEarlyLeaveTime());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setCellValue(m.getLateDay());
+//            row.createCell(cellindex++).setCellValue(m.getLateTime());
+//            row.createCell(cellindex++).setBlank();
+//            row.createCell(cellindex++).setBlank();
+//        }
+//
+//        try {
+////            File xlsxFile = new File("C:/Users/admin/Downloads/" + monthlyKeunTaeDto.getYyyymm() + "monthlyKeunTae" + ".xlsx");
+//            File xlsxFile = new File("C:/" + monthlyKeunTaeDto.getYyyymm() + "monthlyKeunTae" + ".xlsx");
+//            FileOutputStream fileOut = new FileOutputStream(xlsxFile);
+//            workbook.write(fileOut);
+//            workbook.close();
+//            fileOut.close();
+//        } catch (Exception e) {
+//            logger.error("Exception", e);
+//            throw e;
+//        }
+//
+//
+//        return responseDto;
+//    }
     
     @Transactional
     public ResponseDto payrollReport(ReportPayrollDto reportPayrollDto, HttpServletResponse response) throws Exception{
