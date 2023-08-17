@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -59,6 +61,19 @@ public class ReportService {
     @Autowired
     ResourceLoader resourceLoader;
     
+    private static final String filePath = "C:/seedit";
+    
+    @Transactional
+    public static void createFolder() throws Exception {
+    	File folder = new File(filePath);
+    	try {
+    		Files.createDirectories(folder.toPath());
+    	}catch(Exception e) {
+    		logger.error("Exception", e);
+    		throw e;
+    	}
+    }
+
     @Transactional
     public ResponseDto downloadSalaryExcel(BasicSalaryDto basicSalaryDto, HttpServletResponse response) throws
             Exception {
@@ -131,12 +146,12 @@ public class ReportService {
         }
 
         try {
-            File xlsxFile = new File("C:/Users/admin/Downloads/" + basicSalaryDto.getYyyymm() + "SalaryUpload" + ".xlsx");
-//            File xlsxFile = new File("D:/" + basicSalaryDto.getYyyymm() + "SalaryUpload" + ".xlsx");
-            FileOutputStream fileOut = new FileOutputStream(xlsxFile);
-            workbook.write(fileOut);
-            workbook.close();
-            fileOut.close();
+        		createFolder();
+	    		File xlsxFile = new File(filePath +"/" + basicSalaryDto.getYyyymm() + "SalaryUpload" + ".xlsx");
+	    		FileOutputStream fileOut = new FileOutputStream(xlsxFile);
+	    		workbook.write(fileOut);
+	    		workbook.close();
+	    		fileOut.close();
         } catch (Exception e) {
             logger.error("Exception", e);
             throw e;
@@ -670,11 +685,11 @@ public class ReportService {
     	formulaEvaluator.evaluateFormulaCell(cell);
 
         sheet.addMergedRegion(new CellRangeAddress((8+reportPayrollDtoList.size()*3), (9+reportPayrollDtoList.size()*3)+1, 0, 1));
-        
-        
-        
+
         try {
-            File xlsxFile = new File("C:/Users/admin/Downloads/" + reportPayrollDto.getYyyymm() + "payroll" + ".xlsx");
+        	String dir = System.getProperty("user.home");
+        	String fileName = new StringBuilder().append(dir).append("/downloads/payRoll_").append(reportPayrollDto.getYyyymm()).append(".xlsx").toString(); 
+            File xlsxFile = new File(fileName);
             FileOutputStream fileOut = new FileOutputStream(xlsxFile);
             workbook.write(fileOut);
             workbook.close();
