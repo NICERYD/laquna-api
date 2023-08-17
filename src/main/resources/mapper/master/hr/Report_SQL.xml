@@ -38,7 +38,7 @@
 		<if test="estId !=999 and estId != null">
 		AND	he.est_id = #{estId}
 		</if>
-	    AND hdcs.yyyymm =  #{yyyymm};
+	    AND hdcs.yyyymm =  #{yyyymm}
 	</select>
 	
 	<select id="findPayroll" parameterType="kr.co.seedit.domain.hr.dto.MonthlyKeunTaeDto" resultType="kr.co.seedit.domain.hr.dto.ReportMonthlyKeunTaeDto">
