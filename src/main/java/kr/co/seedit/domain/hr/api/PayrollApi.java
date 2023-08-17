@@ -33,17 +33,6 @@ public class PayrollApi {
                 .code("200").build(), HttpStatus.OK);
     }
     
-    @PostMapping("/hr/payrollR")
-	public ResponseEntity<ResponseDto> payrollPayrollR(
-			/* @RequestBody PayrollDto payrollDto, */ HttpServletResponse response) throws Exception {
-    	String in = null;
-		ResponseDto responseDto = payrollService.payrollReportR(/* payrollDto*/in, response);
-        
-        return new ResponseEntity<>(responseDto
-                .builder()
-                .code("200").build(), HttpStatus.OK);
-    }
-
     @PostMapping("/hr/payrollFull")
 	public ResponseEntity<ResponseDto> payrollFull(
 			/* @RequestBody PayrollDto payrollDto, */ HttpServletResponse response) throws Exception {
