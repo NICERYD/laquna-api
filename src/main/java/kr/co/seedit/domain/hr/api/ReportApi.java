@@ -35,15 +35,6 @@ public class ReportApi {
                 .body(reportService.downloadFile(reportParamsDto));
     }
     
-//    @PostMapping("/hr/downloadPayroll")
-//    public ResponseEntity<Resource> downloadPayroll(@RequestBody ReportParamsDto reportParamsDto, HttpServletResponse response) throws Exception {
-//        return ResponseEntity.ok()
-//                .header("Content-Transfer-Encoding", "binary")
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + URLEncoder.encode("ReserveManageList.xlsx", "UTF-8")+".xlsx")
-//                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//                .body(reportService.downloadFile(reportParamsDto));
-//    }
-    
 //    @PostMapping("/hr/monthlyKeunTaeReport")
 //    public ResponseEntity<ResponseDto> monthlyKeunTaeReport(@RequestBody MonthlyKeunTaeDto monthlyKeunTaeDto, HttpServletResponse response) throws Exception {
 //        ResponseDto responseDto = reportService.monthlyKeunTaeReport(monthlyKeunTaeDto, response);

@@ -174,6 +174,7 @@ public class ReportService {
          ThinBorderStyle.setAlignment(HorizontalAlignment.CENTER);
          ThinBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
          ThinBorderStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0")); // 1000단위 콤마
+         ThinBorderStyle.setShrinkToFit(true);		//text 셀 맞춤
          
          CellStyle RightBorderStyle = workbook.createCellStyle();
          RightBorderStyle.setBorderTop(BorderStyle.THIN);
@@ -183,6 +184,7 @@ public class ReportService {
          RightBorderStyle.setFont(bodyFont);
          RightBorderStyle.setAlignment(HorizontalAlignment.CENTER);
          RightBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+         RightBorderStyle.setShrinkToFit(true);		//text 셀 맞춤
          
          CellStyle TopBorderStyle = workbook.createCellStyle();
          TopBorderStyle.setBorderTop(BorderStyle.MEDIUM);
@@ -193,6 +195,7 @@ public class ReportService {
          TopBorderStyle.setAlignment(HorizontalAlignment.CENTER);
          TopBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
          TopBorderStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0")); // 1000단위 콤마
+         TopBorderStyle.setShrinkToFit(true);		//text 셀 맞춤
          
          CellStyle TopRightBorderStyle = workbook.createCellStyle();
          TopRightBorderStyle.setBorderTop(BorderStyle.MEDIUM);
@@ -203,6 +206,7 @@ public class ReportService {
          TopRightBorderStyle.setAlignment(HorizontalAlignment.CENTER);
          TopRightBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
          TopRightBorderStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0")); // 1000단위 콤마
+         TopRightBorderStyle.setShrinkToFit(true);		//text 셀 맞춤
          
          CellStyle BottomBorderStyle = workbook.createCellStyle();
          BottomBorderStyle.setBorderTop(BorderStyle.THIN);
@@ -213,6 +217,7 @@ public class ReportService {
          BottomBorderStyle.setAlignment(HorizontalAlignment.CENTER);
          BottomBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
          BottomBorderStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0")); // 1000단위 콤마
+         BottomBorderStyle.setShrinkToFit(true);		//text 셀 맞춤
          
          CellStyle AllBorderStyle = workbook.createCellStyle();
          AllBorderStyle.setBorderTop(BorderStyle.MEDIUM);
@@ -223,6 +228,7 @@ public class ReportService {
          AllBorderStyle.setAlignment(HorizontalAlignment.CENTER);
          AllBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
          AllBorderStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0"));	// 1000단위 콤마
+         AllBorderStyle.setShrinkToFit(true);		//text 셀 맞춤
          
          CellStyle GrayAllBorderStyle = workbook.createCellStyle();
          GrayAllBorderStyle.setBorderTop(BorderStyle.MEDIUM);
@@ -234,6 +240,7 @@ public class ReportService {
          GrayAllBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
          GrayAllBorderStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
          GrayAllBorderStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+         GrayAllBorderStyle.setShrinkToFit(true);		//text 셀 맞춤
          
          //양식 내 상단 날짜 변경
          String yyyy = reportParamsDto.getYyyymm().substring(0,4);
