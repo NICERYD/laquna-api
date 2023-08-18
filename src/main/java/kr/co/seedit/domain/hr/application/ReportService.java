@@ -61,34 +61,18 @@ public class ReportService {
     @Autowired
     ResourceLoader resourceLoader;
     
-    private static final String filePath = "C:/seedit";
-    
     @Transactional
-    public static void createFolder() throws Exception {
-    	File folder = new File(filePath);
-    	try {
-    		Files.createDirectories(folder.toPath());
-    	}catch(Exception e) {
-    		logger.error("Exception", e);
-    		throw e;
-    	}
-    }
-
-    @Transactional
-    public ResponseDto downloadSalaryExcel(BasicSalaryDto basicSalaryDto, HttpServletResponse response) throws
-            Exception {
-        ResponseDto responseDto = ResponseDto.builder().build();
-
-        //Excel Data Select
+    public void downloadERPIU(BasicSalaryDto basicSalaryDto, HttpServletResponse response) throws Exception {
+    	//Excel Data Select
         List<SalaryExcelDto> salaryExcelDtoList = new ArrayList<>();
         salaryExcelDtoList = reportDao.findSalaryExcel(basicSalaryDto);
-
+        
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet(basicSalaryDto.getYyyymm() + "SalaryUpload");
         int rowindex = 0;
         int cellindex = 0;
-
-        //Excel Header Setting
+        
+      //Excel Header Setting
         XSSFRow headerRow = sheet.createRow(rowindex++);
         headerRow.createCell(cellindex++).setCellValue("CD_COMPANY");
         headerRow.createCell(cellindex++).setCellValue("CD_BIZAREA");
@@ -111,12 +95,6 @@ public class ReportService {
         headerRow.createCell(cellindex++).setCellValue("AM_PAY11");
         headerRow.createCell(cellindex++).setCellValue("AM_PAY12");
         headerRow.createCell(cellindex).setCellValue("AM_PAY13");
-
-        //Empty Row Create
-//        XSSFRow emptyRow = sheet.createRow(rowindex++);
-//        for(cellindex = 0; cellindex <= 20; cellindex++) {
-//        	emptyRow.createCell(cellindex).setCellValue("");
-//        }
 
         //Data Insert
         for (SalaryExcelDto s : salaryExcelDtoList) {
@@ -144,18 +122,101 @@ public class ReportService {
             row.createCell(cellindex++).setCellValue(s.getAmPay12());
             row.createCell(cellindex++).setCellValue(s.getAmPay13());
         }
-
+        
+        response.setHeader("Set-Cookie", "fileDownload=true; path=/");
+        response.setHeader("Content-Disposition", String.format("attachment; filename=\"ReserveManageList.xlsx\""));
         try {
-        		createFolder();
-	    		File xlsxFile = new File(filePath +"/" + basicSalaryDto.getYyyymm() + "SalaryUpload" + ".xlsx");
-	    		FileOutputStream fileOut = new FileOutputStream(xlsxFile);
-	    		workbook.write(fileOut);
-	    		workbook.close();
-	    		fileOut.close();
-        } catch (Exception e) {
-            logger.error("Exception", e);
+        	workbook.write(response.getOutputStream());
+        	workbook.close();
+        }catch(Exception e){
+        	logger.error("Exception", e);
             throw e;
         }
+        
+    }
+
+    @Transactional
+    public ResponseDto downloadSalaryExcel(BasicSalaryDto basicSalaryDto, HttpServletResponse response) throws
+            Exception {
+        ResponseDto responseDto = ResponseDto.builder().build();
+        
+        downloadERPIU(basicSalaryDto, response);
+
+//        //Excel Data Select
+//        List<SalaryExcelDto> salaryExcelDtoList = new ArrayList<>();
+//        salaryExcelDtoList = reportDao.findSalaryExcel(basicSalaryDto);
+//
+//        XSSFWorkbook workbook = new XSSFWorkbook();
+//        XSSFSheet sheet = workbook.createSheet(basicSalaryDto.getYyyymm() + "SalaryUpload");
+//        int rowindex = 0;
+//        int cellindex = 0;
+//
+//        //Excel Header Setting
+//        XSSFRow headerRow = sheet.createRow(rowindex++);
+//        headerRow.createCell(cellindex++).setCellValue("CD_COMPANY");
+//        headerRow.createCell(cellindex++).setCellValue("CD_BIZAREA");
+//        headerRow.createCell(cellindex++).setCellValue("YM");
+//        headerRow.createCell(cellindex++).setCellValue("CD_EMP");
+//        headerRow.createCell(cellindex++).setCellValue("TP_EMP");
+//        headerRow.createCell(cellindex++).setCellValue("TP_PAY");
+//        headerRow.createCell(cellindex++).setCellValue("NO_SEQ");
+//        headerRow.createCell(cellindex++).setCellValue("NO_EMP");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY01");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY02");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY03");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY04");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY05");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY06");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY07");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY08");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY09");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY10");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY11");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY12");
+//        headerRow.createCell(cellindex).setCellValue("AM_PAY13");
+//
+//        //Data Insert
+//        for (SalaryExcelDto s : salaryExcelDtoList) {
+//            cellindex = 0;
+//            XSSFRow row = sheet.createRow(rowindex++);
+//            row.createCell(cellindex++).setCellValue(s.getCdCompany());
+//            row.createCell(cellindex++).setCellValue(s.getCdBizarea());
+//            row.createCell(cellindex++).setCellValue(s.getYm());
+//            row.createCell(cellindex++).setCellValue(s.getCdEmp());
+//            row.createCell(cellindex++).setCellValue(s.getTpEmp());
+//            row.createCell(cellindex++).setCellValue(s.getTpPay());
+//            row.createCell(cellindex++).setCellValue(s.getNoSeq());
+//            row.createCell(cellindex++).setCellValue(s.getNoEmp());
+//            row.createCell(cellindex++).setCellValue(s.getAmPay01());
+//            row.createCell(cellindex++).setCellValue(s.getAmPay02());
+//            row.createCell(cellindex++).setCellValue(s.getAmPay03());
+//            row.createCell(cellindex++).setCellValue(s.getAmPay04());
+//            row.createCell(cellindex++).setCellValue(s.getAmPay05());
+//            row.createCell(cellindex++).setCellValue(s.getAmPay06());
+//            row.createCell(cellindex++).setCellValue(s.getAmPay07());
+//            row.createCell(cellindex++).setCellValue(s.getAmPay08());
+//            row.createCell(cellindex++).setCellValue(s.getAmPay09());
+//            row.createCell(cellindex++).setCellValue(s.getAmPay10());
+//            row.createCell(cellindex++).setCellValue(s.getAmPay11());
+//            row.createCell(cellindex++).setCellValue(s.getAmPay12());
+//            row.createCell(cellindex++).setCellValue(s.getAmPay13());
+//        }
+//        
+//        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+//        response.setHeader("Content-Disposition", "attachment;filename="+ basicSalaryDto.getYyyymm() + "SalaryUpload" + ".xlsx");
+//        
+//
+//        try {
+////	    		File xlsxFile = new File(basicSalaryDto.getYyyymm() + "SalaryUpload" + ".xlsx");
+////	    		FileOutputStream fileOut = new FileOutputStream(xlsxFile);
+////	    		workbook.write(fileOut);
+//        		workbook.write(response.getOutputStream());
+//	    		workbook.close();
+////	    		fileOut.close();
+//        } catch (Exception e) {
+//            logger.error("Exception", e);
+//            throw e;
+//        }
 
 
         return responseDto;
