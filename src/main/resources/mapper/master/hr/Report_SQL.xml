@@ -2,7 +2,8 @@
 <!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.seedit.domain.mapper.seedit.ReportDao">
 	
-	<select id="findSalaryExcel" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto" resultType="kr.co.seedit.domain.hr.dto.SalaryExcelDto">
+	<select id="findERPIUData" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.SalaryExcelDto">
+		 /*ReportDao.findERPIUData*/
 		 SELECT  fc.attribute1  AS cd_company -- 회사코드
 		      , fbe.attribute1 AS cd_bizarea -- 사업장코드
 		      , hdcs.yyyymm AS ym -- 년월
@@ -40,54 +41,9 @@
 		</if>
 	    AND hdcs.yyyymm =  #{yyyymm}
 	</select>
-	
-	<select id="findPayroll" parameterType="kr.co.seedit.domain.hr.dto.MonthlyKeunTaeDto" resultType="kr.co.seedit.domain.hr.dto.ReportMonthlyKeunTaeDto">
-		SELECT he.korean_name
-				,fcd02.defined_name
-				,hd.department_name
-				,he.hire_date
-				,he.employee_type
-				,annual_leave_used
-				,annual_leave_used_day
-				,IFNULL(overtime_1, 0) AS overtime_1
-				,IFNULL(overtime_2, 0) AS overtime_2
-				,IFNULL(night_shift_1, 0) AS night_shift_1
-				,IFNULL(night_shift_2, 0) AS night_shift_2
-				,IFNULL(daytime_hours, 0) AS daytime_hours
-				,IFNULL(nighttime_hours, 0) AS nighttime_hours
-				,IFNULL(holiday_saturday_1, 0) AS holiday_saturday_1
-				,IFNULL(holiday_sunday_1, 0) AS holiday_sunday_1
-				,IFNULL(holiday_2, 0) AS holiday_2
-				,IFNULL(transportation, 0) AS transportation
-				,IFNULL(meal, 0) AS meal
-				,IFNULL(other, 0) AS other
-				,IFNULL(half_day, 0) AS half_day
-				,IFNULL(half_time, 0) AS half_time
-				,IFNULL(early_leave_day, 0) AS early_leave_day
-				,IFNULL(early_leave_time, 0) AS early_leave_time
-				,IFNULL(late_day, 0) AS late_day
-				,IFNULL(late_time, 0) AS late_time
-		FROM hr_dh_monthly_keun_tae hdmkt 
-			INNER JOIN hr_employee he 
-					ON he.company_id = hdmkt.company_id
-						AND he.employee_id = hdmkt.employee_id 
-			INNER JOIN fnd_code fc02
-					ON fc02.company_id = hdmkt.company_id 
-						AND fc02.code_field = 'HR_A0003'
-			INNER JOIN fnd_code_detail fcd02
-					ON fcd02.company_id = hdmkt.company_id 
-						AND fcd02.code_id = fc02.code_id 
-						AND fcd02.defined_cd = he.position_code
-			INNER JOIN hr_department hd 
-					ON hd.company_id = hdmkt.company_id 
-						AND hd.department_id = he.department_id
-						AND hd.attribute2 = he.attribute1
-		WHERE hdmkt.company_id = #{companyId}
-		AND hdmkt.yyyymm = #{yyyymm}
-	</select>
-	
-	<select id="findPayrollReport" parameterType="kr.co.seedit.domain.hr.dto.ReportPayrollDto" resultType="kr.co.seedit.domain.hr.dto.ReportPayrollDto">
-		/*ReportDao.findPayrollReport*/
+
+	<select id="findPayrollData" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.ReportPayrollDto">
+		/*ReportDao.findPayrollData*/
 		SELECT he.employee_number
         , he.korean_name
         , fbe.est_name
@@ -143,5 +99,50 @@
         </if>
         AND   he.attribute1  = #{yyyymm}
         ORDER BY he.department_id, he.position_code
+	</select>
+	
+	<select id="findPayroll" parameterType="kr.co.seedit.domain.hr.dto.MonthlyKeunTaeDto" resultType="kr.co.seedit.domain.hr.dto.ReportMonthlyKeunTaeDto">
+		SELECT he.korean_name
+				,fcd02.defined_name
+				,hd.department_name
+				,he.hire_date
+				,he.employee_type
+				,annual_leave_used
+				,annual_leave_used_day
+				,IFNULL(overtime_1, 0) AS overtime_1
+				,IFNULL(overtime_2, 0) AS overtime_2
+				,IFNULL(night_shift_1, 0) AS night_shift_1
+				,IFNULL(night_shift_2, 0) AS night_shift_2
+				,IFNULL(daytime_hours, 0) AS daytime_hours
+				,IFNULL(nighttime_hours, 0) AS nighttime_hours
+				,IFNULL(holiday_saturday_1, 0) AS holiday_saturday_1
+				,IFNULL(holiday_sunday_1, 0) AS holiday_sunday_1
+				,IFNULL(holiday_2, 0) AS holiday_2
+				,IFNULL(transportation, 0) AS transportation
+				,IFNULL(meal, 0) AS meal
+				,IFNULL(other, 0) AS other
+				,IFNULL(half_day, 0) AS half_day
+				,IFNULL(half_time, 0) AS half_time
+				,IFNULL(early_leave_day, 0) AS early_leave_day
+				,IFNULL(early_leave_time, 0) AS early_leave_time
+				,IFNULL(late_day, 0) AS late_day
+				,IFNULL(late_time, 0) AS late_time
+		FROM hr_dh_monthly_keun_tae hdmkt 
+			INNER JOIN hr_employee he 
+					ON he.company_id = hdmkt.company_id
+						AND he.employee_id = hdmkt.employee_id 
+			INNER JOIN fnd_code fc02
+					ON fc02.company_id = hdmkt.company_id 
+						AND fc02.code_field = 'HR_A0003'
+			INNER JOIN fnd_code_detail fcd02
+					ON fcd02.company_id = hdmkt.company_id 
+						AND fcd02.code_id = fc02.code_id 
+						AND fcd02.defined_cd = he.position_code
+			INNER JOIN hr_department hd 
+					ON hd.company_id = hdmkt.company_id 
+						AND hd.department_id = he.department_id
+						AND hd.attribute2 = he.attribute1
+		WHERE hdmkt.company_id = #{companyId}
+		AND hdmkt.yyyymm = #{yyyymm}
 	</select>
 </mapper>
