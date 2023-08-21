@@ -1,5 +1,7 @@
 package kr.co.seedit.domain.hr.api;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -7,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.co.seedit.domain.hr.application.PayrollService;
@@ -24,9 +28,8 @@ public class PayrollApi {
    
     @PostMapping("/hr/payroll")
 	public ResponseEntity<ResponseDto> payrollPayroll(
-			/* @RequestBody PayrollDto payrollDto, */ HttpServletResponse response) throws Exception {
-    	String in = null;
-		ResponseDto responseDto = payrollService.payrollReport(/* payrollDto*/in, response);
+			@RequestBody Map<String, Object> in, HttpServletResponse response) throws Exception {
+		ResponseDto responseDto = payrollService.payrollReport(in, response);
         
         return new ResponseEntity<>(responseDto
                 .builder()

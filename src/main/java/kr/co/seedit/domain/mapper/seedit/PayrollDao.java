@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface PayrollDao {
 
-	Map<String, String> getPayrollList(Map<String, String> input);
+	List<Map<String, Object>> getFulltimePayrollList(Map<String, Object> input);
+	List<Map<String, Object>> getParttimePayrollList(Map<String, Object> input);
 	
 }

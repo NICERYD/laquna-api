@@ -2,161 +2,166 @@
 <!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.seedit.domain.mapper.seedit.PayrollDao">
 	
-	<select id="getPayrollList" parameterType="Map" resultType="HashMap">
+	<select id="getFulltimePayrollList" parameterType="Map" resultType="kr.co.seedit.global.utils.CamelHashMap">
 		SELECT he.hire_date -- 입사년일
-		       , fcd02.defined_name  -- 직급
-		       , '' AS department_name-- 시급제 부서(ex.머시닝)
-		       , he.korean_name  -- 이름
-		       , he.employee_type -- 100 연봉제
-		       , hsb.basic_salary + hsb.overtime_allowance + hsb.night_allowance AS month_salary -- 월급여
-		       , (hsb.basic_salary + hsb.overtime_allowance + hsb.night_allowance) * 13 AS year_salary -- 년봉
-		         , 0 AS day_pay -- 일급
-		         , 0 AS hourly_pay -- 시급    
-		       , hdmkt.total_time -- 총근무시간
-		       , hsb.basic_salary -- 기본금
-		        , 0 AS annual_leave_amt -- 연차수당
-		       , hdmkt.overtime_1 -- 연장1 시간
-		       , hdcs.attribute02 AS overtime01_amt -- 연장1 수당
-		       , hdmkt.overtime_2 -- 연장2 시간 
-		       , hdcs.attribute03 AS overtime02_amt -- 연장2 수당
-		       , hdmkt.night_shift_1 -- 야간1 시간
-		       , hdcs.attribute04 AS night01_allowance -- 야간1 수당
-		       , 0 as daytime_hours -- 주간조야간
-		       , 0 as nighttime_hours -- 야간조야간
-		       , hdmkt.night_shift_2 -- 야간2 시간
-		       , hdcs.attribute05 AS night02_allowance -- 야간2 수당
-		       , hdmkt.holiday_saturday_1  -- 휴일(토요일) 근무
-		       , hdcs.attribute06 * (hdmkt.holiday_saturday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) AS holiday01_saturday_amt -- 휴일(토요일) 수당
-		       , hdmkt.holiday_sunday_1 -- 휴일(일요일) 근무
-		       , hdcs.attribute06 * (hdmkt.holiday_sunday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) AS holiday01_sunday_amt -- 휴일(일요일) 수당
-		       , hdmkt.holiday_2 -- 휴일2 근무
-		       , hdcs.attribute07 AS holiday02_amt -- 휴일2 수당 
-		       , hdmkt.annual_leave_used_day -- 연차사용일자
-		       , hdmkt.annual_leave_used -- 연차사용횟수
-		              , hdmkt.transportation -- 교통비제공횟수
-		       , hdcs.attribute15 -- 교통비
-		       , hdmkt.meal -- 식대제공횟수
-		       , hdcs.attribute16  -- 식대금액
-		       -- , hdmkt.half_day -- 반차사용일자
-		       , hdmkt.half_time -- 반차사용시간
-		       , hdmkt.early_leave_day -- 조퇴일자
-		       , hdmkt.early_leave_time -- 조퇴횟수 
-		       , hdcs.attribute13 AS early_leave_amt -- 조퇴차감금액
-		       , hdmkt.late_day -- 지각일자
-		       , hdmkt.late_time  -- 지각시간
-		       , hdcs.attribute14 AS late_amt -- 지각차감금액     
-		       , hdmkt.outer_day -- 외출일자
-		       , hdmkt.outer_time -- 외출시간
-		       , hdcs.attribute17 -- 외출차감금액
+			, fcd02.defined_name  -- 직급
+			, he.department_id -- 부서 아이디
+			, '' AS department_name -- 시급제 부서(ex.머시닝)
+			, he.korean_name  -- 이름
+			, he.employee_type -- 100 연봉제
+			, hsb.basic_salary + hsb.overtime_allowance + hsb.night_allowance AS month_salary -- 월급여
+			, (hsb.basic_salary + hsb.overtime_allowance + hsb.night_allowance) * 13 AS year_salary -- 년봉
+			, 0 AS day_pay -- 일급
+			, 0 AS hourly_pay -- 시급
+			, hdmkt.total_time -- 총근무시간
+			, hsb.basic_salary -- 기본금
+			, 0 AS annual_leave_amt -- 연차수당
+			, hdmkt.overtime_1 -- 연장1 시간
+			, hdcs.attribute02 AS overtime01_amt -- 연장1 수당
+			, hdmkt.overtime_2 -- 연장2 시간 
+			, hdcs.attribute03 AS overtime02_amt -- 연장2 수당
+			, hdmkt.night_shift_1 -- 야간1 시간
+			, hdcs.attribute04 AS night01_allowance -- 야간1 수당
+			, 0 as daytime_hours -- 주간조야간
+			, 0 as nighttime_hours -- 야간조야간
+			, hdmkt.night_shift_2 -- 야간2 시간
+			, hdcs.attribute05 AS night02_allowance -- 야간2 수당
+			, hdmkt.holiday_saturday_1  -- 휴일(토요일) 근무
+			, hdcs.attribute06 * (hdmkt.holiday_saturday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) AS holiday01_saturday_amt -- 휴일(토요일) 수당
+			, hdmkt.holiday_sunday_1 -- 휴일(일요일) 근무
+			, hdcs.attribute06 * (hdmkt.holiday_sunday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) AS holiday01_sunday_amt -- 휴일(일요일) 수당
+			, hdmkt.holiday_2 -- 휴일2 근무
+			, hdcs.attribute07 AS holiday02_amt -- 휴일2 수당 
+			, hdmkt.annual_leave_used_day -- 연차사용일자
+			, hdmkt.annual_leave_used -- 연차사용횟수
+			, hdmkt.transportation -- 교통비제공횟수
+			, hdcs.attribute15 -- 교통비
+			, hdmkt.meal -- 식대제공횟수
+			, hdcs.attribute16  -- 식대금액
+			-- , hdmkt.half_day -- 반차사용일자
+			, hdmkt.half_time -- 반차사용시간
+			, hdmkt.early_leave_day -- 조퇴일자
+			, hdmkt.early_leave_time -- 조퇴횟수 
+			, hdcs.attribute13 AS early_leave_amt -- 조퇴차감금액
+			, hdmkt.late_day -- 지각일자
+			, hdmkt.late_time  -- 지각시간
+			, hdcs.attribute14 AS late_amt -- 지각차감금액
+			, hdmkt.outer_day -- 외출일자
+			, hdmkt.outer_time -- 외출시간
+			, hdcs.attribute17 -- 외출차감금액
 		FROM  hr_dh_calc_salary hdcs
-		      INNER JOIN hr_dh_monthly_keun_tae hdmkt
-		      ON hdcs.company_id = hdmkt.company_id 
-		      AND hdcs.employee_id = hdmkt.employee_id 
-		      AND hdcs.yyyymm = hdmkt.yyyymm 
-		      INNER JOIN hr_employee he
-		      ON hdcs.company_id = he.company_id 
-		      AND hdcs.employee_id = he.employee_id 
-		      AND hdcs.yyyymm = he.attribute1 
-		      INNER JOIN (SELECT employee_id
-		                          , company_id
-		                          , GROUP_CONCAT( case basic_code WHEN 100 THEN  basic_amount end) AS basic_salary 
-		                          , GROUP_CONCAT( case basic_code WHEN 101 THEN  basic_amount end) AS hourly_pay
-		                          , GROUP_CONCAT( case basic_code WHEN 102 THEN  basic_amount end) AS overtime_allowance
-		                          , GROUP_CONCAT( case basic_code WHEN 103 THEN  basic_amount end) AS night_allowance
-		                          , GROUP_CONCAT( case basic_code WHEN 104 THEN  basic_amount end) AS holiday_allowance
-		                          , GROUP_CONCAT( case basic_code WHEN 105 THEN  basic_amount end) AS prepayment 
-		                   FROM hr_salary_basic
-		                   GROUP BY employee_id, company_id) hsb 
-		      ON hdcs.company_id = hsb.company_id 
-		      AND hdcs.employee_id  = hsb.employee_id 
-		      -- 직급
-		      INNER JOIN fnd_code fc02
-		      ON fc02.company_id  = he.company_id 
-		      AND fc02.code_field = 'HR_A0003'
-		       INNER JOIN fnd_code_detail fcd02
-		       ON fcd02.company_id  = he.company_id 
-		       AND fcd02.code_id = fc02.code_id 
-		       AND fcd02.defined_cd = he.position_code  
+		INNER JOIN hr_dh_monthly_keun_tae hdmkt
+		ON hdcs.company_id = hdmkt.company_id 
+		AND hdcs.employee_id = hdmkt.employee_id 
+		AND hdcs.yyyymm = hdmkt.yyyymm 
+		INNER JOIN hr_employee he
+		ON hdcs.company_id = he.company_id 
+		AND hdcs.employee_id = he.employee_id 
+		AND hdcs.yyyymm = he.attribute1 
+		INNER JOIN (SELECT employee_id
+				, company_id
+				, GROUP_CONCAT( case basic_code WHEN 100 THEN  basic_amount end) AS basic_salary 
+				, GROUP_CONCAT( case basic_code WHEN 101 THEN  basic_amount end) AS hourly_pay
+				, GROUP_CONCAT( case basic_code WHEN 102 THEN  basic_amount end) AS overtime_allowance
+				, GROUP_CONCAT( case basic_code WHEN 103 THEN  basic_amount end) AS night_allowance
+				, GROUP_CONCAT( case basic_code WHEN 104 THEN  basic_amount end) AS holiday_allowance
+				, GROUP_CONCAT( case basic_code WHEN 105 THEN  basic_amount end) AS prepayment 
+				FROM hr_salary_basic
+				GROUP BY employee_id, company_id) hsb
+		ON hdcs.company_id = hsb.company_id 
+		AND hdcs.employee_id  = hsb.employee_id 
+		-- 직급
+		INNER JOIN fnd_code fc02
+		ON fc02.company_id  = he.company_id 
+		AND fc02.code_field = 'HR_A0003'
+		INNER JOIN fnd_code_detail fcd02
+		ON fcd02.company_id  = he.company_id 
+		AND fcd02.code_id = fc02.code_id 
+		AND fcd02.defined_cd = he.position_code 
 		WHERE hdcs.company_id = 5
 		AND   he.employee_type = '100'
-		AND   hdcs.yyyymm = '202306'
+		AND   hdcs.yyyymm = #{yyyymm}
+	</select>
+	
+	<select id="getParttimePayrollList" parameterType="Map" resultType="kr.co.seedit.global.utils.CamelHashMap">
 		SELECT he.hire_date -- 입사년일
-		       , fcd02.defined_name  -- 직급
-		       , '' AS department_name-- 시급제 부서(ex.머시닝)
-		       , he.korean_name  -- 이름
-		       , he.employee_type -- 200 시급제
-		       , 0 AS month_salary -- 월급여
-		       , 0 AS year_salary -- 년봉
-		       , hsb.hourly_pay * 8 AS day_pay -- 일급
-		       , hsb.hourly_pay AS hourly_pay -- 시급       
-		       , hdmkt.total_time -- 총근무시간
-		       , hdmkt.total_time * hsb.hourly_pay AS basic_salary -- 기본금
-		       , hdcs.attribute01 AS annual_leave_amt -- 연차수당
-		       , hdmkt.overtime_1 -- 연장1 시간
-		       , hdcs.attribute02 AS overtime01_amt -- 연장1 수당
-		       , 0 AS overtime_2 -- 연장2 시간 
-		       , 0 AS overtime02_amt -- 연장2 수당
-		       , hdmkt.night_shift_1 -- 야간1 시간
-		       , hdcs.attribute04 AS night01_allowance -- 야간1 수당
-		       , hdmkt.daytime_hours -- 주간조야간
-		       , hdmkt.nighttime_hours -- 야간조야간
-		       , 0 AS night_shift_2 -- 야간2 시간
-		       , 0 AS night02_allowance -- 야간2 수당
-		       , hdmkt.holiday_saturday_1  -- 휴일(토요일) 근무
-		       , hdcs.attribute06 * (hdmkt.holiday_saturday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) AS holiday01_saturday_amt -- 휴일(토요일) 수당
-		       , hdmkt.holiday_sunday_1 -- 휴일(일요일) 근무
-		       , hdcs.attribute06 * (hdmkt.holiday_sunday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) AS holiday01_sunday_amt -- 휴일(일요일) 수당
-		       , hdmkt.holiday_2 -- 휴일2 근무
-		       , hdcs.attribute07 AS holiday02_amt -- 휴일2 수당 
-		       , hdmkt.annual_leave_used_day -- 연차사용일자
-		       , hdmkt.annual_leave_used -- 연차사용횟수
-		       , hdmkt.transportation -- 교통비제공횟수
-		       , hdcs.attribute15 -- 교통비
-		       , hdmkt.meal -- 식대제공횟수
-		       , hdcs.attribute16  -- 식대금액
-		       -- , hdmkt.half_day -- 반차사용일자
-		       , hdmkt.half_time -- 반차사용시간
-		       , hdmkt.early_leave_day -- 조퇴일자
-		       , hdmkt.early_leave_time -- 조퇴횟수 
-		       , hdcs.attribute13 AS early_leave_amt -- 조퇴차감금액
-		       , hdmkt.late_day -- 지각일자
-		       , hdmkt.late_time  -- 지각시간
-		       , hdcs.attribute14 AS late_amt -- 지각차감금액 
-		       , hdmkt.outer_day -- 외출일자
-		       , hdmkt.outer_time -- 외출시간
-		       , hdcs.attribute17 -- 외출차감금액
+			, fcd02.defined_name  -- 직급
+			, he.department_id -- 부서 아이디
+			, '' AS department_name -- 시급제 부서(ex.머시닝)
+			, he.korean_name  -- 이름
+			, he.employee_type -- 200 시급제
+			, 0 AS month_salary -- 월급여
+			, 0 AS year_salary -- 년봉
+			, hsb.hourly_pay * 8 AS day_pay -- 일급
+			, hsb.hourly_pay AS hourly_pay -- 시급
+			, hdmkt.total_time -- 총근무시간
+			, hdmkt.total_time * hsb.hourly_pay AS basic_salary -- 기본금
+			, hdcs.attribute01 AS annual_leave_amt -- 연차수당
+			, hdmkt.overtime_1 -- 연장1 시간
+			, hdcs.attribute02 AS overtime01_amt -- 연장1 수당
+			, 0 AS overtime_2 -- 연장2 시간 
+			, 0 AS overtime02_amt -- 연장2 수당
+			, hdmkt.night_shift_1 -- 야간1 시간
+			, hdcs.attribute04 AS night01_allowance -- 야간1 수당
+			, hdmkt.daytime_hours -- 주간조야간
+			, hdmkt.nighttime_hours -- 야간조야간
+			, 0 AS night_shift_2 -- 야간2 시간
+			, 0 AS night02_allowance -- 야간2 수당
+			, hdmkt.holiday_saturday_1  -- 휴일(토요일) 근무
+			, hdcs.attribute06 * (hdmkt.holiday_saturday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) AS holiday01_saturday_amt -- 휴일(토요일) 수당
+			, hdmkt.holiday_sunday_1 -- 휴일(일요일) 근무
+			, hdcs.attribute06 * (hdmkt.holiday_sunday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) AS holiday01_sunday_amt -- 휴일(일요일) 수당
+			, hdmkt.holiday_2 -- 휴일2 근무
+			, hdcs.attribute07 AS holiday02_amt -- 휴일2 수당 
+			, hdmkt.annual_leave_used_day -- 연차사용일자
+			, hdmkt.annual_leave_used -- 연차사용횟수
+			, hdmkt.transportation -- 교통비제공횟수
+			, hdcs.attribute15 -- 교통비
+			, hdmkt.meal -- 식대제공횟수
+			, hdcs.attribute16  -- 식대금액
+			-- , hdmkt.half_day -- 반차사용일자
+			, hdmkt.half_time -- 반차사용시간
+			, hdmkt.early_leave_day -- 조퇴일자
+			, hdmkt.early_leave_time -- 조퇴횟수 
+			, hdcs.attribute13 AS early_leave_amt -- 조퇴차감금액
+			, hdmkt.late_day -- 지각일자
+			, hdmkt.late_time  -- 지각시간
+			, hdcs.attribute14 AS late_amt -- 지각차감금액
+			, hdmkt.outer_day -- 외출일자
+			, hdmkt.outer_time -- 외출시간
+			, hdcs.attribute17 -- 외출차감금액
 		FROM  hr_dh_calc_salary hdcs
-		      INNER JOIN hr_dh_monthly_keun_tae hdmkt
-		      ON hdcs.company_id = hdmkt.company_id 
-		      AND hdcs.employee_id = hdmkt.employee_id 
-		      AND hdcs.yyyymm = hdmkt.yyyymm 
-		      INNER JOIN hr_employee he
-		      ON hdcs.company_id = he.company_id 
-		      AND hdcs.employee_id = he.employee_id 
-		      AND hdcs.yyyymm = he.attribute1 
-		      INNER JOIN (SELECT employee_id
-		                          , company_id
-		                          , GROUP_CONCAT( case basic_code WHEN 100 THEN  basic_amount end) AS basic_salary 
-		                          , GROUP_CONCAT( case basic_code WHEN 101 THEN  basic_amount end) AS hourly_pay
-		                          , GROUP_CONCAT( case basic_code WHEN 102 THEN  basic_amount end) AS overtime_allowance
-		                          , GROUP_CONCAT( case basic_code WHEN 103 THEN  basic_amount end) AS night_allowance
-		                          , GROUP_CONCAT( case basic_code WHEN 104 THEN  basic_amount end) AS holiday_allowance
-		                          , GROUP_CONCAT( case basic_code WHEN 105 THEN  basic_amount end) AS prepayment 
-		                   FROM hr_salary_basic
-		                   GROUP BY employee_id, company_id) hsb 
-		      ON hdcs.company_id = hsb.company_id 
-		      AND hdcs.employee_id  = hsb.employee_id 
-		      -- 직급
-		      INNER JOIN fnd_code fc02
-		      ON fc02.company_id  = he.company_id 
-		      AND fc02.code_field = 'HR_A0003'
-		       INNER JOIN fnd_code_detail fcd02
-		       ON fcd02.company_id  = he.company_id 
-		       AND fcd02.code_id = fc02.code_id 
-		       AND fcd02.defined_cd = he.position_code  
+		INNER JOIN hr_dh_monthly_keun_tae hdmkt
+		ON hdcs.company_id = hdmkt.company_id 
+		AND hdcs.employee_id = hdmkt.employee_id 
+		AND hdcs.yyyymm = hdmkt.yyyymm 
+		INNER JOIN hr_employee he
+		ON hdcs.company_id = he.company_id 
+		AND hdcs.employee_id = he.employee_id 
+		AND hdcs.yyyymm = he.attribute1 
+		INNER JOIN (SELECT employee_id
+				, company_id
+				, GROUP_CONCAT( case basic_code WHEN 100 THEN  basic_amount end) AS basic_salary 
+				, GROUP_CONCAT( case basic_code WHEN 101 THEN  basic_amount end) AS hourly_pay
+				, GROUP_CONCAT( case basic_code WHEN 102 THEN  basic_amount end) AS overtime_allowance
+				, GROUP_CONCAT( case basic_code WHEN 103 THEN  basic_amount end) AS night_allowance
+				, GROUP_CONCAT( case basic_code WHEN 104 THEN  basic_amount end) AS holiday_allowance
+				, GROUP_CONCAT( case basic_code WHEN 105 THEN  basic_amount end) AS prepayment 
+			FROM hr_salary_basic
+			GROUP BY employee_id, company_id) hsb 
+		ON hdcs.company_id = hsb.company_id 
+		AND hdcs.employee_id  = hsb.employee_id 
+		-- 직급
+		INNER JOIN fnd_code fc02
+		ON fc02.company_id  = he.company_id 
+		AND fc02.code_field = 'HR_A0003'
+		INNER JOIN fnd_code_detail fcd02
+		ON fcd02.company_id  = he.company_id 
+		AND fcd02.code_id = fc02.code_id 
+		AND fcd02.defined_cd = he.position_code
 		WHERE hdcs.company_id = 5
 		AND   he.employee_type = '200'
-		AND   hdcs.yyyymm = '202306'
+		AND   hdcs.yyyymm = #{yyyymm}
 	</select>
 	
 </mapper>
