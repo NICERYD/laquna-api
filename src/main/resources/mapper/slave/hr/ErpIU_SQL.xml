@@ -45,6 +45,7 @@
              , #{loginUserId} AS loginUserId
         from   MA_EMP
         where  cd_company = '1000'
+        and    ( DT_RETIRE = '00000000' or SUBSTRING(DT_ENTER,1,6) =  #{yyyymm})
     </select>
 
     <select id="getSalaryItem" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" resultType="kr.co.seedit.domain.hr.dto.ErpIUDto$SalaryItemDto">
