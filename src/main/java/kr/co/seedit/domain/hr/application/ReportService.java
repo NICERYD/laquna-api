@@ -14,17 +14,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HeaderFooter;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Footer;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
+import org.apache.poi.xssf.usermodel.XSSFPrintSetup;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -160,6 +163,15 @@ public class ReportService {
          XSSFRow row = null;
          XSSFCell cell = null;
          
+         XSSFPrintSetup printSetup = sheet.getPrintSetup();
+         printSetup.setPaperSize(XSSFPrintSetup.A4_PAPERSIZE);
+         printSetup.setLandscape(true);		//인쇄방향 가로
+         printSetup.setFitWidth((short)1);
+         
+         Footer footer = sheet.getFooter();
+         footer.setRight("page : "+ HeaderFooter.page()+" / "+ HeaderFooter.numPages());
+         
+
          //Style Setting
          Font bodyFont = workbook.createFont();
          bodyFont.setFontName("바탕체");
@@ -493,6 +505,8 @@ public class ReportService {
      	formulaEvaluator.evaluateFormulaCell(cell);
 
         sheet.addMergedRegion(new CellRangeAddress((8+reportPayrollDtoList.size()*3), (9+reportPayrollDtoList.size()*3)+1, 0, 1));
+        
+//        workbook.setPrintArea(0, "$A$1:$P$35");
          
      	return workbook;
      }
