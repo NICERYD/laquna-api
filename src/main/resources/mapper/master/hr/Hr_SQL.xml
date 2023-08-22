@@ -144,6 +144,9 @@
         <if test="estId !=999">
             AND   he.est_id = #{estId}
         </if>
+        <if test="koreanName != null and koreanName != ''">
+			AND	  he.korean_name LIKE CONCAT('%', #{koreanName}, '%')
+		</if>
         AND   he.attribute1  = #{yyyymm}
         ORDER BY he.employee_type, he.employee_number
     </select>
