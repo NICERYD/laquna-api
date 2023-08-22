@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.extensions.XSSFHeaderFooter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import kr.co.seedit.domain.mapper.seedit.PayrollDao;
 import kr.co.seedit.global.common.dto.ResponseDto;
 import kr.co.seedit.global.utils.SeedXSSFUtil;
+import kr.co.seedit.global.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -230,6 +232,12 @@ public class PayrollService {
 		setParttimePayrollDatas(workbook, listParttime);
 
 		
+		// print header setting
+		XSSFHeaderFooter header = (XSSFHeaderFooter) workbook.getSheetAt(0).getHeader();
+		header.setLeft(in.get("yyyymm").toString().substring(4,6)+"월 급여");
+		header = (XSSFHeaderFooter) workbook.getSheetAt(1).getHeader();
+		header.setLeft(StringUtils.getNumberString(in.get("yyyymm").toString().substring(4,6)) +"월 급여");
+		
 		try {
 			File xlsxFile;
 			if (null == in.get("file")) {
@@ -280,23 +288,23 @@ public class PayrollService {
 
 	private boolean setFulltimePayrollDatas(XSSFWorkbook workbook, List<Map<String, Object>> datas) throws IOException
 	{
-		final int sheetNumber    = 1;
+		final int sheetNumber    = 0;
 		final int countHeadLine  = 17; // 출력 포멧의 라인수
 		final int dataCountInRow = 3;  // 1열에 출력 포멧의 개수
 		final int dataOffsetCell = 6;  // 출력 포멧의 열 수 (+ 구분열 1개)
 
 		// set format
-		SeedXSSFUtil.copyHeadlineCubeFormat(workbook, 0, countHeadLine, datas.size(), dataCountInRow, dataOffsetCell);
+		SeedXSSFUtil.copyHeadlineCubeFormat(workbook, sheetNumber, countHeadLine, datas.size(), dataCountInRow, dataOffsetCell);
 
 //		int i=0;
 		int curRowPoint = 0, curColumnPoint = 0;
 		XSSFSheet sheet = workbook.getSheetAt(sheetNumber);
-		for (int i=0;i<datas.size();i++) {
+		for (int i=0;i<datas.size();i++)
+		{
 			Map<String, Object> data = datas.get(i);
-//		}
-//		for (Map<String, String> map : datas) {
 			curRowPoint = Math.floorDiv(i, dataCountInRow) * countHeadLine;
 			curColumnPoint = Math.floorMod(i, dataCountInRow)*dataOffsetCell;
+			
 
 			////////////////////////////////////////////
 			// data setting - start
@@ -391,7 +399,7 @@ public class PayrollService {
 		final int dataOffsetCell = 6;  // 출력 포멧의 열 수 (+ 구분열 1개)
 
 		// set format
-		SeedXSSFUtil.copyHeadlineCubeFormat(workbook, 0, countHeadLine, datas.size(), dataCountInRow, dataOffsetCell);
+		SeedXSSFUtil.copyHeadlineCubeFormat(workbook, sheetNumber, countHeadLine, datas.size(), dataCountInRow, dataOffsetCell);
 
 //			int i=0;
 		int curRowPoint = 0, curColumnPoint = 0;

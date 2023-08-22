@@ -3,7 +3,8 @@
 <mapper namespace="kr.co.seedit.domain.mapper.seedit.PayrollDao">
 	
 	<select id="getFulltimePayrollList" parameterType="Map" resultType="kr.co.seedit.global.utils.CamelHashMap">
-		SELECT he.hire_date -- 입사년일
+		SELECT -- he.hire_date -- 입사년일
+			CONCAT(hire_date, CASE WHEN CONCAT(SUBSTRING(retire_date,1,4),SUBSTRING(retire_date,6,2)) = hdcs.yyyymm THEN CONCAT(' ',retire_date) ELSE '' END) as hire_date
 			, fcd02.defined_name  -- 직급
 			, he.department_id -- 부서 아이디
 			, '' AS department_name -- 시급제 부서(ex.머시닝)
@@ -84,7 +85,8 @@
 	</select>
 	
 	<select id="getParttimePayrollList" parameterType="Map" resultType="kr.co.seedit.global.utils.CamelHashMap">
-		SELECT he.hire_date -- 입사년일
+		SELECT -- he.hire_date -- 입사년일
+			CONCAT(hire_date, CASE WHEN CONCAT(SUBSTRING(retire_date,1,4),SUBSTRING(retire_date,6,2)) = hdcs.yyyymm THEN CONCAT(' ',retire_date) ELSE '' END) as hire_date
 			, fcd02.defined_name  -- 직급
 			, he.department_id -- 부서 아이디
 			, '' AS department_name -- 시급제 부서(ex.머시닝)

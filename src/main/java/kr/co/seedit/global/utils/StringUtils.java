@@ -1,8 +1,5 @@
 package kr.co.seedit.global.utils;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,6 +7,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 public class StringUtils {
 
@@ -278,5 +279,18 @@ public class StringUtils {
     return sb.toString().substring(0, numchars);
   }
 
+  /****
+   * 
+   */
+  public static String getNumberString(String inStr) {
+	  String rst;
+	  try {
+		  int number = Integer.parseInt(inStr);
+		  rst = String.valueOf(number);
+	  } catch (NumberFormatException e) {
+		  return inStr;
+	  }
+	  return rst;
+  }
 }
 
