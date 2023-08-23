@@ -404,6 +404,18 @@ public class SalaryService {
             if ((basicSalaryDto.getEmployeeType().equals("100")
                     || (basicSalaryDto.getEmployeeType().equals("200") && basicSalaryDto.getDutyType().equals("201")))
                     && !midStatus.equals("000")) {
+                BigDecimal totalAmount;
+                BigDecimal basicSalary = basicSalaryDto.getBasicSalary() != null ? new BigDecimal(basicSalaryDto.getBasicSalary()) : BigDecimal.ZERO;
+                BigDecimal overtimeAllowance = basicSalaryDto.getOvertimeAllowance02() != null ? new BigDecimal(basicSalaryDto.getOvertimeAllowance02()) : BigDecimal.ZERO;
+                BigDecimal nightAllowance = basicSalaryDto.getNightAllowance02() != null ? new BigDecimal(basicSalaryDto.getNightAllowance02()) : BigDecimal.ZERO;
+                BigDecimal holidayAllowance = basicSalaryDto.getHolidayAllowance02() != null ? new BigDecimal(basicSalaryDto.getHolidayAllowance02()) : BigDecimal.ZERO;
+                totalAmount = (basicSalary.add(overtimeAllowance)
+                        .add(nightAllowance)
+                        .add(holidayAllowance))
+                        .multiply(BigDecimal.valueOf(diff)
+                                .divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP))
+                        .setScale(0, RoundingMode.UP);
+
                 basicAmount = new BigDecimal(basicSalaryDto.getBasicSalary()).multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP)).setScale(0, RoundingMode.FLOOR);
                 overtimeAllowance02 = Optional.ofNullable(basicSalaryDto.getOvertimeAllowance02())
                         .map(amount -> new BigDecimal(amount)
@@ -417,6 +429,7 @@ public class SalaryService {
                         .map(amount -> new BigDecimal(amount)
                                 .multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP)).setScale(0, RoundingMode.FLOOR))
                         .orElse(BigDecimal.ZERO);
+                nightAllowance02 = nightAllowance02.add(totalAmount.subtract(basicAmount.add(overtimeAllowance02).add(nightAllowance02).add(holidayAllowance02)));
             }
 
             // 01. 연봉제
