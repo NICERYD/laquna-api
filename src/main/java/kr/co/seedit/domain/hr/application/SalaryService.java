@@ -395,7 +395,7 @@ public class SalaryService {
                 diff = ChronoUnit.DAYS.between(hireDate, yearMonth.atEndOfMonth()) + 1;
                 midStatus = "001";
             } else if (basicSalaryDto.getRetireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
-                diff = ChronoUnit.DAYS.between(yearMonth.atDay(1), retireDate);
+                diff = ChronoUnit.DAYS.between(yearMonth.atDay(1), retireDate) + 1;
                 midStatus = "002";
             } else {
                 diff = 0;
