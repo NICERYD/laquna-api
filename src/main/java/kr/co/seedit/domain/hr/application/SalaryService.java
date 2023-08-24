@@ -458,7 +458,7 @@ public class SalaryService {
                         LocalDate workEndDate = LocalDate.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDateTime workStartTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDateTime workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        if (workEndTime.toLocalTime().isAfter(LocalTime.of(5, 30))) {
+                        if (!workEndTime.toLocalTime().isBefore(LocalTime.of(5, 30))) {
                             nightAllowance01 = nightAllowance01.add(nightBaseAmount);
                         }
                     }
