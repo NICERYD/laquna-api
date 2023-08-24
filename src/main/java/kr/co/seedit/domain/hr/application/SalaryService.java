@@ -668,12 +668,12 @@ public class SalaryService {
                         String[] timeParts = adtDataDto.getLateTime().split(":");
                         int hours = Integer.parseInt(timeParts[0]);
                         int minutes = Integer.parseInt(timeParts[1]);
-                        lateTime = lateTime + hours + (minutes % 60 > 30 ? 1 : 0.5);
+                        lateTime = lateTime + hours + (minutes % 60 > 30 ? 0.5 : 0);
                     }
                     // 기타수당 - 조퇴
                     if (adtDataDto.getOutStatus().equals("조퇴")) {
                         Duration duration = Duration.between(workEndTime, workEndTime.with(LocalTime.of(17, 30)));
-                        earlyLeaveTime = earlyLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 1 : 0.5);
+                        earlyLeaveTime = earlyLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0);
                     }
                     // 기타수당 - 외출
                     if (adtDataDto.getOutTime() != null && !adtDataDto.getOutTime().equals("")) {
