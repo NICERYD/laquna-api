@@ -19,7 +19,6 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -802,7 +801,7 @@ public class SalaryService {
         return isLunchTimeIncluded;
     }
 
-    public static @NotNull BigDecimal calcNonPay(Integer nonPaycnt, String basicSalary, String overtimeAllowance02, String
+    public static BigDecimal calcNonPay(Integer nonPaycnt, String basicSalary, String overtimeAllowance02, String
             nightAllowance02, String holidayAllowance02) {
         BigDecimal nonPayBasicSalary = BigDecimal.ZERO;
         BigDecimal nonPayOvertimeAllowance02 = BigDecimal.ZERO;
