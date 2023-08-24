@@ -539,7 +539,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             'D19718'
+--             'D23009'
 --             )
         UNION ALL
         SELECT he.employee_id
@@ -668,7 +668,7 @@
             , #{item.holidayAllowance01}
             , #{item.holidayAllowance02}
             , #{item.positionAllowance}
-            , #{item.otherAllowance}
+            , #{item.otherAllowances}
             , #{item.subsidies}
             , #{item.transportationExpenses}
             , #{item.mealsExpenses}
@@ -925,12 +925,6 @@
 
     <delete id ="deletePaidLeave" parameterType ="kr.co.seedit.global.common.dto.RequestDto" >
         delete from hr_dh_paidLeave
-        where  company_id = #{companyId}
-          AND  yyyymm = #{yyyymm}
-    </delete>
-
-    <delete id ="deleteMonthlyKeunae" parameterType ="kr.co.seedit.global.common.dto.RequestDto" >
-        delete from hr_dh_monthly_keun_tae
         where  company_id = #{companyId}
           AND  yyyymm = #{yyyymm}
     </delete>

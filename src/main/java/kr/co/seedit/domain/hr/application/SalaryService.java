@@ -781,7 +781,7 @@ public class SalaryService {
             resultData.add(basicSalaryDto);
         }
 
-        if (!basicSalaryDtos.isEmpty()) {
+        if (!basicSalaryDtos.isEmpty() && !resultData.isEmpty()) {
             salaryDao.insertCalcSalary(resultData);
             salaryDao.insertMonthlyKeunTae(monthlyKeunTaeDtos);
         }
