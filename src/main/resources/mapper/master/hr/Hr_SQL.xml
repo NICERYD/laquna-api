@@ -623,7 +623,6 @@
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
           AND fcd03.defined_cd IN ('100', '910')
---           and 1=2
     </select>
 
     <insert id="insertCalcSalary" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
@@ -724,6 +723,7 @@
         WHERE he.company_id  = #{companyId}
           AND he.attribute1  = #{yyyymm}
           AND he.employee_id = #{employeeID}
+          AND hadt.work_date >= he.hire_date
     </select>
 
     <select id="selectCodeValues" parameterType="kr.co.seedit.global.common.dto.RequestDto" resultType="kr.co.seedit.domain.hr.dto.SalaryCodeValuesDto">
