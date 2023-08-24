@@ -491,7 +491,7 @@ public class SalaryService {
                 if (!(nonPaycnt == 0)) {
                     annualAllowance = calcNonPay(nonPaycnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
                 }
-            // 02. 시급제
+                // 02. 시급제
             } else if (basicSalaryDto.getEmployeeType().equals("200") && !basicSalaryDto.getDutyType().equals("201") && !(basicSalaryDto.getHourlyPay() == null)) {
 
                 // 총휴일근무 시간
@@ -672,7 +672,12 @@ public class SalaryService {
                     }
                     // 기타수당 - 조퇴
                     if (adtDataDto.getOutStatus().equals("조퇴")) {
-                        Duration duration = Duration.between(workEndTime, workEndTime.with(LocalTime.of(17, 30)));
+                        Duration duration;
+                        if (adtDataDto.getWorkStatus().contains("오후반차")) {
+                            duration = Duration.between(workEndTime, workEndTime.with(LocalTime.of(12, 30)));
+                        } else {
+                            duration = Duration.between(workEndTime, workEndTime.with(LocalTime.of(17, 30)));
+                        }
                         earlyLeaveTime = earlyLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0);
                     }
                     // 기타수당 - 외출
@@ -766,7 +771,7 @@ public class SalaryService {
             if (!holidayAllowance02.equals(BigDecimal.ZERO))
                 basicSalaryDto.setHolidayAllowance02(holidayAllowance02.toString());
             if (!otherAmount.equals(BigDecimal.ZERO))
-                basicSalaryDto.setOtherAllowance(otherAmount.toString());
+                basicSalaryDto.setOtherAllowances(otherAmount.toString());
             if (!transportationAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setTransportationExpenses(transportationAmount.toString());
             if (!mealsAmount.equals(BigDecimal.ZERO))
