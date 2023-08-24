@@ -9,12 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @NoArgsConstructor
-public class ReportParamsDto {
-
-	private Integer companyId;
-	private Integer estId;
-    private String yyyymm;
-    private Integer employeeId;
-    
-    private String reportType;
+public class PersonalPayrollParamsDto {
+	private Integer employeeId;
+	private String koreanName;
+	private String employeeType;	//100:연봉제, 200:시급제 
 }

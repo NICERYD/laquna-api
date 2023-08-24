@@ -453,13 +453,13 @@ public class SalaryService {
                         }
                     }
                     // 야간수당1
-                    if (!adtDataDto.getNightTime().equals("00:00")) {
+                    if (adtDataDto.getWorkStatus().equals("야간")) {
                         LocalDate workStartDate = LocalDate.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDate workEndDate = LocalDate.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        LocalDateTime workStartTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDateTime workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        if (workEndDate.toEpochDay() - workStartDate.toEpochDay() >= 1 && workEndTime.getHour() >= nightBaseTime.getHour() && workEndTime.getMinute() >= nightBaseTime.getMinute()) {
+                        if (!workEndTime.toLocalTime().isBefore(LocalTime.of(5, 30))) {
                             nightAllowance01 = nightAllowance01.add(nightBaseAmount);
-                            System.out.println(adtDataDto.getWorkDate() + " " + adtDataDto.getEmployeeId() + " " + nightAllowance01);
                         }
                     }
                     // 휴일수당1
@@ -472,12 +472,10 @@ public class SalaryService {
                         // 17:30분 이후 퇴근
                         boolean endyn = (workEndTime.toLocalTime().isAfter(LocalTime.of(17, 30)) || workEndTime.toLocalTime().equals(LocalTime.of(17, 30)));
                         // 출근시간과 퇴근시간 사이에 점심시간이 포함되는지 체크
-                        boolean isLunchTimeIncluded = checkLunchTime(workStartTime, workEndTime, LocalTime.of(12, 30), LocalTime.of(13, 30));
-                        Duration duration = Duration.between(workStartTime, workEndTime);
-                        int yy = duration.toHoursPart() - (isLunchTimeIncluded ? 1 : 0);
-                        if (startyn && endyn && yy >= 8) {
+                        LocalTime localTime = LocalTime.parse(adtDataDto.getHolidayTime(), DateTimeFormatter.ofPattern("HH:mm"));
+                        if (startyn && endyn && localTime.getHour() >= 8) {
                             holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
-                        } else if ((startyn || endyn) && yy >= 4) {
+                        } else if ((startyn || endyn) && localTime.getHour() >= 4) {
                             holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount);
                         }
                     }
@@ -809,20 +807,18 @@ public class SalaryService {
         BigDecimal nonPayOvertimeAllowance02 = BigDecimal.ZERO;
         BigDecimal nonPayNightAllowance02 = BigDecimal.ZERO;
         BigDecimal nonPayHolidayAllowance02 = BigDecimal.ZERO;
-        if (basicSalary != null) {
-            nonPayBasicSalary = new BigDecimal(basicSalary).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, RoundingMode.HALF_UP)).setScale(0, RoundingMode.HALF_UP);
-        }
+
+        nonPayBasicSalary = new BigDecimal(basicSalary);
         if (overtimeAllowance02 != null) {
-            nonPayOvertimeAllowance02 = new BigDecimal(overtimeAllowance02).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, BigDecimal.ROUND_HALF_UP)).setScale(0, RoundingMode.HALF_UP);
+            nonPayOvertimeAllowance02 = new BigDecimal(overtimeAllowance02);
         }
         if (nightAllowance02 != null) {
-            nonPayNightAllowance02 = new BigDecimal(nightAllowance02).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, BigDecimal.ROUND_HALF_UP)).setScale(0, RoundingMode.HALF_UP);
+            nonPayNightAllowance02 = new BigDecimal(nightAllowance02);
         }
         if (holidayAllowance02 != null) {
-            nonPayHolidayAllowance02 = new BigDecimal(holidayAllowance02).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, BigDecimal.ROUND_HALF_UP)).setScale(0, RoundingMode.HALF_UP);
+            nonPayHolidayAllowance02 = new BigDecimal(holidayAllowance02 );
         }
-
-        return (nonPayBasicSalary.add(nonPayOvertimeAllowance02).add(nonPayNightAllowance02).add(nonPayHolidayAllowance02)).multiply(BigDecimal.valueOf(-1));
+        return (nonPayBasicSalary.add(nonPayOvertimeAllowance02).add(nonPayNightAllowance02).add(nonPayHolidayAllowance02)).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 8, RoundingMode.HALF_UP)).setScale(0, RoundingMode.UP);
     }
 
     public static boolean isBetween(LocalDateTime targetTime, LocalDateTime startTime, LocalDateTime endTime) {
