@@ -472,12 +472,10 @@ public class SalaryService {
                         // 17:30분 이후 퇴근
                         boolean endyn = (workEndTime.toLocalTime().isAfter(LocalTime.of(17, 30)) || workEndTime.toLocalTime().equals(LocalTime.of(17, 30)));
                         // 출근시간과 퇴근시간 사이에 점심시간이 포함되는지 체크
-                        boolean isLunchTimeIncluded = checkLunchTime(workStartTime, workEndTime, LocalTime.of(12, 30), LocalTime.of(13, 30));
-                        Duration duration = Duration.between(workStartTime, workEndTime);
-                        int yy = duration.toHoursPart() - (isLunchTimeIncluded ? 1 : 0);
-                        if (startyn && endyn && yy >= 8) {
+                        LocalTime localTime = LocalTime.parse(adtDataDto.getHolidayTime(), DateTimeFormatter.ofPattern("HH:mm"));
+                        if (startyn && endyn && localTime.getHour() >= 8) {
                             holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
-                        } else if ((startyn || endyn) && yy >= 4) {
+                        } else if ((startyn || endyn) && localTime.getHour() >= 4) {
                             holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount);
                         }
                     }
