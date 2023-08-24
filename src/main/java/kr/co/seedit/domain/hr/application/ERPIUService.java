@@ -66,6 +66,7 @@ public class ERPIUService {
         salaryDao.deleteBonus(erpIUDto);
         salaryDao.deleteCalcSalary(erpIUDto);
         salaryDao.deleteCalendar(erpIUDto);
+
         // SELECT
         List<ErpIUDto.DepartmentDto> departmentDtos = erpIUDao.getDepartment(erpIUDto);
         List<ErpIUDto.EmployemeeDto> employemeeDtos = erpIUDao.getEmployee(erpIUDto);
