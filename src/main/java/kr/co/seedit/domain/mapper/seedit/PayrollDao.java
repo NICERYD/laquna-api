@@ -7,11 +7,13 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
+import kr.co.seedit.domain.hr.dto.PayrollDto;
+
 @Repository
 @Mapper
 public interface PayrollDao {
 
-	List<Map<String, Object>> getFulltimePayrollList(Map<String, Object> input);
-	List<Map<String, Object>> getParttimePayrollList(Map<String, Object> input);
+	List<PayrollDto> getFulltimePayrollList(Map<String, Object> input);
+	List<PayrollDto> getParttimePayrollList(Map<String, Object> input);
 	
 }

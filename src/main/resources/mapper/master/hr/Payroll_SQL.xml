@@ -2,7 +2,7 @@
 <!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.seedit.domain.mapper.seedit.PayrollDao">
 	
-	<select id="getFulltimePayrollList" parameterType="Map" resultType="kr.co.seedit.global.utils.CamelHashMap">
+	<select id="getFulltimePayrollList" parameterType="Map" resultType="kr.co.seedit.domain.hr.dto.PayrollDto">
 		SELECT -- he.hire_date -- 입사년일
 			CONCAT(hire_date, CASE WHEN CONCAT(SUBSTRING(retire_date,1,4),SUBSTRING(retire_date,6,2)) = hdcs.yyyymm THEN CONCAT(' ',retire_date) ELSE '' END) as hire_date
 			, CASE
@@ -59,14 +59,18 @@
 			, hdmkt.outer_day -- 외출일자
 			, hdmkt.outer_time -- 외출시간
 			, hdcs.attribute17 -- 외출차감금액
-			, hsb.basic_salary -- 기본금
-				+ hdcs.attribute02 -- AS overtime01_amt -- 연장1 수당
-				+ hdcs.attribute03 -- AS overtime02_amt -- 연장2 수당
-				+ hdcs.attribute04 -- AS night01_allowance -- 야간1 수당
-				+ hdcs.attribute05 -- AS night02_allowance -- 야간2 수당
-				+ hdcs.attribute06 * (hdmkt.holiday_saturday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) -- AS holiday01_saturday_amt -- 휴일(토요일) 수당
-				+ hdcs.attribute06 * (hdmkt.holiday_sunday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) -- AS holiday01_sunday_amt -- 휴일(일요일) 수당
-				+ hdcs.attribute07 -- AS holiday02_amt -- 휴일2 수당 
+			, IFNULL(hsb.basic_salary,0) -- 기본금
+				+ IFNULL(hdcs.attribute02,0) -- AS overtime01_amt -- 연장1 수당
+				+ IFNULL(hdcs.attribute03,0) -- AS overtime02_amt -- 연장2 수당
+				+ IFNULL(hdcs.attribute04,0) -- AS night01_allowance -- 야간1 수당
+				+ IFNULL(hdcs.attribute05,0) -- AS night02_allowance -- 야간2 수당
+				+ CASE WHEN IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0) = 0 THEN 0
+					ELSE IFNULL(hdcs.attribute06,0) * (IFNULL(hdmkt.holiday_saturday_1,0)/(IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0))) -- AS holiday01_saturday_amt -- 휴일(토요일) 수당
+					END
+				+ CASE WHEN IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0) = 0 THEN 0
+					ELSE IFNULL(hdcs.attribute06,0) * (IFNULL(hdmkt.holiday_sunday_1  ,0)/(IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0))) -- AS holiday01_sunday_amt -- 휴일(일요일) 수당
+					END
+				+ IFNULL(hdcs.attribute07,0) -- AS holiday02_amt -- 휴일2 수당 
 				as total_salary -- 합계
 		FROM  hr_dh_calc_salary hdcs
 		INNER JOIN hr_dh_monthly_keun_tae hdmkt
@@ -102,7 +106,7 @@
 		AND   hdcs.yyyymm = #{yyyymm}
 	</select>
 	
-	<select id="getParttimePayrollList" parameterType="Map" resultType="kr.co.seedit.global.utils.CamelHashMap">
+	<select id="getParttimePayrollList" parameterType="Map" resultType="kr.co.seedit.domain.hr.dto.PayrollDto">
 		SELECT -- he.hire_date -- 입사년일
 			CONCAT(hire_date, CASE WHEN CONCAT(SUBSTRING(retire_date,1,4),SUBSTRING(retire_date,6,2)) = hdcs.yyyymm THEN CONCAT(' ',retire_date) ELSE '' END) as hire_date
 			, CASE
@@ -158,16 +162,33 @@
 			, hdmkt.outer_day -- 외출일자
 			, hdmkt.outer_time -- 외출시간
 			, hdcs.attribute17 -- 외출차감금액
-			, hsb.basic_salary -- 기본금
-				+ hdcs.attribute02 -- AS overtime01_amt -- 연장1 수당
-				+ hdcs.attribute04 -- AS night01_allowance -- 야간1 수당
-				+ hdcs.attribute05 -- AS night02_allowance -- 야간2 수당
-				+ hdcs.attribute06 * (hdmkt.holiday_saturday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) -- AS holiday01_saturday_amt -- 휴일(토요일) 수당
-				+ hdcs.attribute06 * (hdmkt.holiday_sunday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) -- AS holiday01_sunday_amt -- 휴일(일요일) 수당
-				- hdmkt.half_time * hsb.hourly_pay -- * -1 as half_time_amt -- 반차사용금액
-				- hdcs.attribute13 -- * -1 AS early_leave_amt -- 조퇴차감금액
-				- hdcs.attribute14 -- * -1 AS late_amt -- 지각차감금액
+			, IFNULL(hsb.basic_salary,0) -- 기본금
+				+ IFNULL(hdcs.attribute02,0) -- AS overtime01_amt -- 연장1 수당
+				+ IFNULL(hdcs.attribute04,0) -- AS night01_allowance -- 야간1 수당
+				+ IFNULL(hdcs.attribute05,0) -- AS night02_allowance -- 야간2 수당
+				+ CASE WHEN IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0) = 0 THEN 0
+					ELSE IFNULL(hdcs.attribute06,0) * (IFNULL(hdmkt.holiday_saturday_1,0)/(IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0))) -- AS holiday01_saturday_amt -- 휴일(토요일) 수당
+					END
+				+ CASE WHEN IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0) = 0 THEN 0
+					ELSE IFNULL(hdcs.attribute06,0) * (IFNULL(hdmkt.holiday_sunday_1  ,0)/(IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0))) -- AS holiday01_sunday_amt -- 휴일(일요일) 수당
+					END
+				- IFNULL(hdmkt.half_time,0) * IFNULL(hsb.hourly_pay,0) -- * -1 as half_time_amt -- 반차사용금액
+				- IFNULL(hdcs.attribute13,0) -- * -1 AS early_leave_amt -- 조퇴차감금액
+				- IFNULL(hdcs.attribute14,0) -- * -1 AS late_amt -- 지각차감금액
 				as totalSalary -- 합계
+			, IFNULL(hsb.basic_salary,0) -- 기본금
+				+ IFNULL(hdcs.attribute02,0) -- AS overtime01_amt -- 연장1 수당
+				+ IFNULL(hdcs.attribute03,0) -- AS overtime02_amt -- 연장2 수당
+				+ IFNULL(hdcs.attribute04,0) -- AS night01_allowance -- 야간1 수당
+				+ IFNULL(hdcs.attribute05,0) -- AS night02_allowance -- 야간2 수당
+				+ CASE WHEN IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0) = 0 THEN 0
+					ELSE IFNULL(hdcs.attribute06,0) * (IFNULL(hdmkt.holiday_saturday_1,0)/(IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0))) -- AS holiday01_saturday_amt -- 휴일(토요일) 수당
+					END
+				+ CASE WHEN IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0) = 0 THEN 0
+					ELSE IFNULL(hdcs.attribute06,0) * (IFNULL(hdmkt.holiday_sunday_1  ,0)/(IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0))) -- AS holiday01_sunday_amt -- 휴일(일요일) 수당
+					END
+				+ IFNULL(hdcs.attribute07,0) -- AS holiday02_amt -- 휴일2 수당 
+				as total_salary -- 합계
 		FROM  hr_dh_calc_salary hdcs
 		INNER JOIN hr_dh_monthly_keun_tae hdmkt
 		ON hdcs.company_id = hdmkt.company_id 
