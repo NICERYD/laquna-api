@@ -453,7 +453,7 @@ public class SalaryService {
                         }
                     }
                     // 야간수당1
-                    if (!adtDataDto.getNightTime().equals("00:00")) {
+                    if (adtDataDto.getInStatus().equals("야간")) {
                         LocalDate workStartDate = LocalDate.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDate workEndDate = LocalDate.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDateTime workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
