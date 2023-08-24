@@ -453,13 +453,16 @@ public class SalaryService {
                         }
                     }
                     // 야간수당1
-                    if (adtDataDto.getInStatus().equals("야간")) {
+                    if (adtDataDto.getWorkStatus().equals("야간")) {
                         LocalDate workStartDate = LocalDate.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDate workEndDate = LocalDate.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        LocalDateTime workStartTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDateTime workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        if (workEndDate.toEpochDay() - workStartDate.toEpochDay() >= 1 && workEndTime.getHour() >= nightBaseTime.getHour() && workEndTime.getMinute() >= nightBaseTime.getMinute()) {
-                            nightAllowance01 = nightAllowance01.add(nightBaseAmount);
-                            System.out.println(adtDataDto.getWorkDate() + " " + adtDataDto.getEmployeeId() + " " + nightAllowance01);
+                        if (workEndTime.toLocalTime().isAfter(LocalTime.of(5, 30))) {
+                            nightAllowance01 = nightAllowance01.add(BigDecimal.valueOf(30000));
+                        }
+                        if (workEndTime.toLocalTime().isAfter(LocalTime.of(8, 30))) {
+                            nightAllowance01 = nightAllowance01.add(BigDecimal.valueOf(20000));
                         }
                     }
                     // 휴일수당1
