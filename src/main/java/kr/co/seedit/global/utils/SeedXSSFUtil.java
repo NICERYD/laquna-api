@@ -34,11 +34,11 @@ public class SeedXSSFUtil {
 		// count loop
 		int curRowPoint = 0;
 		int lastRowPoint = Math.floorDiv(countData-1, maxInRow);
-System.out.print("Math.floorDiv(countData, maxInRow)="+Math.floorDiv(countData, maxInRow)+" countData="+countData+" maxInRow="+maxInRow+"\n");
+//System.out.print("Math.floorDiv(countData, maxInRow)="+Math.floorDiv(countData, maxInRow)+" countData="+countData+" maxInRow="+maxInRow+"\n");
 		for (int i=curRowPoint;i<lastRowPoint;i++)
 		{
 			curRowPoint += countHeadLine;
-System.out.print("["+sheetIndex+"-"+i+"] sheet.copyRows(0, countHeadLine="+countHeadLine+", curRowPoint="+curRowPoint+"\n");
+//System.out.print("["+sheetIndex+"-"+i+"] sheet.copyRows(0, countHeadLine="+countHeadLine+", curRowPoint="+curRowPoint+"\n");
 			sheet.copyRows(0, countHeadLine-1, curRowPoint, options);
 		}
 		
@@ -61,10 +61,10 @@ System.out.print("["+sheetIndex+"-"+i+"] sheet.copyRows(0, countHeadLine="+count
 			}
 		}
 		
-System.out.print("workbook.setPrintArea("+sheetIndex+", 0, "+(maxInRow*dataOffsetCell-1)+", 0, "+lastRowPoint*countHeadLine+"="+lastRowPoint+"*"+countHeadLine+")"+"\n");
 //		workbook.removePrintArea(curRowPoint);
 		if (maxInRow*dataOffsetCell-2 < (lastRowPoint+1)*countHeadLine -1) {
 			sheet.getWorkbook().setPrintArea(sheetIndex, 0, maxInRow*dataOffsetCell-2, 0, (lastRowPoint+1)*countHeadLine -1);
+//System.out.print("workbook.setPrintArea("+sheetIndex+", 0, "+(maxInRow*dataOffsetCell-1)+", 0, "+lastRowPoint*countHeadLine+"="+lastRowPoint+"*"+countHeadLine+")"+"\n");
 		}
 
 		return sheet;

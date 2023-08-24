@@ -12,6 +12,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xssf.usermodel.extensions.XSSFHeaderFooter;
@@ -229,7 +233,7 @@ public class PayrollService {
 		List<Map<String, Object>> listParttime = payrollDao.getParttimePayrollList(in);
 		
 		// set part-time user information
-		setParttimePayrollDatas(workbook, listParttime);
+//		setParttimePayrollDatas(workbook, listParttime);
 
 		
 		// print header setting
@@ -277,13 +281,41 @@ public class PayrollService {
 		}
 	}
 
-	private static String getCommaString(Object value)
+	private static String getCommaString(final Object value)
 	{
-		final DecimalFormat df1 = new DecimalFormat("#,##0");
-		if (null == value)
-			return "";
-		
-		return df1.format(value);
+		String rst;
+		String def = "0";
+		try {
+			final DecimalFormat df1 = new DecimalFormat("#,##0");
+			if (null == value)
+				return def;
+			
+			rst = df1.format(value);
+			
+			if ("0".equals(rst))
+					return def;
+		} catch (IllegalArgumentException | NullPointerException e) {
+			rst = def;
+		}
+		return rst;
+	}
+
+	private static String getCommaStringWithDefault(final Object value, final String def)
+	{
+		String rst;
+		try {
+			final DecimalFormat df1 = new DecimalFormat("#,##0");
+			if (null == value)
+				return def;
+			
+			rst = df1.format(value);
+			
+			if ("0".equals(rst))
+					return def;
+		} catch (IllegalArgumentException | NullPointerException e) {
+			rst = def;
+		}
+		return rst;
 	}
 
 	private boolean setFulltimePayrollDatas(XSSFWorkbook workbook, List<Map<String, Object>> datas) throws IOException
@@ -295,8 +327,15 @@ public class PayrollService {
 
 		// set format
 		SeedXSSFUtil.copyHeadlineCubeFormat(workbook, sheetNumber, countHeadLine, datas.size(), dataCountInRow, dataOffsetCell);
+		
+		final XSSFCellStyle styleLightGreen = workbook.createCellStyle();
+		styleLightGreen.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());  // 배경색
+		styleLightGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		final XSSFCellStyle styleLemonChiffon = workbook.createCellStyle();
+		styleLightGreen.setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex());  // 배경색
+		styleLightGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		
 
-//		int i=0;
 		int curRowPoint = 0, curColumnPoint = 0;
 		XSSFSheet sheet = workbook.getSheetAt(sheetNumber);
 		for (int i=0;i<datas.size();i++)
@@ -311,48 +350,57 @@ public class PayrollService {
 			
 			//NO.
 			setCelValueFromMap(sheet, curRowPoint, curColumnPoint+1, i+1); //1
-			setCelValueFromMap(sheet, curRowPoint, curColumnPoint+2, data.get("definedName")); //대리
+			setCelValueFromMap(sheet, curRowPoint, curColumnPoint+2, getCommaString(data.get("definedName"))); //대리
 			setCelValueFromMap(sheet, curRowPoint, curColumnPoint+3, data.get("koreanName")); //김빨강
 			setCelValueFromMap(sheet, curRowPoint, curColumnPoint+4, getCommaString(data.get("monthSalary"))); //2000000
 
 			//44875
-			setCelValueFromMap(sheet, curRowPoint+1, curColumnPoint+1, data.get("hireDate")); //
+			if ("".equals(data.get("hire_div"))) {
+				; // default color - do nothing
+			} else if ("RETIRE".equals(data.get("hire_div"))) {
+				sheet.getRow(curRowPoint+1).getCell(curColumnPoint+1).setCellStyle(styleLightGreen);
+			}
+			else if ("NEW".equals(data.get("hire_div"))) {
+				sheet.getRow(curRowPoint+1).getCell(curColumnPoint+1).setCellStyle(styleLemonChiffon);
+			}
+			setCelValueFromMap(sheet, curRowPoint+1, curColumnPoint+1, data.get("hireDate")); // 입사일자			
 			setCelValueFromMap(sheet, curRowPoint+1, curColumnPoint+4, getCommaString(data.get("yearSalary"))); //26000000
+			
 
 			//기본급
-			setCelValueFromMap(sheet, curRowPoint+2, curColumnPoint+1, data.get("basicSalary")); //6688.96321070234
+			setCelValueFromMap(sheet, curRowPoint+2, curColumnPoint+1, data.get("hourly_pay")); //6688.96321070234
 			setCelValueFromMap(sheet, curRowPoint+2, curColumnPoint+2, data.get("totalTime")); //209
-			setCelValueFromMap(sheet, curRowPoint+2, curColumnPoint+3, data.get("basicSalary")); //1397994
+			setCelValueFromMap(sheet, curRowPoint+2, curColumnPoint+3, getCommaStringWithDefault(data.get("basicSalary"),"-")); //1397994
 
 			//연차정산
 
 			//연장1
-			setCelValueFromMap(sheet, curRowPoint+4, curColumnPoint+2, data.get("overtime1")); //2
-			setCelValueFromMap(sheet, curRowPoint+4, curColumnPoint+3, data.get("overtime01Amt")); //40000
+			setCelValueFromMap(sheet, curRowPoint+4, curColumnPoint+2, data.get("overtime1Standard")); //2
+			setCelValueFromMap(sheet, curRowPoint+4, curColumnPoint+3, getCommaStringWithDefault(data.get("overtime01Amt"),"-")); //40000
 
 			//연장2 //포괄
-			setCelValueFromMap(sheet, curRowPoint+5, curColumnPoint+2, data.get("overtime2")); //52
-			setCelValueFromMap(sheet, curRowPoint+5, curColumnPoint+3, data.get("overtime02Amt")); //521739
+			setCelValueFromMap(sheet, curRowPoint+5, curColumnPoint+2, data.get("overtime2Standard")); //52
+			setCelValueFromMap(sheet, curRowPoint+5, curColumnPoint+3, getCommaStringWithDefault(data.get("overtime02Amt"),"-")); //521739
 
 			//야간1
-			setCelValueFromMap(sheet, curRowPoint+6, curColumnPoint+2, data.get("nightShift1")); //
-			setCelValueFromMap(sheet, curRowPoint+6, curColumnPoint+3, data.get("night01Allowance")); //0
+			setCelValueFromMap(sheet, curRowPoint+6, curColumnPoint+2, data.get("nightShift1Standard")); //
+			setCelValueFromMap(sheet, curRowPoint+6, curColumnPoint+3, getCommaStringWithDefault(data.get("night01Allowance"),"-")); //0
 
 			//야간2 //포괄
-			setCelValueFromMap(sheet, curRowPoint+7, curColumnPoint+2, data.get("nightShift2")); //24
-			setCelValueFromMap(sheet, curRowPoint+7, curColumnPoint+3, data.get("night02Allowance")); //80268
+			setCelValueFromMap(sheet, curRowPoint+7, curColumnPoint+2, data.get("nightShift2Standard")); //24
+			setCelValueFromMap(sheet, curRowPoint+7, curColumnPoint+3, getCommaStringWithDefault(data.get("night02Allowance"),"-")); //80268
 
 			//휴일1 //토요
-			setCelValueFromMap(sheet, curRowPoint+8, curColumnPoint+2, data.get("holidaySaturday1")); //1
-			setCelValueFromMap(sheet, curRowPoint+8, curColumnPoint+3, data.get("holiday01SaturdayAmt")); //50000
+			setCelValueFromMap(sheet, curRowPoint+8, curColumnPoint+2, data.get("holidaySaturday1Standard")); //1
+			setCelValueFromMap(sheet, curRowPoint+8, curColumnPoint+3, getCommaStringWithDefault(data.get("holiday01SaturdayAmt"),"-")); //50000
 
 			// //일요
-			setCelValueFromMap(sheet, curRowPoint+9, curColumnPoint+2, data.get("holidaySunday1")); //0.5
-			setCelValueFromMap(sheet, curRowPoint+9, curColumnPoint+3, data.get("holiday01SundayAmt")); //25000
+			setCelValueFromMap(sheet, curRowPoint+9, curColumnPoint+2, data.get("holidaySunday1Standard")); //0.5
+			setCelValueFromMap(sheet, curRowPoint+9, curColumnPoint+3, getCommaStringWithDefault(data.get("holiday01SundayAmt"),"-")); //25000
 
 			//휴일2 //포괄
-			setCelValueFromMap(sheet, curRowPoint+10, curColumnPoint+2, data.get("holiday2")); //0
-			setCelValueFromMap(sheet, curRowPoint+10, curColumnPoint+3, data.get("holiday02Amt")); //0
+			setCelValueFromMap(sheet, curRowPoint+10, curColumnPoint+2, data.get("holiday2Standard")); //0
+			setCelValueFromMap(sheet, curRowPoint+10, curColumnPoint+3, getCommaStringWithDefault(data.get("holiday02Amt"),"-")); //0
 
 			//연차사용
 			setCelValueFromMap(sheet, curRowPoint+11, curColumnPoint+1, data.get("annualLeaveUsedDay")); //3/17
@@ -369,11 +417,11 @@ public class PayrollService {
 			//초과상여
 //			setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+1, data.get("")); //
 //			setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+2, data.get("")); //
-//			setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+3, data.get("")); //
+//			setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+3, data.get(""),"-")); //
 //			setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+4, data.get("")); //
 
 			//합 계
-			setCelValueFromMap(sheet, curRowPoint+16, curColumnPoint+3, data.get("")); //2115001
+			setCelValueFromMap(sheet, curRowPoint+16, curColumnPoint+3, getCommaStringWithDefault(data.get("totalSalary"),"-")); //2115001
 
 			// test
 //			for (int rownum = 0;rownum<17;rownum++) {
@@ -401,84 +449,100 @@ public class PayrollService {
 		// set format
 		SeedXSSFUtil.copyHeadlineCubeFormat(workbook, sheetNumber, countHeadLine, datas.size(), dataCountInRow, dataOffsetCell);
 
-//			int i=0;
+		final XSSFCellStyle styleLightGreen = workbook.createCellStyle();
+		styleLightGreen.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());  // 배경색
+		styleLightGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		final XSSFCellStyle styleLemonChiffon = workbook.createCellStyle();
+		styleLightGreen.setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex());  // 배경색
+		styleLightGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
 		int curRowPoint = 0, curColumnPoint = 0;
 		XSSFSheet sheet = workbook.getSheetAt(sheetNumber);
-		for (int i=0;i<datas.size();i++) {
+		for (int i=0;i<datas.size();i++)
+		{
 			Map<String, Object> data = datas.get(i);
-//			}
-//			for (Map<String, String> map : datas) {
 			curRowPoint = Math.floorDiv(i, dataCountInRow) * countHeadLine;
 			curColumnPoint = Math.floorMod(i, dataCountInRow)*dataOffsetCell;
 
 			////////////////////////////////////////////
 			// data setting - start
 			
-//			//NO.
-//			setCelValueFromMap(sheet, curRowPoint, curColumnPoint+1, i+1); //1
-//			setCelValueFromMap(sheet, curRowPoint, curColumnPoint+2, data.get("definedName")); //대리
-//			setCelValueFromMap(sheet, curRowPoint, curColumnPoint+3, data.get("koreanName")); //김빨강
-//			setCelValueFromMap(sheet, curRowPoint, curColumnPoint+4, getCommaString(data.get("monthSalary"))); //2000000
-//
-//			//44875
-//			setCelValueFromMap(sheet, curRowPoint+1, curColumnPoint+1, data.get("hireDate")); //
-//			setCelValueFromMap(sheet, curRowPoint+1, curColumnPoint+4, getCommaString(data.get("yearSalary"))); //26000000
-//
-//			//기본급
-//			setCelValueFromMap(sheet, curRowPoint+2, curColumnPoint+1, data.get("basicSalary")); //6688.96321070234
-//			setCelValueFromMap(sheet, curRowPoint+2, curColumnPoint+2, data.get("totalTime")); //209
-//			setCelValueFromMap(sheet, curRowPoint+2, curColumnPoint+3, data.get("basicSalary")); //1397994
-//
-//			//연차정산
-//
-//			//연장1
-//			setCelValueFromMap(sheet, curRowPoint+4, curColumnPoint+2, data.get("overtime1")); //2
-//			setCelValueFromMap(sheet, curRowPoint+4, curColumnPoint+3, data.get("overtime01Amt")); //40000
-//
-//			//연장2 //포괄
-//			setCelValueFromMap(sheet, curRowPoint+5, curColumnPoint+2, data.get("overtime2")); //52
-//			setCelValueFromMap(sheet, curRowPoint+5, curColumnPoint+3, data.get("overtime02Amt")); //521739
-//
-//			//야간1
-//			setCelValueFromMap(sheet, curRowPoint+6, curColumnPoint+2, data.get("nightShift1")); //
-//			setCelValueFromMap(sheet, curRowPoint+6, curColumnPoint+3, data.get("night01Allowance")); //0
-//
-//			//야간2 //포괄
-//			setCelValueFromMap(sheet, curRowPoint+7, curColumnPoint+2, data.get("nightShift2")); //24
-//			setCelValueFromMap(sheet, curRowPoint+7, curColumnPoint+3, data.get("night02Allowance")); //80268
-//
-//			//휴일1 //토요
-//			setCelValueFromMap(sheet, curRowPoint+8, curColumnPoint+2, data.get("holidaySaturday1")); //1
-//			setCelValueFromMap(sheet, curRowPoint+8, curColumnPoint+3, data.get("holiday01SaturdayAmt")); //50000
-//
-//			// //일요
-//			setCelValueFromMap(sheet, curRowPoint+9, curColumnPoint+2, data.get("holidaySunday1")); //0.5
-//			setCelValueFromMap(sheet, curRowPoint+9, curColumnPoint+3, data.get("holiday01SundayAmt")); //25000
-//
-//			//휴일2 //포괄
-//			setCelValueFromMap(sheet, curRowPoint+10, curColumnPoint+2, data.get("holiday2")); //0
-//			setCelValueFromMap(sheet, curRowPoint+10, curColumnPoint+3, data.get("holiday02Amt")); //0
-//
-//			//연차사용
-//			setCelValueFromMap(sheet, curRowPoint+11, curColumnPoint+1, data.get("annualLeaveUsedDay")); //3/17
-//			setCelValueFromMap(sheet, curRowPoint+11, curColumnPoint+2, data.get("annualLeaveUsed")); //1
-//
-//			//반차사용
-//			setCelValueFromMap(sheet, curRowPoint+12, curColumnPoint+1, data.get("halfDay")); //지각3회로 오전반차
-//			setCelValueFromMap(sheet, curRowPoint+12, curColumnPoint+2, data.get("halfTime")); //1
-//
-//			//지각횟수
-//			setCelValueFromMap(sheet, curRowPoint+13, curColumnPoint+1, data.get("lateDay")); //3/20,21,22
-//			setCelValueFromMap(sheet, curRowPoint+13, curColumnPoint+2, data.get("lateTime")); //3
-//
-//			//초과상여
-////				setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+1, data.get("")); //
-////				setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+2, data.get("")); //
-////				setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+3, data.get("")); //
-////				setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+4, data.get("")); //
-//
-//			//합 계
-//			setCelValueFromMap(sheet, curRowPoint+16, curColumnPoint+3, data.get("")); //2115001
+			//NO.
+			setCelValueFromMap(sheet, curRowPoint, curColumnPoint+1, i+1); //1
+			setCelValueFromMap(sheet, curRowPoint, curColumnPoint+2, data.get("definedName")); //대리
+			setCelValueFromMap(sheet, curRowPoint, curColumnPoint+3, getCommaStringWithDefault(data.get("koreanName"),"-")); //김빨강
+			setCelValueFromMap(sheet, curRowPoint, curColumnPoint+4, getCommaString(data.get("day_pay"))); //2000000
+
+			//44875
+			if ("".equals(data.get("hire_div"))) {
+				; // default color - do nothing
+			} else if ("RETIRE".equals(data.get("hire_div"))) {
+				sheet.getRow(curRowPoint+1).getCell(curColumnPoint+1).setCellStyle(styleLightGreen);
+			}
+			else if ("NEW".equals(data.get("hire_div"))) {
+				sheet.getRow(curRowPoint+1).getCell(curColumnPoint+1).setCellStyle(styleLemonChiffon);
+			}
+			setCelValueFromMap(sheet, curRowPoint+1, curColumnPoint+1, data.get("hireDate")); //
+			setCelValueFromMap(sheet, curRowPoint+1, curColumnPoint+4, getCommaString(data.get("hourlyPay"))); //26000000
+
+			//기본급
+			setCelValueFromMap(sheet, curRowPoint+2, curColumnPoint+2, data.get("totalTime")); //209
+			setCelValueFromMap(sheet, curRowPoint+2, curColumnPoint+3, getCommaStringWithDefault(data.get("basicSalary"),"-")); //1397994
+
+			//연차수당
+			setCelValueFromMap(sheet, curRowPoint+3, curColumnPoint+2, data.get("annualLeaveUsedDay"));
+			setCelValueFromMap(sheet, curRowPoint+3, curColumnPoint+3, getCommaStringWithDefault(data.get("annualLeaveAmt"),"-"));
+			
+			//연차수당(정산)
+//			setCelValueFromMap(sheet, curRowPoint+3, curColumnPoint+2, data.get("annualLeaveUsed"));
+//			setCelValueFromMap(sheet, curRowPoint+3, curColumnPoint+3, getCommaStringWithDefault(data.get("annualLeaveAmt"),"-"));
+
+			//연장
+			setCelValueFromMap(sheet, curRowPoint+5, curColumnPoint+2, data.get("overtime1")); //52
+			setCelValueFromMap(sheet, curRowPoint+5, curColumnPoint+3, getCommaStringWithDefault(data.get("overtime01Amt"),"-")); //521739
+
+			//야간수당 (주간)
+			setCelValueFromMap(sheet, curRowPoint+6, curColumnPoint+	2, data.get("daytimeHours")); //주간조야간
+			setCelValueFromMap(sheet, curRowPoint+6, curColumnPoint+3, getCommaStringWithDefault(data.get("daytimeHoursAmt"),"-")); //
+
+			//야간수당 (야간)
+			setCelValueFromMap(sheet, curRowPoint+7, curColumnPoint+2, data.get("nighttimeHours")); //야간조야간
+			setCelValueFromMap(sheet, curRowPoint+7, curColumnPoint+3, getCommaStringWithDefault(data.get("nighttimeHoursAmt"),"-")); //80268
+
+			//휴일(토요)
+			setCelValueFromMap(sheet, curRowPoint+8, curColumnPoint+2, data.get("holidaySaturday1")); //1
+			setCelValueFromMap(sheet, curRowPoint+8, curColumnPoint+3, getCommaStringWithDefault(data.get("holiday01SaturdayAmt"),"-")); //50000
+
+			//휴일(일요)
+			setCelValueFromMap(sheet, curRowPoint+9, curColumnPoint+2, data.get("holidaySunday1")); //0.5
+			setCelValueFromMap(sheet, curRowPoint+9, curColumnPoint+3, getCommaStringWithDefault(data.get("holiday01SundayAmt"),"-")); //25000
+
+			//보조금(교통비)
+			setCelValueFromMap(sheet, curRowPoint+10, curColumnPoint+2, data.get("transportation"));
+			setCelValueFromMap(sheet, curRowPoint+10, curColumnPoint+3, getCommaStringWithDefault(data.get("attribute15"),"-"));
+
+			//보조금(식대)
+			setCelValueFromMap(sheet, curRowPoint+11, curColumnPoint+1, data.get("meal")); //3/17
+			setCelValueFromMap(sheet, curRowPoint+11, curColumnPoint+2, data.get("attribute16")); //1
+
+			//반차사용
+			setCelValueFromMap(sheet, curRowPoint+12, curColumnPoint+1, data.get("halfDay"));
+			setCelValueFromMap(sheet, curRowPoint+12, curColumnPoint+2, data.get("halfTime"));
+			setCelValueFromMap(sheet, curRowPoint+12, curColumnPoint+3, data.get("halfTimeAmt"));
+			setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+3, getCommaStringWithDefault(data.get("halfTimeAmt"),"0")); //
+
+			//조퇴
+			setCelValueFromMap(sheet, curRowPoint+13, curColumnPoint+1, data.get("earlyLeaveDay")); //3/20,21,22
+			setCelValueFromMap(sheet, curRowPoint+13, curColumnPoint+2, data.get("earlyLeaveTime")); //3
+			setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+3, getCommaStringWithDefault(data.get("earlyLeaveAmt"),"0")); //
+
+			//지각
+			setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+1, data.get("lateDay")); //
+			setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+2, data.get("lateTime")); //
+			setCelValueFromMap(sheet, curRowPoint+14, curColumnPoint+3, getCommaStringWithDefault(data.get("lateAmt"),"0")); //
+
+			//합 계
+			setCelValueFromMap(sheet, curRowPoint+16, curColumnPoint+3, getCommaStringWithDefault(data.get(""),"-")); //2115001
 
 			// data setting - end	
 		}

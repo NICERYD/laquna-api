@@ -5,6 +5,11 @@
 	<select id="getFulltimePayrollList" parameterType="Map" resultType="kr.co.seedit.global.utils.CamelHashMap">
 		SELECT -- he.hire_date -- 입사년일
 			CONCAT(hire_date, CASE WHEN CONCAT(SUBSTRING(retire_date,1,4),SUBSTRING(retire_date,6,2)) = hdcs.yyyymm THEN CONCAT(' ',retire_date) ELSE '' END) as hire_date
+			, CASE
+				WHEN CONCAT(SUBSTRING(hire_date,1,4),SUBSTRING(hire_date,6,2)) = hdcs.yyyymm THEN 'RETIRE'
+				WHEN CONCAT(SUBSTRING(retire_date,1,4),SUBSTRING(retire_date,6,2)) = hdcs.yyyymm THEN 'NEW'
+				ELSE ''
+				END as hire_div
 			, fcd02.defined_name  -- 직급
 			, he.department_id -- 부서 아이디
 			, '' AS department_name -- 시급제 부서(ex.머시닝)
@@ -13,7 +18,11 @@
 			, hsb.basic_salary + hsb.overtime_allowance + hsb.night_allowance AS month_salary -- 월급여
 			, (hsb.basic_salary + hsb.overtime_allowance + hsb.night_allowance) * 13 AS year_salary -- 년봉
 			, 0 AS day_pay -- 일급
-			, 0 AS hourly_pay -- 시급
+			, CASE hdmkt.total_time
+				WHEN 0 THEN NULL
+				ELSE hsb.basic_salary / hdmkt.total_time
+				END
+				 AS hourly_pay -- 시급
 			, hdmkt.total_time -- 총근무시간
 			, hsb.basic_salary -- 기본금
 			, 0 AS annual_leave_amt -- 연차수당
@@ -50,6 +59,15 @@
 			, hdmkt.outer_day -- 외출일자
 			, hdmkt.outer_time -- 외출시간
 			, hdcs.attribute17 -- 외출차감금액
+			, hsb.basic_salary -- 기본금
+				+ hdcs.attribute02 -- AS overtime01_amt -- 연장1 수당
+				+ hdcs.attribute03 -- AS overtime02_amt -- 연장2 수당
+				+ hdcs.attribute04 -- AS night01_allowance -- 야간1 수당
+				+ hdcs.attribute05 -- AS night02_allowance -- 야간2 수당
+				+ hdcs.attribute06 * (hdmkt.holiday_saturday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) -- AS holiday01_saturday_amt -- 휴일(토요일) 수당
+				+ hdcs.attribute06 * (hdmkt.holiday_sunday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) -- AS holiday01_sunday_amt -- 휴일(일요일) 수당
+				+ hdcs.attribute07 -- AS holiday02_amt -- 휴일2 수당 
+				as total_salary -- 합계
 		FROM  hr_dh_calc_salary hdcs
 		INNER JOIN hr_dh_monthly_keun_tae hdmkt
 		ON hdcs.company_id = hdmkt.company_id 
@@ -87,6 +105,11 @@
 	<select id="getParttimePayrollList" parameterType="Map" resultType="kr.co.seedit.global.utils.CamelHashMap">
 		SELECT -- he.hire_date -- 입사년일
 			CONCAT(hire_date, CASE WHEN CONCAT(SUBSTRING(retire_date,1,4),SUBSTRING(retire_date,6,2)) = hdcs.yyyymm THEN CONCAT(' ',retire_date) ELSE '' END) as hire_date
+			, CASE
+				WHEN CONCAT(SUBSTRING(hire_date,1,4),SUBSTRING(hire_date,6,2)) = hdcs.yyyymm THEN 'RETIRE'
+				WHEN CONCAT(SUBSTRING(retire_date,1,4),SUBSTRING(retire_date,6,2)) = hdcs.yyyymm THEN 'NEW'
+				ELSE ''
+				END as hire_div
 			, fcd02.defined_name  -- 직급
 			, he.department_id -- 부서 아이디
 			, '' AS department_name -- 시급제 부서(ex.머시닝)
@@ -106,7 +129,9 @@
 			, hdmkt.night_shift_1 -- 야간1 시간
 			, hdcs.attribute04 AS night01_allowance -- 야간1 수당
 			, hdmkt.daytime_hours -- 주간조야간
+			, hdmkt.daytime_hours * hsb.hourly_pay as daytime_hours_amt -- 주간조야간금액
 			, hdmkt.nighttime_hours -- 야간조야간
+			, hdmkt.nighttime_hours * hsb.hourly_pay as nighttime_hours_amt -- 야간조야간금액
 			, 0 AS night_shift_2 -- 야간2 시간
 			, 0 AS night02_allowance -- 야간2 수당
 			, hdmkt.holiday_saturday_1  -- 휴일(토요일) 근무
@@ -121,17 +146,28 @@
 			, hdcs.attribute15 -- 교통비
 			, hdmkt.meal -- 식대제공횟수
 			, hdcs.attribute16  -- 식대금액
-			-- , hdmkt.half_day -- 반차사용일자
+			, hdmkt.half_day -- 반차사용일자
 			, hdmkt.half_time -- 반차사용시간
+			, hdmkt.half_time * hsb.hourly_pay * -1 as half_time_amt -- 반차사용금액
 			, hdmkt.early_leave_day -- 조퇴일자
 			, hdmkt.early_leave_time -- 조퇴횟수 
-			, hdcs.attribute13 AS early_leave_amt -- 조퇴차감금액
+			, hdcs.attribute13 * -1 AS early_leave_amt -- 조퇴차감금액
 			, hdmkt.late_day -- 지각일자
 			, hdmkt.late_time  -- 지각시간
-			, hdcs.attribute14 AS late_amt -- 지각차감금액
+			, hdcs.attribute14 * -1 AS late_amt -- 지각차감금액
 			, hdmkt.outer_day -- 외출일자
 			, hdmkt.outer_time -- 외출시간
 			, hdcs.attribute17 -- 외출차감금액
+			, hsb.basic_salary -- 기본금
+				+ hdcs.attribute02 -- AS overtime01_amt -- 연장1 수당
+				+ hdcs.attribute04 -- AS night01_allowance -- 야간1 수당
+				+ hdcs.attribute05 -- AS night02_allowance -- 야간2 수당
+				+ hdcs.attribute06 * (hdmkt.holiday_saturday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) -- AS holiday01_saturday_amt -- 휴일(토요일) 수당
+				+ hdcs.attribute06 * (hdmkt.holiday_sunday_1/(hdmkt.holiday_saturday_1+hdmkt.holiday_sunday_1)) -- AS holiday01_sunday_amt -- 휴일(일요일) 수당
+				- hdmkt.half_time * hsb.hourly_pay -- * -1 as half_time_amt -- 반차사용금액
+				- hdcs.attribute13 -- * -1 AS early_leave_amt -- 조퇴차감금액
+				- hdcs.attribute14 -- * -1 AS late_amt -- 지각차감금액
+				as totalSalary -- 합계
 		FROM  hr_dh_calc_salary hdcs
 		INNER JOIN hr_dh_monthly_keun_tae hdmkt
 		ON hdcs.company_id = hdmkt.company_id 
