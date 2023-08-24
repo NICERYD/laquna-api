@@ -19,6 +19,7 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -801,26 +802,24 @@ public class SalaryService {
         return isLunchTimeIncluded;
     }
 
-    public static BigDecimal calcNonPay(Integer nonPaycnt, String basicSalary, String overtimeAllowance02, String
+    public static @NotNull BigDecimal calcNonPay(Integer nonPaycnt, String basicSalary, String overtimeAllowance02, String
             nightAllowance02, String holidayAllowance02) {
         BigDecimal nonPayBasicSalary = BigDecimal.ZERO;
         BigDecimal nonPayOvertimeAllowance02 = BigDecimal.ZERO;
         BigDecimal nonPayNightAllowance02 = BigDecimal.ZERO;
         BigDecimal nonPayHolidayAllowance02 = BigDecimal.ZERO;
-        if (basicSalary != null) {
-            nonPayBasicSalary = new BigDecimal(basicSalary).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, RoundingMode.HALF_UP)).setScale(0, RoundingMode.HALF_UP);
-        }
+
+        nonPayBasicSalary = new BigDecimal(basicSalary);
         if (overtimeAllowance02 != null) {
-            nonPayOvertimeAllowance02 = new BigDecimal(overtimeAllowance02).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, BigDecimal.ROUND_HALF_UP)).setScale(0, RoundingMode.HALF_UP);
+            nonPayOvertimeAllowance02 = new BigDecimal(overtimeAllowance02);
         }
         if (nightAllowance02 != null) {
-            nonPayNightAllowance02 = new BigDecimal(nightAllowance02).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, BigDecimal.ROUND_HALF_UP)).setScale(0, RoundingMode.HALF_UP);
+            nonPayNightAllowance02 = new BigDecimal(nightAllowance02);
         }
         if (holidayAllowance02 != null) {
-            nonPayHolidayAllowance02 = new BigDecimal(holidayAllowance02).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 3, BigDecimal.ROUND_HALF_UP)).setScale(0, RoundingMode.HALF_UP);
+            nonPayHolidayAllowance02 = new BigDecimal(holidayAllowance02 );
         }
-
-        return (nonPayBasicSalary.add(nonPayOvertimeAllowance02).add(nonPayNightAllowance02).add(nonPayHolidayAllowance02)).multiply(BigDecimal.valueOf(-1));
+        return (nonPayBasicSalary.add(nonPayOvertimeAllowance02).add(nonPayNightAllowance02).add(nonPayHolidayAllowance02)).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 8, RoundingMode.HALF_UP)).setScale(0, RoundingMode.UP);
     }
 
     public static boolean isBetween(LocalDateTime targetTime, LocalDateTime startTime, LocalDateTime endTime) {
