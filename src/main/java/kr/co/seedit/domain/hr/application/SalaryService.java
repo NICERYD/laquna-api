@@ -459,10 +459,7 @@ public class SalaryService {
                         LocalDateTime workStartTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDateTime workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         if (workEndTime.toLocalTime().isAfter(LocalTime.of(5, 30))) {
-                            nightAllowance01 = nightAllowance01.add(BigDecimal.valueOf(30000));
-                        }
-                        if (workEndTime.toLocalTime().isAfter(LocalTime.of(8, 30))) {
-                            nightAllowance01 = nightAllowance01.add(BigDecimal.valueOf(20000));
+                            nightAllowance01 = nightAllowance01.add(nightBaseAmount);
                         }
                     }
                     // 휴일수당1
