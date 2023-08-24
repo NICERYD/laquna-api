@@ -61,10 +61,10 @@ public class SeedXSSFUtil {
 			}
 		}
 		
-System.out.print("workbook.setPrintArea("+sheetIndex+", 0, "+(maxInRow*dataOffsetCell-1)+", 0, "+lastRowPoint*countHeadLine+"="+lastRowPoint+"*"+countHeadLine+")"+"\n");
 //		workbook.removePrintArea(curRowPoint);
 		if (maxInRow*dataOffsetCell-2 < (lastRowPoint+1)*countHeadLine -1) {
 			sheet.getWorkbook().setPrintArea(sheetIndex, 0, maxInRow*dataOffsetCell-2, 0, (lastRowPoint+1)*countHeadLine -1);
+//System.out.print("workbook.setPrintArea("+sheetIndex+", 0, "+(maxInRow*dataOffsetCell-1)+", 0, "+lastRowPoint*countHeadLine+"="+lastRowPoint+"*"+countHeadLine+")"+"\n");
 		}
 
 		return sheet;
