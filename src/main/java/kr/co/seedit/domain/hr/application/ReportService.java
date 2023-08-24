@@ -41,9 +41,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.seedit.domain.hr.dto.BasicSalaryDto;
+import kr.co.seedit.domain.hr.dto.EmployeeInformationDto;
+import kr.co.seedit.domain.hr.dto.PersonalPayrollParamsDto;
 import kr.co.seedit.domain.hr.dto.ReportParamsDto;
 import kr.co.seedit.domain.hr.dto.ReportPayrollDto;
 import kr.co.seedit.domain.hr.dto.SalaryExcelDto;
+import kr.co.seedit.domain.hr.dto.SelectListDto;
 import kr.co.seedit.domain.mapper.seedit.ReportDao;
 import kr.co.seedit.global.common.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -73,12 +76,30 @@ public class ReportService {
 	        	break;
 	        case "Paystub":
 	        	workbook = createPaystub(reportParamsDto);
+	        	break;
+	        case "PersonalPayroll":
+	        	workbook = createPersonalPayroll(reportParamsDto);
+	        	break;
         }
 
         workbook.write(byteArrayOutputStream);
         workbook.close();
         return new ByteArrayResource(byteArrayOutputStream.toByteArray());
 
+    }
+    
+  //excel sum 수식 파라미터(열 이름, 시작 행, 끝나는 행, 간격)
+    private static String determineSumFormula(String cellName, Integer start, Integer end, Integer interval) {
+    	String formula = "SUM(";
+    	do {
+    		formula += cellName + start + ",";
+    		start += interval;
+    	}while(start< end);
+    	
+    	formula = formula.substring(0, formula.length()-1);	//마지막 콤마 제거
+    	formula += ")";
+    	
+    	return formula;
     }
    
     public XSSFWorkbook createERPIU(ReportParamsDto reportParamsDto) throws Exception {
@@ -415,38 +436,31 @@ public class ReportService {
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(TopBorderStyle);
      	cell.setCellFormula(determineSumFormula("C", 9, 9+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
      	
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(TopBorderStyle);
      	cell.setCellFormula(determineSumFormula("D", 9, 9+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
      	
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(TopBorderStyle);
      	cell.setCellFormula(determineSumFormula("E", 9, 9+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
      	
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(TopBorderStyle);
      	cell.setCellFormula(determineSumFormula("F", 9, 9+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
      	
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(TopBorderStyle);
      	cell.setCellFormula(determineSumFormula("G", 9, 9+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
      	
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(TopBorderStyle);
      	cell.setCellFormula(determineSumFormula("H", 9, 9+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
      	
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(TopRightBorderStyle);
      	cell.setCellFormula(determineSumFormula("I", 9, 9+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
-     	
+     	     	
      	row = sheet.createRow(rowindex++);
      	for(cellindex=0; cellindex<2; cellindex++) {
          	cell = row.createCell(cellindex);
@@ -457,32 +471,26 @@ public class ReportService {
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(ThinBorderStyle);
      	cell.setCellFormula(determineSumFormula("C", 10, 10+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
      	
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(ThinBorderStyle);
      	cell.setCellFormula(determineSumFormula("D", 10, 10+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
      	
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(ThinBorderStyle);
      	cell.setCellFormula(determineSumFormula("E", 10, 10+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
      	
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(ThinBorderStyle);
      	cell.setCellFormula(determineSumFormula("F", 10, 10+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
      	
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(ThinBorderStyle);
      	cell.setCellFormula(determineSumFormula("G", 10, 10+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
      	
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(ThinBorderStyle);
      	cell.setCellFormula(determineSumFormula("H", 10, 10+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
      	
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(RightBorderStyle);
@@ -504,7 +512,8 @@ public class ReportService {
      	cell = row.createCell(cellindex++);
      	cell.setCellStyle(AllBorderStyle);
      	cell.setCellFormula(determineSumFormula("I", 11, 11+reportPayrollDtoList.size()*3, 3));
-     	formulaEvaluator.evaluateFormulaCell(cell);
+     	
+     	formulaEvaluator.evaluateAll();	//수식 전체 실행
 
         sheet.addMergedRegion(new CellRangeAddress((8+reportPayrollDtoList.size()*3), (9+reportPayrollDtoList.size()*3)+1, 0, 1));
         
@@ -524,11 +533,18 @@ public class ReportService {
          String[] taxArr = {"국민연금", "건강보험", "고용보험", "장기요양보험료", "소득세", "지방소득세", "가불금", "기타공제", "경조비", "연말정산", "건강보험정산", "장기요양보험정산", "연차수당"};
     	 
     	 XSSFWorkbook workbook = new XSSFWorkbook();
+    	 XSSFFormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
          XSSFSheet sheet = workbook.createSheet(reportParamsDto.getYyyymm() + "Paystub");
          int rowindex = 0;
          int cellindex = 0;
          XSSFRow row = null;
          XSSFCell cell = null;
+         
+         //Print Setting
+         XSSFPrintSetup printSetup = sheet.getPrintSetup();
+         printSetup.setPaperSize(XSSFPrintSetup.A4_PAPERSIZE);
+//         printSetup.setLandscape(true);		//인쇄방향 가로
+         printSetup.setFitWidth((short)1);
          
          //Style Setting
          Font titleFont = workbook.createFont();
@@ -963,27 +979,205 @@ public class ReportService {
              
              sheet.createRow(rowindex++);
              sheet.createRow(rowindex++);
+             formulaEvaluator.evaluateAll();	//수식 전체 실행
 
          }
     	 
     	 return workbook;
      }
      
-     //excel sum 수식 파라미터(열 이름, 시작 행, 끝나는 행, 간격)
-     private static String determineSumFormula(String cellName, Integer start, Integer end, Integer interval) {
-     	String formula = "SUM(";
-     	do {
-     		formula += cellName + start + ",";
-     		start += interval;
-     	}while(start< end);
-     	
-     	formula = formula.substring(0, formula.length()-1);	//마지막 콤마 제거
-     	formula += ")";
-     	
-     	return formula;
-     }
-    
+     @Transactional
+     public XSSFWorkbook createPersonalPayroll(ReportParamsDto reportParamsDto) throws Exception{
+    	 //Get Employee List
+    	 List<PersonalPayrollParamsDto> employees = new ArrayList<>();
+    	 employees = reportDao.findEmployees(reportParamsDto);
+         
+         String[] headerArr = {"근무일자", "근무스케줄", "출근시간", "퇴근시간", "출근판정", "퇴근판정", "지각", "연장", "야간", "휴일", "정상", "실근무"};
+    	 
+    	 XSSFWorkbook workbook = new XSSFWorkbook();
+    	 XSSFFormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+    	 //Style Setting
+         Font font = workbook.createFont();
+         font.setFontName("맑은 고딕");
+         font.setFontHeightInPoints((short)11);
+         
+         Font boldFont = workbook.createFont();
+         boldFont.setFontName("맑은 고딕");
+         boldFont.setFontHeightInPoints((short)11);
+         boldFont.setBold(true);
+         
+         CellStyle RightDashStyle = workbook.createCellStyle();
+         RightDashStyle.setBorderTop(BorderStyle.THIN);
+         RightDashStyle.setBorderBottom(BorderStyle.THIN);
+         RightDashStyle.setBorderLeft(BorderStyle.THIN);
+         RightDashStyle.setBorderRight(BorderStyle.DOTTED);
+         RightDashStyle.setFont(font);
+         RightDashStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+         RightDashStyle.setAlignment(HorizontalAlignment.CENTER);
+         
+         
+         CellStyle YellowDottedStyle = workbook.createCellStyle();
+         YellowDottedStyle.setBorderTop(BorderStyle.DOTTED);
+         YellowDottedStyle.setBorderBottom(BorderStyle.DOTTED);
+         YellowDottedStyle.setBorderLeft(BorderStyle.DOTTED);
+         YellowDottedStyle.setBorderRight(BorderStyle.DOTTED);
+         YellowDottedStyle.setFont(font);
+         YellowDottedStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+         YellowDottedStyle.setAlignment(HorizontalAlignment.CENTER);
+         YellowDottedStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+         YellowDottedStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+         
+         CellStyle GreenDottedStyle = workbook.createCellStyle();
+         GreenDottedStyle.setBorderTop(BorderStyle.DOTTED);
+         GreenDottedStyle.setBorderBottom(BorderStyle.DOTTED);
+         GreenDottedStyle.setBorderLeft(BorderStyle.DOTTED);
+         GreenDottedStyle.setBorderRight(BorderStyle.DOTTED);
+         GreenDottedStyle.setFont(font);
+         GreenDottedStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+         GreenDottedStyle.setAlignment(HorizontalAlignment.CENTER);
+         GreenDottedStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
+         GreenDottedStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+         
+    	 for(PersonalPayrollParamsDto e : employees) {
+    		 String employeeType = e.getEmployeeType();
+    		 //Get ADT Data
+    		 reportParamsDto.setEmployeeId(e.getEmployeeId());
+             List<EmployeeInformationDto> personalAdtList = new ArrayList<>();
+             personalAdtList = reportDao.findPersonalPayroll(reportParamsDto);
+             
+    		 XSSFSheet sheet = workbook.createSheet(e.getKoreanName());
+             int rowindex = 0;
+             int cellindex = 0;
+             XSSFRow row = null;
+             XSSFCell cell = null;
+             
+             row = sheet.createRow(rowindex++);
+             for(cellindex = 0; cellindex< headerArr.length; cellindex++) {
+            	 cell = row.createCell(cellindex);
+            	 cell.setCellValue(headerArr[cellindex]);
+             }
+             
+             for(EmployeeInformationDto p : personalAdtList) {
+            	 row = sheet.createRow(rowindex++);
+            	 cellindex = 0;
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue(p.getWorkDate());
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue(p.getWorkStatus());
+            	 switch(p.getWorkStatus()) {
+	         	 	case "연차":
+	         	 	case "오후반차":
+	         	 	case "오전반차_정상":
+	         	 	case "오전반차_생산":
+	         	 	case "휴가":
+	         	 		cell.setCellStyle(GreenDottedStyle);
+	         	 		break;
+	         	 	case "야간":
+	         	 		cell.setCellStyle(YellowDottedStyle);
+	         	 }
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue(p.getWorkStartDate());
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue(p.getWorkEndDate());
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue(p.getInStatus());
+            	 if("지각".equals(p.getInStatus()))
+            		 cell.setCellStyle(YellowDottedStyle);
 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue(p.getOutStatus());
+            	 if("조퇴".equals(p.getOutStatus()))
+            		 cell.setCellStyle(YellowDottedStyle);
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue(p.getLateTime());
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue(p.getOverTime());
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue(p.getNightTime());
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue(p.getHolidayTime());
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue(p.getDefaultTime());
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue(p.getRealWorkTime());
+             }
+             
+             sheet.setAutoFilter(new CellRangeAddress(0, personalAdtList.size()+1, 0, headerArr.length-1));
+             
+             rowindex = 0;
+             cellindex = headerArr.length;
+             row = sheet.getRow(rowindex++);
+             cell = row.createCell(cellindex++);
+             cell.setCellValue("성명");
+             
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(e.getKoreanName());
+             
+             cell = row.createCell(cellindex++);
+             if("100".equals(employeeType)) {
+            	 cell.setCellValue("연봉");
+            	 rowindex = 2;
+            	 cellindex = headerArr.length;
+            	 
+            	 row = sheet.getRow(rowindex++);
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue("구분");
+            	 row.createCell(cellindex++).setBlank(); 	//merge
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue("구분");
+            	 row.createCell(cellindex++).setBlank(); 	//merge
+            	 
+            	 cellindex = headerArr.length;
+            	 row = sheet.getRow(rowindex++);
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue("연차(휴가)");
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellFormula("SUM( COUNTIF(B2:B32,\"연차\"), COUNTIF(B2:B32,\"휴가\") )");
+            	 
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue("반차");
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellFormula("COUNTIF(B2:B32,\"*반차*\")");
+            	 
+            	 cellindex = headerArr.length;
+            	 row = sheet.getRow(rowindex++);
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue("지각");
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellFormula("SUM(G2:G32)");
+
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellValue("지각횟수");
+            	 
+            	 cell = row.createCell(cellindex++);
+            	 cell.setCellFormula("COUNTIF(E2:E32,\"지각\")");
+
+             }else if("200".equals(employeeType)) {
+            	 cell.setCellValue("시급(야간)");
+            	 
+             }
+             
+    	 }
+    	 formulaEvaluator.evaluateAll();	//수식 전체 실행
+    	 return workbook;
+     }
+     
 // 예전 급여대장
 //    @Transactional
 //    public ResponseDto monthlyKeunTaeReport(MonthlyKeunTaeDto monthlyKeunTaeDto, HttpServletResponse response) throws

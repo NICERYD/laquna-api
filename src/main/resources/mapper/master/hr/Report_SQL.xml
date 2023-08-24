@@ -101,6 +101,85 @@
         ORDER BY he.department_id, he.position_code
 	</select>
 	
+	<select id="findEmployees" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.PersonalPayrollParamsDto">
+		/*ReportDao.findEmployees*/
+		SELECT DISTINCT(he.employee_id)
+				,he.korean_name
+				,he.employee_type
+		FROM hr_employee he
+		INNER JOIN hr_dh_adt_manage hadt
+           ON hadt.company_id  = he.company_id
+           AND hadt.employee_id = he.employee_id
+           AND hadt.attribute1 = he.attribute1
+		WHERE  he.company_id = #{companyId}
+        <if test="estId !=999 and estId != null">
+            AND   he.est_id = #{estId}
+        </if>
+        AND   he.attribute1  = #{yyyymm}
+        ORDER BY he.department_id, he.position_code
+	</select>
+	
+	<select id="findPersonalPayroll" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.EmployeeInformationDto">
+		/*ReportDao.findPersonalPayroll*/
+		SELECT hadt.work_date -- 근태기준일
+	           , fbe.est_name -- 사업장
+	           , hd.department_name -- 부서
+	           , he.employee_number  -- 사원번호
+	           , he.korean_name -- 성명
+	           , fcd02.defined_name -- 직급
+	           , hadt.work_status -- 근무형태
+	           , hadt.work_start_date -- 출근일시
+	           , hadt.work_end_date -- 퇴근일시
+	           , hadt.in_status -- 출근판정
+	           , hadt.out_status -- 퇴근판정
+	           , hadt.out_start_date
+	           , hadt.out_end_date
+	           , TIME_FORMAT(TIMEDIFF(hadt.out_end_date, hadt.out_start_date ), '%H:%i')  AS out_time
+	           , hadt.late_time -- 지각
+	           , hadt.over_time -- 연장근무기간
+	           , hadt.night_time -- 야간근무시간
+	           , hadt.holiday_time -- 휴일
+	           , hadt.real_work_time -- 실제근무시간
+	           , hadt.default_time  -- 정상근무시간
+	           , fcd01.defined_name -- 급여구분
+	    FROM   hr_employee he
+	           INNER JOIN hr_department hd
+	           ON he.company_id = hd.company_id
+	           AND he.department_id = hd.department_id
+	           AND he.attribute1 = hd.attribute2
+	           -- 급여구분
+	           INNER JOIN fnd_code fc01
+	           ON fc01.company_id  = he.company_id
+	           AND fc01.code_field = 'HR_A0002'
+	           INNER JOIN fnd_code_detail fcd01
+	           ON fcd01.company_id  = he.company_id
+	           AND fcd01.code_id = fc01.code_id
+	           AND fcd01.value01  = he.employee_type
+	           -- 직급
+	           INNER JOIN fnd_code fc02
+	           ON fc02.company_id  = he.company_id
+	           AND fc02.code_field = 'HR_A0003'
+	           INNER JOIN fnd_code_detail fcd02
+	           ON fcd02.company_id  = he.company_id
+	           AND fcd02.code_id = fc02.code_id
+	           AND fcd02.defined_cd = he.position_code
+	           -- 사업장
+	           INNER JOIN fnd_business_est fbe
+	           ON fbe.company_id  = he.company_id
+	           AND fbe.est_id  = he.est_id
+	           INNER JOIN hr_dh_adt_manage hadt
+	           ON hadt.company_id  = he.company_id
+	           AND hadt.employee_id = he.employee_id
+	           AND hadt.attribute1 = he.attribute1
+	    WHERE he.company_id  = #{companyId}
+	    	<if test="estId !=999">
+				AND	he.est_id = #{estId}
+			</if>
+	    AND   he.attribute1  = #{yyyymm}
+	    AND	  he.employee_id = #{employeeId}
+	    ORDER BY hadt.work_date
+	</select>
+	
 	<select id="findPayroll" parameterType="kr.co.seedit.domain.hr.dto.MonthlyKeunTaeDto" resultType="kr.co.seedit.domain.hr.dto.ReportMonthlyKeunTaeDto">
 		SELECT he.korean_name
 				,fcd02.defined_name
