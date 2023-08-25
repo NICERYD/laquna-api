@@ -1,5 +1,6 @@
 package kr.co.seedit.domain.hr.application;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xssf.usermodel.extensions.XSSFHeaderFooter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
@@ -35,9 +37,9 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class Payroll6InTableService {
+public class Payroll6InPageService {
 
-	private static final Logger logger = LoggerFactory.getLogger(Payroll6InTableService.class);
+	private static final Logger logger = LoggerFactory.getLogger(Payroll6InPageService.class);
 
 //	final private String sheetName = "급여표";
 //	final private String PAYROLL_XLSX_FILE = "classpath:hr/payrollSample.xlsx";
@@ -62,7 +64,7 @@ public class Payroll6InTableService {
 	 * @return
 	 * @throws IOException
 	 */
-	public XSSFWorkbook createPayroll6InTable(ReportParamsDto reportParamsDto) throws IOException  {
+	public XSSFWorkbook createPayroll6InPage(ReportParamsDto reportParamsDto) throws IOException  {
 		
 		ResponseDto responseDto = ResponseDto.builder().build();
 
@@ -77,22 +79,22 @@ public class Payroll6InTableService {
 		}
 
 		// get full-time user data
-		List<PayrollDto> listFulltime = payrollDao.getFulltimePayrollList(reportParamsDto);
+		List<PayrollDto> listFulltime = payrollDao.getFulltimePayroll6InPageList(reportParamsDto);
 		
 		try {
 			// set full-time user information
-			setFulltimePayrollList(workbook, listFulltime);
+			setFulltimePayroll6InPageList(workbook, listFulltime);
 		} catch (IOException e) {
 			throw new IOException("Full-time data write fail.");
 		}
 
 		
 		// get set part-time user data
-		List<PayrollDto> listParttime = payrollDao.getParttimePayrollList(reportParamsDto);
+		List<PayrollDto> listParttime = payrollDao.getParttimePayroll6InPageList(reportParamsDto);
 		
 		try {
 			// set part-time user information
-			setParttimePayrollList(workbook, listParttime);
+			setParttimePayroll6InPageList(workbook, listParttime);
 		} catch (IOException e) {
 			throw new IOException("Part-time data write fail.");
 		}
@@ -107,6 +109,26 @@ public class Payroll6InTableService {
 	}
 	
 
+//	@Transactional
+	public Resource createPayroll6InPageLocalTest(Map<String, Object> in, HttpServletResponse response)
+			throws Exception {
+		ReportParamsDto reportParamsDto = new ReportParamsDto();
+		reportParamsDto.setYyyymm(in.get("yyyymm").toString());
+		reportParamsDto.setCompanyId(5);
+
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        XSSFWorkbook workbook = createPayroll6InPage(reportParamsDto);
+	        	
+		try {
+        	workbook.write(byteArrayOutputStream);
+        } catch (IOException e) {
+        	;
+        } finally {
+        	if (null != workbook) workbook.close();
+        }
+        return new ByteArrayResource(byteArrayOutputStream.toByteArray());
+	}
+	
 	/**
 	 * 로컬다운로드 테스트 함수
 	 * @param in
@@ -114,8 +136,8 @@ public class Payroll6InTableService {
 	 * @return
 	 * @throws Exception
 	 */
-	@Transactional
-	public ResponseDto createPayroll6InTableLocal(Map<String, Object> in, HttpServletResponse response)
+//	@Transactional
+	public ResponseDto createPayroll6InPageLocal(Map<String, Object> in, HttpServletResponse response)
 			throws Exception {
 		
 		ReportParamsDto reportParamsDto = new ReportParamsDto();
@@ -123,7 +145,7 @@ public class Payroll6InTableService {
 		reportParamsDto.setCompanyId(5);
 
 
-		XSSFWorkbook workbook = createPayroll6InTable(reportParamsDto);
+		XSSFWorkbook workbook = createPayroll6InPage(reportParamsDto);
 		ResponseDto responseDto = ResponseDto.builder().build();
 
 //		Resource resource = resourceLoader.getResource(PAYROLL_TABLE_FORMAT_FILE);
@@ -131,17 +153,17 @@ public class Payroll6InTableService {
 //		XSSFWorkbook workbook = new XSSFWorkbook(fis);
 //
 //		// get full-time user data
-//		List<PayrollDto> listFulltime = payrollDao.getFulltimePayrollList(reportParamsDto);
+//		List<PayrollDto> listFulltime = payrollDao.getFulltimePayroll6InPageList(reportParamsDto);
 //		
 //		// set full-time user information
-//		setFulltimePayrollList(workbook, listFulltime);
+//		setFulltimePayroll6InPageList(workbook, listFulltime);
 //
 //		
 //		// get set part-time user data
-//		List<PayrollDto> listParttime = payrollDao.getParttimePayrollList(reportParamsDto);
+//		List<PayrollDto> listParttime = payrollDao.getParttimePayroll6InPageList(reportParamsDto);
 //		
 //		// set part-time user information
-//		setParttimePayrollList(workbook, listParttime);
+//		setParttimePayroll6InPageList(workbook, listParttime);
 //
 //		
 //		// print header setting
@@ -235,7 +257,7 @@ public class Payroll6InTableService {
 //		return rst;
 //	}
 
-	private boolean setFulltimePayrollList(XSSFWorkbook workbook, List<PayrollDto> list) throws IOException
+	private boolean setFulltimePayroll6InPageList(XSSFWorkbook workbook, List<PayrollDto> list) throws IOException
 	{
 		final int sheetNumber    = 0;
 		final int countHeadLine  = 17; // 출력 포멧의 라인수
@@ -430,7 +452,7 @@ public class Payroll6InTableService {
 		return true;
 	}
 		
-	private boolean setParttimePayrollList(XSSFWorkbook workbook, List<PayrollDto> list) throws IOException
+	private boolean setParttimePayroll6InPageList(XSSFWorkbook workbook, List<PayrollDto> list) throws IOException
 	{
 		final int sheetNumber    = 1;
 		final int countHeadLine  = 18; // 출력 포멧의 라인수
@@ -602,10 +624,12 @@ public class Payroll6InTableService {
 			if (null != data.getLateAmt()) {
 				sheet.getRow(curRow+14).getCell(curCol+3).setCellValue(data.getLateAmt()); //
 			}
+			
+			// 외출
 	
 			//합 계
 			if (null != data.getTotalSalary()) {
-				sheet.getRow(curRow+16).getCell(curCol+3).setCellValue(data.getTotalSalary()); //2115001
+				sheet.getRow(curRow+17).getCell(curCol+3).setCellValue(data.getTotalSalary()); //2115001
 			}
 
 			// data setting - end	

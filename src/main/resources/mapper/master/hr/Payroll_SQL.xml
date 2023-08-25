@@ -2,7 +2,7 @@
 <!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.seedit.domain.mapper.seedit.PayrollDao">
 	
-	<select id="getFulltimePayrollList" parameterType="Map" resultType="kr.co.seedit.domain.hr.dto.PayrollDto">
+	<select id="getFulltimePayroll6InPageList" parameterType="Map" resultType="kr.co.seedit.domain.hr.dto.PayrollDto">
 		SELECT -- he.hire_date -- 입사년일
 			CONCAT(hire_date, CASE WHEN CONCAT(SUBSTRING(retire_date,1,4),SUBSTRING(retire_date,6,2)) = hdcs.yyyymm THEN CONCAT(' ',retire_date) ELSE '' END) as hire_date
 			, CASE
@@ -106,7 +106,7 @@
 		AND   hdcs.yyyymm = #{yyyymm}
 	</select>
 	
-	<select id="getParttimePayrollList" parameterType="Map" resultType="kr.co.seedit.domain.hr.dto.PayrollDto">
+	<select id="getParttimePayroll6InPageList" parameterType="Map" resultType="kr.co.seedit.domain.hr.dto.PayrollDto">
 		SELECT -- he.hire_date -- 입사년일
 			CONCAT(hire_date, CASE WHEN CONCAT(SUBSTRING(retire_date,1,4),SUBSTRING(retire_date,6,2)) = hdcs.yyyymm THEN CONCAT(' ',retire_date) ELSE '' END) as hire_date
 			, CASE

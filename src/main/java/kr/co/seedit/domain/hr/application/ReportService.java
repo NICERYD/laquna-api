@@ -53,7 +53,7 @@ public class ReportService {
     private final ResourceLoader resourceLoader;
     
     @Autowired
-    Payroll6InTableService payroll6InTableService;
+    Payroll6InPageService Payroll6InPageService;
     
     @SuppressWarnings("resource")
 	@Transactional
@@ -75,8 +75,8 @@ public class ReportService {
 	        case "PersonalPayroll":
 	        	workbook = createPersonalPayroll(reportParamsDto);
 	        	break;
-	        case "Payroll6InTable":
-	        	workbook = payroll6InTableService.createPayroll6InTable(reportParamsDto);
+	        case "Payroll6InPage":
+	        	workbook = Payroll6InPageService.createPayroll6InPage(reportParamsDto);
 	        	break;
 	        default :
 	        	return new ByteArrayResource(null);

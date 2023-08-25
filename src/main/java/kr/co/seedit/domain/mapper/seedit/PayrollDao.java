@@ -13,7 +13,7 @@ import kr.co.seedit.domain.hr.dto.ReportParamsDto;
 @Mapper
 public interface PayrollDao {
 
-	List<PayrollDto> getFulltimePayrollList(ReportParamsDto requestParamsDto);
-	List<PayrollDto> getParttimePayrollList(ReportParamsDto requestParamsDto);
+	List<PayrollDto> getFulltimePayroll6InPageList(ReportParamsDto requestParamsDto);
+	List<PayrollDto> getParttimePayroll6InPageList(ReportParamsDto requestParamsDto);
 	
 }
