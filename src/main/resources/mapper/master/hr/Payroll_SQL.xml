@@ -101,7 +101,7 @@
 		ON fcd02.company_id  = he.company_id 
 		AND fcd02.code_id = fc02.code_id 
 		AND fcd02.defined_cd = he.position_code 
-		WHERE hdcs.company_id = 5
+		WHERE hdcs.company_id  = #{companyId}
 		AND   he.employee_type = '100'
 		AND   hdcs.yyyymm = #{yyyymm}
 	</select>
@@ -218,7 +218,7 @@
 		ON fcd02.company_id  = he.company_id 
 		AND fcd02.code_id = fc02.code_id 
 		AND fcd02.defined_cd = he.position_code
-		WHERE hdcs.company_id = 5
+		WHERE hdcs.company_id  = #{companyId}
 		AND   he.employee_type = '200'
 		AND   hdcs.yyyymm = #{yyyymm}
 	</select>

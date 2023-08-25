@@ -1,17 +1,12 @@
 package kr.co.seedit.domain.hr.application;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HeaderFooter;
@@ -40,15 +35,12 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.co.seedit.domain.hr.dto.BasicSalaryDto;
 import kr.co.seedit.domain.hr.dto.EmployeeInformationDto;
 import kr.co.seedit.domain.hr.dto.PersonalPayrollParamsDto;
 import kr.co.seedit.domain.hr.dto.ReportParamsDto;
 import kr.co.seedit.domain.hr.dto.ReportPayrollDto;
 import kr.co.seedit.domain.hr.dto.SalaryExcelDto;
-import kr.co.seedit.domain.hr.dto.SelectListDto;
 import kr.co.seedit.domain.mapper.seedit.ReportDao;
-import kr.co.seedit.global.common.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -60,12 +52,15 @@ public class ReportService {
     private final ReportDao reportDao;
     private final ResourceLoader resourceLoader;
     
+    @Autowired
+    Payroll6InTableService payroll6InTableService;
+    
     @SuppressWarnings("resource")
 	@Transactional
     public Resource downloadFile(ReportParamsDto reportParamsDto) throws Exception {
     	
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFWorkbook workbook = null;
         
         switch(reportParamsDto.getReportType()) {
 	        case "ERPIU":
@@ -80,10 +75,20 @@ public class ReportService {
 	        case "PersonalPayroll":
 	        	workbook = createPersonalPayroll(reportParamsDto);
 	        	break;
+	        case "Payroll6InTable":
+	        	workbook = payroll6InTableService.createPayroll6InTable(reportParamsDto);
+	        	break;
+	        default :
+	        	return new ByteArrayResource(null);
         }
 
-        workbook.write(byteArrayOutputStream);
-        workbook.close();
+        try {
+        	workbook.write(byteArrayOutputStream);
+        } catch (IOException e) {
+        	;
+        } finally {
+        	if (null != workbook) workbook.close();
+        }
         return new ByteArrayResource(byteArrayOutputStream.toByteArray());
 
     }

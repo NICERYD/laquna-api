@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -22,8 +23,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.seedit.domain.hr.dto.PayrollDto;
+import kr.co.seedit.domain.hr.dto.ReportParamsDto;
 import kr.co.seedit.domain.mapper.seedit.PayrollDao;
 import kr.co.seedit.global.common.dto.ResponseDto;
 import kr.co.seedit.global.utils.SeedXSSFUtil;
@@ -32,15 +35,15 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class PayrollService {
+public class Payroll6InTableService {
 
-	private static final Logger logger = LoggerFactory.getLogger(PayrollService.class);
+	private static final Logger logger = LoggerFactory.getLogger(Payroll6InTableService.class);
 
 //	final private String sheetName = "급여표";
 //	final private String PAYROLL_XLSX_FILE = "classpath:hr/payrollSample.xlsx";
 //	final private String PAYROLL_FULLTIME_FILE = "classpath:hr/payrollParttime.xlsx";
 //	final private String PAYROLL_PARTTIME_FILE = "classpath:hr/payrollFulltime.xlsx";
-	final private String PAYROLL_INPUT_FILE = "classpath:hr/payroll.xlsx";
+	final private String PAYROLL_TABLE_FORMAT_FILE = "classpath:hr/payroll.xlsx";
 	
     private final PayrollDao payrollDao;
     private final ResourceLoader resourceLoader;
@@ -52,185 +55,100 @@ public class PayrollService {
 	final private int dataCountInRow   = 3;
 	final private int dataOffsetCell   = 6;
 
-//	@Transactional
-	public ResponseDto payrollReportFull(String in/* PayrollDto payrollDto */, HttpServletResponse response)
-			throws Exception {
-
-//		final int headRowFulltime  = 0 ; // point is 1 less than column number
-//		final int countHeadLineFulltime = 17;
-//		final int headRowParttime  = 17; // point is 1 less than column number
-//		final int countHeadLineParttime = 18;
-//		final int dataCountInRow   = 3;
-//		final int dataOffsetCell   = 6;
-
+	/**
+	 * 6쪽 (3열, 페이지당 6개 출력) 급여표 엑셀다운로드 데이터 생성 함수
+	 * 
+	 * @param reportParamsDto
+	 * @return
+	 * @throws IOException
+	 */
+	public XSSFWorkbook createPayroll6InTable(ReportParamsDto reportParamsDto) throws IOException  {
+		
 		ResponseDto responseDto = ResponseDto.builder().build();
 
-		Resource resource = resourceLoader.getResource(PAYROLL_INPUT_FILE);
-		InputStream fis = resource.getInputStream();
-		XSSFWorkbook workbook = new XSSFWorkbook(fis);
-
-		// get full-time user data
-		
-		// full-time format
-		SeedXSSFUtil.copyHeadlineCubeFormat(workbook, sheetFulltime, countHeadLineFulltime, 8, dataCountInRow, dataOffsetCell);
-		
-		// set full-time user information
-		
-		
-		
-		// get set part-time user data
-		
-		// part-time format
-		SeedXSSFUtil.copyHeadlineCubeFormat(workbook, sheetParttime, countHeadLineParttime, 10, dataCountInRow, dataOffsetCell);
-
-		// set part-time user information
-
-//		XSSFSheet sheet = workbook.getSheetAt(0);
-//		XSSFRow curRow;
-//		XSSFCell curCell;
-//
-//		int rowindex = 5;
-//		int cellindex = 1;
-//		int no = 1;
-
-//        // test
-//        System.out.print("sheet.getLastRowNum():"+sheet.getLastRowNum());
-//        System.out.print("oldSheet.getFirstRowNum():"+sheet.getFirstRowNum());
-//        for (int i=sheet.getLastRowNum();i>=0;i++)
-//        {
-//            for (int j=sheet.get();j>=0;j++)
-//            {
-//	        	XSSFRow row = sheet.getRow(i);
-//	        	XSSFCell cell = row.getCell(i);
-//	        	cell.get
-//	        	switch(i) {
-//	        	case 1:cell.setCellValue(false);break;
-//	        	case 2:cell.setCellValue(2);break;
-//	        	case 3:cell.setCellValue("3");break;
-//	        	case 4:cell.setCellValue("4");break;
-//	        	case 5:cell.setCellValue(LocalDate.now());break;
-//        	}
-//        }
-
-		// Excel Data Select
-//        List<ReportPayrollDto> reportPayrollDtoList = new ArrayList<>();
-//        reportPayrollDtoList = reportDao.findPayroll(payrollDto);
-
-//        XSSFWorkbook workbook = new XSSFWorkbook();
-//        XSSFSheet sheet = workbook.createSheet(payrollDto.getYyyymm() + "SalaryUpload");
-//        int rowindex = 0;
-//        int cellindex = 0;
-
-		// Data Insert
-//        for (ReportPayrollDto m : reportPayrollDtoList) {
-//            cellindex = 1;
-//            XSSFRow row = sheet.createRow(rowindex++);
-//            row.createCell(cellindex++).setCellValue(no++);
-//            row.createCell(cellindex++).setCellValue(m.getKoreanName());
-//            row.createCell(cellindex++).setCellValue(m.getDefinedName());
-//            row.createCell(cellindex++).setCellValue(m.getDepartmentName());
-//            row.createCell(cellindex++).setCellValue(m.getHireDate());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getAnnualLeaveUsedDay());
-//            row.createCell(cellindex++).setCellValue(m.getAnnualLeaveUsed());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getOverTime1());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getOverTime2());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getNightShift1());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getNightShift2());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getDayTimeHours());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getNightTimeHours());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getHolidaySaturday1());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getHolidaySunday1());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getHoliday2());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getTransportation());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getMeal());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setBlank();		//보조금
-//            row.createCell(cellindex++).setCellValue(m.getOther());
-//            row.createCell(cellindex++).setCellValue(m.getHalfDay());
-//            row.createCell(cellindex++).setCellValue(m.getHalfTime());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getEarlyLeaveDay());
-//            row.createCell(cellindex++).setCellValue(m.getEarlyLeaveTime());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setCellValue(m.getLateDay());
-//            row.createCell(cellindex++).setCellValue(m.getLateTime());
-//            row.createCell(cellindex++).setBlank();
-//            row.createCell(cellindex++).setBlank();
-//        }
-
+		Resource resource = resourceLoader.getResource(PAYROLL_TABLE_FORMAT_FILE);
+		InputStream fis;
+		XSSFWorkbook workbook;
 		try {
-//          File xlsxFile = new File("C:/Users/admin/Downloads/" + payrollDto.getYyyymm() + "payroll" + ".xlsx");
-	        Date time = new Date();
-	        SimpleDateFormat format = new SimpleDateFormat( "yyyyMMdd_HHmmss");
-	        String time1 = format.format(time);
-	        String dir = System.getProperty("user.home");
-	        String fileName = new StringBuilder().append(dir).append("/downloads/payRoll_").append(time1).append(".xlsx").toString(); 
-	        File xlsxFile = new File(fileName);
-//			File xlsxFile = new File("D:\\GitHub\\laquna-api\\src\\main\\resources\\hr/"
-//					+ /* payrollDto.getYyyymm() + */ "payrollOutput" + ".xlsx");
-			FileOutputStream fileOut = new FileOutputStream(xlsxFile);
-			workbook.write(fileOut);
-			workbook.close();
-			fileOut.close();
-		} catch (Exception e) {
-			logger.error("Exception", e);
-			throw e;
+			fis = resource.getInputStream();
+			workbook = new XSSFWorkbook(fis);
+		} catch (IOException e) {
+			throw new IOException("Format file read fail. file name is "+PAYROLL_TABLE_FORMAT_FILE);
 		}
 
-//		responseDto.setSuccess(false);
-//		responseDto.setCode("");
-//		responseDto.setMessage("");
-
-		return responseDto;
-	}
-
-//	@Transactional
-	public ResponseDto payrollReport(Map<String, Object> in, HttpServletResponse response)
-			throws Exception {
-		
-		ResponseDto responseDto = ResponseDto.builder().build();
-
-		Resource resource = resourceLoader.getResource(PAYROLL_INPUT_FILE);
-		InputStream fis = resource.getInputStream();
-		XSSFWorkbook workbook = new XSSFWorkbook(fis);
-
 		// get full-time user data
-		List<PayrollDto> listFulltime = payrollDao.getFulltimePayrollList(in);
+		List<PayrollDto> listFulltime = payrollDao.getFulltimePayrollList(reportParamsDto);
 		
-		// set full-time user information
-		setFulltimePayrollList(workbook, listFulltime);
+		try {
+			// set full-time user information
+			setFulltimePayrollList(workbook, listFulltime);
+		} catch (IOException e) {
+			throw new IOException("Full-time data write fail.");
+		}
 
 		
 		// get set part-time user data
-		List<PayrollDto> listParttime = payrollDao.getParttimePayrollList(in);
+		List<PayrollDto> listParttime = payrollDao.getParttimePayrollList(reportParamsDto);
 		
-		// set part-time user information
-		setParttimePayrollList(workbook, listParttime);
+		try {
+			// set part-time user information
+			setParttimePayrollList(workbook, listParttime);
+		} catch (IOException e) {
+			throw new IOException("Part-time data write fail.");
+		}
 
-		
 		// print header setting
 		XSSFHeaderFooter header = (XSSFHeaderFooter) workbook.getSheetAt(0).getHeader();
-		header.setLeft(in.get("yyyymm").toString().substring(4,6)+"월 급여");
+		header.setLeft(reportParamsDto.getYyyymm().substring(4,6)+"월 급여");
 		header = (XSSFHeaderFooter) workbook.getSheetAt(1).getHeader();
-		header.setLeft(StringUtils.getNumberString(in.get("yyyymm").toString().substring(4,6)) +"월 급여");
+		header.setLeft(StringUtils.getNumberString(reportParamsDto.getYyyymm().substring(4,6)) +"월 급여");
+
+		return workbook;
+	}
+	
+
+	/**
+	 * 로컬다운로드 테스트 함수
+	 * @param in
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@Transactional
+	public ResponseDto createPayroll6InTableLocal(Map<String, Object> in, HttpServletResponse response)
+			throws Exception {
+		
+		ReportParamsDto reportParamsDto = new ReportParamsDto();
+		reportParamsDto.setYyyymm(in.get("yyyymm").toString());
+		reportParamsDto.setCompanyId(5);
+
+
+		XSSFWorkbook workbook = createPayroll6InTable(reportParamsDto);
+		ResponseDto responseDto = ResponseDto.builder().build();
+
+//		Resource resource = resourceLoader.getResource(PAYROLL_TABLE_FORMAT_FILE);
+//		InputStream fis = resource.getInputStream();
+//		XSSFWorkbook workbook = new XSSFWorkbook(fis);
+//
+//		// get full-time user data
+//		List<PayrollDto> listFulltime = payrollDao.getFulltimePayrollList(reportParamsDto);
+//		
+//		// set full-time user information
+//		setFulltimePayrollList(workbook, listFulltime);
+//
+//		
+//		// get set part-time user data
+//		List<PayrollDto> listParttime = payrollDao.getParttimePayrollList(reportParamsDto);
+//		
+//		// set part-time user information
+//		setParttimePayrollList(workbook, listParttime);
+//
+//		
+//		// print header setting
+//		XSSFHeaderFooter header = (XSSFHeaderFooter) workbook.getSheetAt(0).getHeader();
+//		header.setLeft(reportParamsDto.getYyyymm().substring(4,6)+"월 급여");
+//		header = (XSSFHeaderFooter) workbook.getSheetAt(1).getHeader();
+//		header.setLeft(StringUtils.getNumberString(reportParamsDto.getYyyymm().substring(4,6)) +"월 급여");
 		
 		try {
 			File xlsxFile;
@@ -324,6 +242,23 @@ public class PayrollService {
 		final int dataCountInRow = 3;  // 1열에 출력 포멧의 개수
 		final int dataOffsetCell = 6;  // 출력 포멧의 열 수 (+ 구분열 1개)
 
+		XSSFCellStyle styleLightGreen = workbook.createCellStyle();
+		styleLightGreen.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());  // 배경색
+		styleLightGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		styleLightGreen.setBorderTop(BorderStyle.THIN);
+		styleLightGreen.setBorderBottom(BorderStyle.THIN);
+		styleLightGreen.setBorderLeft(BorderStyle.THIN);
+		styleLightGreen.setBorderRight(BorderStyle.THIN);
+		styleLightGreen.setShrinkToFit(true);
+		XSSFCellStyle styleLemonChiffon = workbook.createCellStyle();
+		styleLemonChiffon.setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex());  // 배경색
+		styleLemonChiffon.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		styleLemonChiffon.setBorderTop(BorderStyle.THIN);
+		styleLemonChiffon.setBorderBottom(BorderStyle.THIN);
+		styleLemonChiffon.setBorderLeft(BorderStyle.THIN);
+		styleLemonChiffon.setBorderRight(BorderStyle.THIN);
+		styleLemonChiffon.setShrinkToFit(true);
+
 		// set format
 		SeedXSSFUtil.copyHeadlineCubeFormat(workbook, sheetNumber, countHeadLine, list.size(), dataCountInRow, dataOffsetCell);
 		
@@ -353,17 +288,14 @@ public class PayrollService {
 
 			//44875
 			if (null != data.getHireDate()) {
-				sheet.getRow(curRow+1).getCell(curCol).setCellValue(data.getHireDate()); // 입사일자
 				if ("".equals(data.getHireDiv())) {
 					; // default color - do nothing
-				} else if ("RETIRE".equals(data.getHireDiv())) {
-					sheet.getRow(curRow+1).getCell(curCol).getCellStyle().setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
-					sheet.getRow(curRow+1).getCell(curCol).getCellStyle().setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				} else  if ("RETIRE".equals(data.getHireDiv())) {
+					sheet.getRow(curRow+1).getCell(curCol).setCellStyle(styleLightGreen);
+				} else if ("NEW".equals(data.getHireDiv())) {
+					sheet.getRow(curRow+1).getCell(curCol).setCellStyle(styleLemonChiffon);
 				}
-				else if ("NEW".equals(data.getHireDiv())) {
-					sheet.getRow(curRow+1).getCell(curCol).getCellStyle().setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex());
-					sheet.getRow(curRow+1).getCell(curCol).getCellStyle().setFillPattern(FillPatternType.SOLID_FOREGROUND);
-				}
+				sheet.getRow(curRow+1).getCell(curCol).setCellValue(data.getHireDate()); // 입사일자
 			}
 			if (null != data.getYearSalary()) {
 				sheet.getRow(curRow+1).getCell(curCol+4).setCellValue(data.getYearSalary()); //26000000
@@ -505,11 +437,15 @@ public class PayrollService {
 		final int dataCountInRow = 3;  // 1열에 출력 포멧의 개수
 		final int dataOffsetCell = 6;  // 출력 포멧의 열 수 (+ 구분열 1개)
 
-		final XSSFCellStyle styleLightGreen = workbook.createCellStyle();
+//		final XSSFCellStyle styleWhite = workbook.createCellStyle();
+//		styleWhite.setFillForegroundColor(IndexedColors.WHITE.getIndex());  // 배경색
+//		styleWhite.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//		styleWhite.setShrinkToFit(true);
+		XSSFCellStyle styleLightGreen = workbook.createCellStyle();
 		styleLightGreen.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());  // 배경색
 		styleLightGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		styleLightGreen.setShrinkToFit(true);
-		final XSSFCellStyle styleLemonChiffon = workbook.createCellStyle();
+		XSSFCellStyle styleLemonChiffon = workbook.createCellStyle();
 		styleLemonChiffon.setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex());  // 배경색
 		styleLemonChiffon.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		styleLemonChiffon.setShrinkToFit(true);
@@ -542,21 +478,14 @@ public class PayrollService {
 
 			//44875
 			if (null != data.getHireDate()) {
-				sheet.getRow(curRow+1).getCell(curCol).setCellValue(data.getHireDate()); //
 				if ("".equals(data.getHireDiv())) {
 					; // default color - do nothing
-				} else if ("RETIRE".equals(data.getHireDiv())) {
+				} else  if ("RETIRE".equals(data.getHireDiv())) {
 					sheet.getRow(curRow+1).getCell(curCol).setCellStyle(styleLightGreen);
-//System.out.println("data.getHireDate()="+data.getHireDate()+" data.getHireDiv()="+data.getHireDiv());
-//					sheet.getRow(curRow+1).getCell(curCol).getCellStyle().setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
-//					sheet.getRow(curRow+1).getCell(curCol).getCellStyle().setFillPattern(FillPatternType.SOLID_FOREGROUND);
-				}
-				else if ("NEW".equals(data.getHireDiv())) {
+				} else if ("NEW".equals(data.getHireDiv())) {
 					sheet.getRow(curRow+1).getCell(curCol).setCellStyle(styleLemonChiffon);
-//System.out.println("data.getHireDate()="+data.getHireDate()+" data.getHireDiv()="+data.getHireDiv());
-//					sheet.getRow(curRow+1).getCell(curCol).getCellStyle().setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex());
-//					sheet.getRow(curRow+1).getCell(curCol).getCellStyle().setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				}
+				sheet.getRow(curRow+1).getCell(curCol).setCellValue(data.getHireDate()); // 입사일자
 			}
 			if (null != data.getHourlyPay()) {
 				sheet.getRow(curRow+1).getCell(curCol+4).setCellValue(data.getHourlyPay()); //26000000
@@ -684,6 +613,5 @@ public class PayrollService {
 		
 		return true;
 	}
-
 
 }
