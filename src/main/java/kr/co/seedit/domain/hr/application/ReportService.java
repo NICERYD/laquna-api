@@ -1006,37 +1006,46 @@ public class ReportService {
          boldFont.setFontHeightInPoints((short)11);
          boldFont.setBold(true);
          
-         CellStyle RightDashStyle = workbook.createCellStyle();
-         RightDashStyle.setBorderTop(BorderStyle.THIN);
-         RightDashStyle.setBorderBottom(BorderStyle.THIN);
-         RightDashStyle.setBorderLeft(BorderStyle.THIN);
-         RightDashStyle.setBorderRight(BorderStyle.DOTTED);
-         RightDashStyle.setFont(font);
-         RightDashStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-         RightDashStyle.setAlignment(HorizontalAlignment.CENTER);
+         CellStyle DefaultStyle = workbook.createCellStyle();
+         DefaultStyle.setBorderTop(BorderStyle.THIN);
+         DefaultStyle.setBorderBottom(BorderStyle.THIN);
+         DefaultStyle.setBorderLeft(BorderStyle.THIN);
+         DefaultStyle.setBorderRight(BorderStyle.THIN);
+         DefaultStyle.setFont(font);
+         DefaultStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+         DefaultStyle.setAlignment(HorizontalAlignment.CENTER);
          
+         CellStyle DefaultBoldStyle = workbook.createCellStyle();
+         DefaultBoldStyle.setBorderTop(BorderStyle.THIN);
+         DefaultBoldStyle.setBorderBottom(BorderStyle.THIN);
+         DefaultBoldStyle.setBorderLeft(BorderStyle.THIN);
+         DefaultBoldStyle.setBorderRight(BorderStyle.THIN);
+         DefaultBoldStyle.setFont(boldFont);
+         DefaultBoldStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+         DefaultBoldStyle.setAlignment(HorizontalAlignment.CENTER);
          
-         CellStyle YellowDottedStyle = workbook.createCellStyle();
-         YellowDottedStyle.setBorderTop(BorderStyle.DOTTED);
-         YellowDottedStyle.setBorderBottom(BorderStyle.DOTTED);
-         YellowDottedStyle.setBorderLeft(BorderStyle.DOTTED);
-         YellowDottedStyle.setBorderRight(BorderStyle.DOTTED);
-         YellowDottedStyle.setFont(font);
-         YellowDottedStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-         YellowDottedStyle.setAlignment(HorizontalAlignment.CENTER);
-         YellowDottedStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
-         YellowDottedStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+         CellStyle YellowStyle = workbook.createCellStyle();
+         YellowStyle.setBorderTop(BorderStyle.THIN);
+         YellowStyle.setBorderBottom(BorderStyle.THIN);
+         YellowStyle.setBorderLeft(BorderStyle.THIN);
+         YellowStyle.setBorderRight(BorderStyle.THIN);
+         YellowStyle.setFont(font);
+         YellowStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+         YellowStyle.setAlignment(HorizontalAlignment.CENTER);
+         YellowStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+         YellowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
          
-         CellStyle GreenDottedStyle = workbook.createCellStyle();
-         GreenDottedStyle.setBorderTop(BorderStyle.DOTTED);
-         GreenDottedStyle.setBorderBottom(BorderStyle.DOTTED);
-         GreenDottedStyle.setBorderLeft(BorderStyle.DOTTED);
-         GreenDottedStyle.setBorderRight(BorderStyle.DOTTED);
-         GreenDottedStyle.setFont(font);
-         GreenDottedStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-         GreenDottedStyle.setAlignment(HorizontalAlignment.CENTER);
-         GreenDottedStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
-         GreenDottedStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+         CellStyle GreenStyle = workbook.createCellStyle();
+         GreenStyle.setBorderTop(BorderStyle.THIN);
+         GreenStyle.setBorderBottom(BorderStyle.THIN);
+         GreenStyle.setBorderLeft(BorderStyle.THIN);
+         GreenStyle.setBorderRight(BorderStyle.THIN);
+         GreenStyle.setFont(font);
+         GreenStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+         GreenStyle.setAlignment(HorizontalAlignment.CENTER);
+         GreenStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
+         GreenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+         
          
     	 for(PersonalPayrollParamsDto e : employees) {
     		 String employeeType = e.getEmployeeType();
@@ -1051,10 +1060,24 @@ public class ReportService {
              XSSFRow row = null;
              XSSFCell cell = null;
              
+             sheet.setColumnWidth(0, 4000);
+             sheet.setColumnWidth(1, 3000);
+             sheet.setColumnWidth(2, 5000);
+             sheet.setColumnWidth(3, 5000);
+             sheet.setColumnWidth(4, 3000);
+             sheet.setColumnWidth(5, 3000);
+             sheet.setColumnWidth(6, 3000);
+             sheet.setColumnWidth(7, 3000);
+             sheet.setColumnWidth(8, 3000);
+             sheet.setColumnWidth(9, 3000);
+             sheet.setColumnWidth(10, 3000);
+             sheet.setColumnWidth(11, 3000);
+             
              row = sheet.createRow(rowindex++);
              for(cellindex = 0; cellindex< headerArr.length; cellindex++) {
             	 cell = row.createCell(cellindex);
             	 cell.setCellValue(headerArr[cellindex]);
+            	 cell.setCellStyle(DefaultStyle);
              }
              
              for(EmployeeInformationDto p : personalAdtList) {
@@ -1062,6 +1085,7 @@ public class ReportService {
             	 cellindex = 0;
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue(p.getWorkDate());
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue(p.getWorkStatus());
@@ -1071,45 +1095,60 @@ public class ReportService {
 	         	 	case "오전반차_정상":
 	         	 	case "오전반차_생산":
 	         	 	case "휴가":
-	         	 		cell.setCellStyle(GreenDottedStyle);
+	         	 		cell.setCellStyle(GreenStyle);
 	         	 		break;
 	         	 	case "야간":
-	         	 		cell.setCellStyle(YellowDottedStyle);
+	         	 		cell.setCellStyle(YellowStyle);
+	         	 		break;
+	         	 	default:
+	         	 		cell.setCellStyle(DefaultStyle);
 	         	 }
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue(p.getWorkStartDate());
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue(p.getWorkEndDate());
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue(p.getInStatus());
             	 if("지각".equals(p.getInStatus()))
-            		 cell.setCellStyle(YellowDottedStyle);
+            		 cell.setCellStyle(YellowStyle);
+            	 else
+            		 cell.setCellStyle(DefaultStyle);
 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue(p.getOutStatus());
             	 if("조퇴".equals(p.getOutStatus()))
-            		 cell.setCellStyle(YellowDottedStyle);
+            		 cell.setCellStyle(YellowStyle);
+            	 else
+            		 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue(p.getLateTime());
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue(p.getOverTime());
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue(p.getNightTime());
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue(p.getHolidayTime());
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue(p.getDefaultTime());
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue(p.getRealWorkTime());
+            	 cell.setCellStyle(DefaultStyle);
              }
              
              sheet.setAutoFilter(new CellRangeAddress(0, personalAdtList.size()+1, 0, headerArr.length-1));
@@ -1119,13 +1158,16 @@ public class ReportService {
              row = sheet.getRow(rowindex++);
              cell = row.createCell(cellindex++);
              cell.setCellValue("성명");
+             cell.setCellStyle(DefaultBoldStyle);
              
              cell = row.createCell(cellindex++);
              cell.setCellValue(e.getKoreanName());
+             cell.setCellStyle(DefaultBoldStyle);
              
              cell = row.createCell(cellindex++);
              if("100".equals(employeeType)) {
             	 cell.setCellValue("연봉");
+            	 cell.setCellStyle(DefaultBoldStyle);
             	 rowindex = 2;
             	 cellindex = headerArr.length;
             	 
@@ -1142,34 +1184,42 @@ public class ReportService {
             	 row = sheet.getRow(rowindex++);
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue("연차(휴가)");
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellFormula("SUM( COUNTIF(B2:B32,\"연차\"), COUNTIF(B2:B32,\"휴가\") )");
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue("반차");
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellFormula("COUNTIF(B2:B32,\"*반차*\")");
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cellindex = headerArr.length;
             	 row = sheet.getRow(rowindex++);
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue("지각");
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellFormula("SUM(G2:G32)");
-
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellValue("지각횟수");
+            	 cell.setCellStyle(DefaultStyle);
             	 
             	 cell = row.createCell(cellindex++);
             	 cell.setCellFormula("COUNTIF(E2:E32,\"지각\")");
+            	 cell.setCellStyle(DefaultStyle);
 
              }else if("200".equals(employeeType)) {
             	 cell.setCellValue("시급(야간)");
+            	 cell.setCellStyle(DefaultBoldStyle);
             	 
              }
              
