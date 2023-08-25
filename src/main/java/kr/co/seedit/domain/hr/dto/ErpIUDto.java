@@ -108,4 +108,28 @@ public class ErpIUDto {
         private String yyyymm;
         private Integer loginUserId;
     }
+
+    @AllArgsConstructor
+    @Data
+    @Builder
+    @NoArgsConstructor
+    public static class CalcTaxDto {
+        private Integer companyId;
+        private String yyyymmdd;
+        private String employeeNumber;
+        private double AM_DEDUCT01;
+        private double AM_DEDUCT02;
+        private double AM_DEDUCT03;
+        private double AM_DEDUCT04;
+        private double AM_DEDUCT05;
+        private double AM_DEDUCT06;
+        private double AM_DEDUCT07;
+        private double AM_DEDUCT08;
+        private double AM_DEDUCT09;
+        private double AM_DEDUCT10;
+        private double AM_DEDUCT11;
+        private double AM_DEDUCT12;
+        private double AM_INCOMTAX;
+        private double AM_RESIDTAX;
+    }
 }

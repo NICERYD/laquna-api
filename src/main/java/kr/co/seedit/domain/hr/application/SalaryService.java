@@ -446,10 +446,17 @@ public class SalaryService {
                             && !adtDataDto.getOvertime().equals("00:00")) {
                         LocalDate workStartDate = LocalDate.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDate workEndDate = LocalDate.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        Period period = Period.between(workStartDate, workEndDate);
+//                        LocalTime workStartTime = LocalTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("HH:mm"));
                         LocalTime workEndTime = LocalTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        if (workEndTime.equals(overtimeBaseTime) || workEndTime.isAfter(overtimeBaseTime) || period.getDays() >= 1) {
-                            overtimeAllowance01 = overtimeAllowance01.add(overtimeBaseAmount);
+                        Period period = Period.between(workStartDate, workEndDate);
+                        if (adtDataDto.getWorkStatus().equals("야간")) {
+                            if (!workEndTime.isBefore(LocalTime.parse("08:30", DateTimeFormatter.ofPattern("HH:mm")))) {
+                                overtimeAllowance01 = overtimeAllowance01.add(overtimeBaseAmount);
+                            }
+                        } else {
+                            if (!workEndTime.isBefore(LocalTime.parse("20:30", DateTimeFormatter.ofPattern("HH:mm"))) || period.getDays() >= 1) {
+                                overtimeAllowance01 = overtimeAllowance01.add(overtimeBaseAmount);
+                            }
                         }
                     }
                     // 야간수당1
@@ -816,7 +823,7 @@ public class SalaryService {
             nonPayNightAllowance02 = new BigDecimal(nightAllowance02);
         }
         if (holidayAllowance02 != null) {
-            nonPayHolidayAllowance02 = new BigDecimal(holidayAllowance02 );
+            nonPayHolidayAllowance02 = new BigDecimal(holidayAllowance02);
         }
         return (nonPayBasicSalary.add(nonPayOvertimeAllowance02).add(nonPayNightAllowance02).add(nonPayHolidayAllowance02)).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 8, RoundingMode.HALF_UP)).setScale(0, RoundingMode.UP);
     }
