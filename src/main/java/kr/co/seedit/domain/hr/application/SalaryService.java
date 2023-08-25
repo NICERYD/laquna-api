@@ -532,15 +532,15 @@ public class SalaryService {
                 for (ADTDataDto adtDataDto : adtDataDtos) {
                     LocalDate workStartDate = null;
                     LocalDate workEndDate = null;
-                    LocalDateTime workStartTime = null;
-                    LocalDateTime workEndTime = null;
+                    LocalDateTime workStartDateTime = null;
+                    LocalDateTime workEndDateTime = null;
 
                     if (!(adtDataDto.getWorkStartDate() == null) && !(adtDataDto.getWorkStartDate().equals(""))
                             && !(adtDataDto.getWorkEndDate() == null) && !(adtDataDto.getWorkEndDate().equals(""))) {
                         workStartDate = LocalDate.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         workEndDate = LocalDate.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        workStartTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        workStartDateTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        workEndDateTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                     }
                     paidHolidayindex = Optional.ofNullable(paidLeaveDay).orElse(0);
                     // 유급휴일 count
@@ -573,10 +573,10 @@ public class SalaryService {
                     }
                     // 연차수당 - 반차
                     else if (adtDataDto.getWorkStatus().contains("오전반차")) {
-                        if (!workStartTime.isBefore(workEndTime.with(LocalTime.of(12, 00)))) {
+                        if (!workStartDateTime.isBefore(workEndDateTime.with(LocalTime.of(12, 00)))) {
                             halfDayLeaveTime = halfDayLeaveTime + 4.0;
                         } else {
-                            Duration duration = Duration.between(workStartTime.with(LocalTime.of(8, 30)), workStartTime);
+                            Duration duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime);
                             halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 1 : 0.5);
                         }
                         halfDayLeave++;
@@ -588,10 +588,10 @@ public class SalaryService {
                         }
 
                     } else if (adtDataDto.getWorkStatus().contains("오후반차")) {
-                        if (!workEndTime.isAfter(workEndTime.with(LocalTime.of(13, 00)))) {
+                        if (!workEndDateTime.isAfter(workEndDateTime.with(LocalTime.of(13, 00)))) {
                             halfDayLeaveTime = halfDayLeaveTime + 4.0;
                         } else {
-                            Duration duration = Duration.between(workEndTime, workEndTime.with(LocalTime.of(17, 30)));
+                            Duration duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(17, 30)));
                             halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 1 : 0.5);
                         }
                         halfDayLeave++;
@@ -604,29 +604,39 @@ public class SalaryService {
                     }
                     // 연장수당1
                     if (!adtDataDto.getOvertime().equals("00:00") && (adtDataDto.getOutStatus().equals("연장근무") || adtDataDto.getOutStatus().equals("연장/야간근무"))) {
-                        LocalTime localTime = LocalTime.parse(adtDataDto.getOvertime(), DateTimeFormatter.ofPattern("HH:mm"));
-                        if (localTime.getHour() >= 1) {
-                            rtOverTime01 = rtOverTime01 + (localTime.getHour() + (localTime.getMinute() >= 30 ? 0.5 : 0));
+                        Duration duration = null;
+                        if (adtDataDto.getOutStatus().equals("연장근무")) {
+                            duration = Duration.between(workEndDateTime.with(LocalTime.of(18, 00)), workEndDateTime);
+                        } else if (adtDataDto.getOutStatus().equals("연장/야간근무") && workStartDate.equals(workEndDate)) {
+                            duration = Duration.ofHours(4);
+                        } else if (adtDataDto.getOutStatus().equals("연장/야간근무") && !workStartDate.equals(workEndDate)) {
+                            duration = Duration.ofHours(4);
+                            if (!workEndDateTime.isBefore(workEndDateTime.with(LocalTime.of(06, 00)))) {
+                                duration = duration.plus(Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime));
+                            }
+                        }
+                        if (duration != null) {
+                            rtOverTime01 = rtOverTime01 + (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
                             overtimeAllowance01 = BigDecimal.valueOf(rtOverTime01).multiply(BigDecimal.valueOf(1.5)).multiply(hourlyPay);
                         }
                     }
                     // 야간수당1 - 주간조
                     if (adtDataDto.getOutStatus().equals("연장/야간근무")) {
-                        Duration duration = Duration.between(workStartTime.with(LocalTime.of(22, 00)), workEndTime);
+                        Duration duration = Duration.between(workStartDateTime.with(LocalTime.of(22, 00)), workEndDateTime);
                         // 휴게시간 빼기 ( 00:30 ~ 01:30 )
-                        if (!workStartTime.toLocalDate().isEqual(workEndTime.toLocalDate())) {
-                            if (workEndTime.isAfter(workEndTime.with(LocalTime.of(1, 30)))) {
+                        if (!workStartDateTime.toLocalDate().isEqual(workEndDateTime.toLocalDate())) {
+                            if (workEndDateTime.isAfter(workEndDateTime.with(LocalTime.of(1, 30)))) {
                                 duration = duration.minus(Duration.ofHours(1));
                             }
                         }
-                        if (duration.toMinutes() >= 30) {
-                            nightAllowance01 = nightAllowance01.add(BigDecimal.valueOf(duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0)).multiply(hourlyPay).multiply(BigDecimal.valueOf(2)));
-                            rtNightShift01 = rtNightShift01 + (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
-                            rtNSDayTimeHours = rtNSDayTimeHours + (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
+                        if (!workEndDateTime.isBefore(workEndDateTime.with(LocalTime.of(05, 30))) && !workStartDate.equals(workEndDate)) {
+                            duration = Duration.ofMinutes(390);
                         }
+                        rtNightShift01 = rtNightShift01 + (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
+                        nightAllowance01 = nightAllowance01.add(BigDecimal.valueOf(duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0)).multiply(hourlyPay).multiply(BigDecimal.valueOf(2)));
+                        rtNSDayTimeHours = rtNSDayTimeHours + (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
                     }
                     // 야간수당1 - 야간조(연장)
-
                     if (adtDataDto.getWorkStatus().equals("야간")) {
                         nightAllowance01 = nightAllowance01.add(BigDecimal.valueOf(6.5).multiply(hourlyPay).multiply(BigDecimal.valueOf(0.5)));
                         rtNightShift01 = rtNightShift01 + 6.5;
@@ -679,9 +689,9 @@ public class SalaryService {
                     if (adtDataDto.getOutStatus().equals("조퇴")) {
                         Duration duration;
                         if (adtDataDto.getWorkStatus().contains("오후반차")) {
-                            duration = Duration.between(workEndTime, workEndTime.with(LocalTime.of(12, 30)));
+                            duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(12, 30)));
                         } else {
-                            duration = Duration.between(workEndTime, workEndTime.with(LocalTime.of(17, 30)));
+                            duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(17, 30)));
                         }
                         earlyLeaveTime = earlyLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0);
                     }
