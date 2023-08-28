@@ -82,4 +82,23 @@ public class ERPIUService {
 
         return responseDto;
     }
+
+    @Transactional
+    public ResponseDto getTaxErpIU(ErpIUDto.RequestDto erpIUDto, HttpServletRequest request) throws CustomException, IOException, InvalidFormatException {
+        ResponseDto responseDto = ResponseDto.builder().build();
+        CompanyDto companyDto = new CompanyDto();
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userName = ((UserDetails) principal).getUsername();
+        companyDto.setEmailId(userName);
+        CompanyDto info = companyDao.selectTokenInfo(companyDto);
+        erpIUDto.setLoginUserId(info.getUserId());
+
+        // DELETE
+        salaryDao.deletedhTax(erpIUDto);
+        // SELECT
+        List<ErpIUDto.CalcTaxDto> calcTaxDtos = erpIUDao.getCalcTax(erpIUDto);
+        // INSERT
+        if (!calcTaxDtos.isEmpty()) salaryDao.insertdhTax(calcTaxDtos);
+        return responseDto;
+    }
 }

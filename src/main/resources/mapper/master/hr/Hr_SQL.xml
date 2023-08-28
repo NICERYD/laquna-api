@@ -539,8 +539,8 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             'D23009'
---             )
+--             'D20725'
+--           )
         UNION ALL
         SELECT he.employee_id
              , he.employee_number
@@ -928,5 +928,66 @@
         where  company_id = #{companyId}
           AND  yyyymm = #{yyyymm}
     </delete>
+
+    <delete id ="deletedhTax" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" >
+        delete from hr_dh_tax
+        where  company_id = #{companyId}
+          and  yyyymm = #{yyyymm}
+    </delete>
+
+    <insert id="insertdhTax" parameterType="kr.co.seedit.domain.hr.dto.ErpIUDto$CalcTaxDto">
+        INSERT INTO hr_dh_tax
+        (
+        tax_id
+        , company_id
+        , employee_id
+        , yyyymm
+        , am_deduct01
+        , am_deduct02
+        , am_deduct03
+        , am_deduct04
+        , am_deduct05
+        , am_deduct06
+        , am_deduct07
+        , am_deduct08
+        , am_deduct09
+        , am_deduct10
+        , am_deduct11
+        , am_deduct12
+        , am_incomtax
+        , am_residtax
+        , created_by
+        , creation_date
+        , last_updated_by
+        , last_update_date
+        )
+        values
+        <foreach item="item" index="index" collection="list" separator=", ">
+            (
+            SEEDIT.nextval('hr_dh_tax')
+            , (select company_id from fnd_company where attribute1 = #{item.cdCompany})
+            , (select employee_id from hr_employee where company_id = (select company_id from fnd_company where attribute1 = #{item.cdCompany}) and attribute1 = #{item.yyyymm} and employee_number = #{item.employeeNumber})
+            , #{item.yyyymm}
+            , #{item.amDeduct01}
+            , #{item.amDeduct02}
+            , #{item.amDeduct03}
+            , #{item.amDeduct04}
+            , #{item.amDeduct05}
+            , #{item.amDeduct06}
+            , #{item.amDeduct07}
+            , #{item.amDeduct08}
+            , #{item.amDeduct09}
+            , #{item.amDeduct10}
+            , #{item.amDeduct11}
+            , #{item.amDeduct12}
+            , #{item.amIncomTax}
+            , #{item.amResidTax}
+            , #{item.loginUserId}
+            , now()
+            , #{item.loginUserId}
+            , now()
+            )
+        </foreach>
+    </insert>
 
 </mapper>

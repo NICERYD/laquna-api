@@ -15,4 +15,6 @@ public interface ErpIUDao {
     List<ErpIUDto.SalaryBasicDto> getSalaryBasic(ErpIUDto.RequestDto erpIUDto);
     List<ErpIUDto.BonusDtos> getBonus(ErpIUDto.RequestDto erpIUDto);
     List<ErpIUDto.CalendarDto> getCalendar(ErpIUDto.RequestDto erpIUDto);
+    List<ErpIUDto.CalcTaxDto> getCalcTax(ErpIUDto.RequestDto erpIUDto);
+
 }

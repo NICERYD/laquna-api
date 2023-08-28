@@ -69,4 +69,8 @@ public interface SalaryDao {
 
     void deleteNightEeamDay(RequestDto requestDto);
     void deletePaidLeave(RequestDto requestDto);
+
+    void deletedhTax(ErpIUDto.RequestDto erpIUDto);
+    void insertdhTax(List<ErpIUDto.CalcTaxDto> calcTaxDtos);
+
 }

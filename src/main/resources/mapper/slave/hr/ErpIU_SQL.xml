@@ -106,26 +106,27 @@
     </select>
 
     <select id="getCalcTax" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" resultType="kr.co.seedit.domain.hr.dto.ErpIUDto$CalcTaxDto">
-    SELECT  PAY.NO_EMP
-            , YM
-            , SUM(PAY.AM_DEDUCT01) AM_DEDUCT01 -- 국민연금
-            , SUM(AM_DEDUCT02) AM_DEDUCT02 -- 건강보험
-            , SUM(AM_DEDUCT03) AM_DEDUCT03 -- 장기요양보험료
-            , SUM(AM_DEDUCT04) AM_DEDUCT04 -- 고용보험
-            , SUM(AM_DEDUCT05) AM_DEDUCT05 -- 가불금
-            , SUM(AM_DEDUCT06) AM_DEDUCT06 -- 기타공제
-            , SUM(AM_DEDUCT07) AM_DEDUCT07 -- 경조비
-            , SUM(AM_DEDUCT08) AM_DEDUCT08 -- 연말정산소득세
-            , SUM(AM_DEDUCT09) AM_DEDUCT09 -- (미정)연말정산지방소득세
-            , SUM(AM_DEDUCT10) AM_DEDUCT10 -- (미정) 건강보험정산
-            , SUM(AM_DEDUCT11) AM_DEDUCT11 -- (미정) 장기요양보험정산
-            , SUM(AM_DEDUCT12) AM_DEDUCT12 -- (미정) 연차수당
-            , SUM(AM_INCOMTAX) AM_INCOMTAX -- 소득세
-            , SUM(AM_RESIDTAX) AM_RESIDTAX -- 지방소득세
-    FROM	HR_PCALCPAY PAY
-    WHERE   cd_company = '1000'
-    AND     YM = #{yyyymm}
-    GROUP BY YM, no_emp
+        SELECT  pay.no_emp as employeeNumber
+                , ym as yyyymm
+                , cd_company
+                , SUM(PAY.AM_DEDUCT01) AS amDeduct01 -- 국민연금
+                , SUM(AM_DEDUCT02)     AS amDeduct02 -- 건강보험
+                , SUM(AM_DEDUCT03)     AS amDeduct03 -- 장기요양보험료
+                , SUM(AM_DEDUCT04)     AS amDeduct04 -- 고용보험
+                , SUM(AM_DEDUCT05)     AS amDeduct05 -- 가불금
+                , SUM(AM_DEDUCT06)     AS amDeduct06 -- 기타공제
+                , SUM(AM_DEDUCT07)     AS amDeduct07 -- 경조비
+                , SUM(AM_DEDUCT08)     AS amDeduct08 -- 연말정산소득세
+                , SUM(AM_DEDUCT09)     AS amDeduct09 -- (미정)연말정산지방소득세
+                , SUM(AM_DEDUCT10)     AS amDeduct10 -- (미정) 건강보험정산
+                , SUM(AM_DEDUCT11)     AS amDeduct11 -- (미정) 장기요양보험정산
+                , SUM(AM_DEDUCT12)     AS amDeduct12 -- (미정) 연차수당
+                , SUM(AM_INCOMTAX)     AS amIncomTax -- 소득세
+                , SUM(AM_RESIDTAX)     AS amResidTax -- 지방소득세
+                , #{loginUserId} AS loginUserId
+        FROM    hr_pcalcpay pay
+        WHERE   cd_company = '1000'
+        AND     ym = #{yyyymm}
+        GROUP BY ym, no_emp, cd_company
     </select>
-
 </mapper>

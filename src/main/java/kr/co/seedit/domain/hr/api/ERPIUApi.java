@@ -31,4 +31,10 @@ public class ERPIUApi {
         ResponseDto responseDto = erpiuService.getDataErpIU(erpIUDto, request);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
+    @PostMapping("/hr/erpiu/getTaxErpIU")
+    public ResponseEntity<ResponseDto> getTaxErpIU(@RequestBody ErpIUDto.RequestDto erpIUDto, HttpServletRequest request) throws IOException, InvalidFormatException {
+        ResponseDto responseDto = erpiuService.getTaxErpIU(erpIUDto, request);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 }
