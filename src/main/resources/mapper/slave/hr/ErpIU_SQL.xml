@@ -74,8 +74,7 @@
                        AND MCD.CD_FIELD = 'HR_P000003'
                        AND MCD.CD_SYSDEF = HP.CD_FIX
         WHERE	HP.CD_COMPANY = '1000'
-        AND     DT_FROM <![CDATA[<=]]> #{yyyymm}
-        AND     DT_TO >= #{yyyymm}
+        AND     #{yyyymm} BETWEEN SUBSTRING(DT_FROM,1,6) AND SUBSTRING(DT_TO,1,6)
         AND     AM_FIXPAY != 0
     </select>
 

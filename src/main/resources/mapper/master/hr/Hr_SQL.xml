@@ -451,26 +451,26 @@
              , he.korean_name
              , fbe.est_name
              , hd.department_name
-             , fcd02.defined_cd                                              as position_code
-             , fcd03.defined_cd                                              as position_type
-             , fcd04.defined_cd                                              as duty_type
-             , hsb.basic_salary                                                                         -- 기본급
-             , hsb.hourly_pay                                                                           -- 시급
-             , 0                                                             AS annual_allowance        -- 연차수당
-             , 0                                                             AS overtime_allowance01    -- 연장수당1
-             , hsb.overtime_allowance                                        AS overtime_allowance02    -- 연장수당2
-             , 0                                                             AS night_allowance01       -- 야간수당1
-             , night_allowance                                               AS night_allowance02       -- 야간수당2
-             , 0                                                             AS holiday_allowance01     -- 휴일수당1
-             , holiday_allowance                                             AS holiday_allowance02     -- 휴일수당2
-             , 0                                                             AS position_allowance      -- 직책수당
-             , 0                                                             AS other_allowances        -- 기타수당
-             , 0                                                             AS subsidies               -- 보조금
-             , 0                                                             AS transportation_expenses -- 교통비
-             , IFNULL(hb.bonus_amount, 0)                                    AS bonus_amount            -- 상여금
-             , #{yyyymm}                                                     as yyyymm
-             , #{companyId}                                                  as company_id
-             , #{loginUserId}                                                AS loginUserId
+             , fcd02.defined_cd           as position_code
+             , fcd03.defined_cd           as position_type
+             , fcd04.defined_cd           as duty_type
+             , hsb.basic_salary                                      -- 기본급
+             , hsb.hourly_pay                                        -- 시급
+             , 0                          AS annual_allowance        -- 연차수당
+             , 0                          AS overtime_allowance01    -- 연장수당1
+             , hsb.overtime_allowance     AS overtime_allowance02    -- 연장수당2
+             , 0                          AS night_allowance01       -- 야간수당1
+             , night_allowance            AS night_allowance02       -- 야간수당2
+             , 0                          AS holiday_allowance01     -- 휴일수당1
+             , holiday_allowance          AS holiday_allowance02     -- 휴일수당2
+             , 0                          AS position_allowance      -- 직책수당
+             , 0                          AS other_allowances        -- 기타수당
+             , 0                          AS subsidies               -- 보조금
+             , 0                          AS transportation_expenses -- 교통비
+             , IFNULL(hb.bonus_amount, 0) AS bonus_amount            -- 상여금
+             , #{yyyymm}                  as yyyymm
+             , #{companyId}               as company_id
+             , #{loginUserId}             AS loginUserId
              , he.employee_type
              , he.hire_date
              , he.retire_date
@@ -539,8 +539,9 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             'D20725'
---           )
+--             'D21749'
+--             )
+--           AND fbe.est_id = 2
         UNION ALL
         SELECT he.employee_id
              , he.employee_number
@@ -550,23 +551,23 @@
              , fcd02.defined_name
              , fcd03.defined_name
              , fcd04.defined_cd
-             , hsb.basic_salary                                                                         -- 기본급
-             , hsb.hourly_pay                                                                           -- 시급
-             , 0                                                             AS annual_allowance        -- 연차수당
-             , 0                                                             AS overtime_allowance01    -- 연장수당1
-             , hsb.overtime_allowance                                        AS overtime_allowance02    -- 연장수당2
-             , 0                                                             AS night_allowance01       -- 야간수당1
-             , night_allowance                                               AS night_allowance02       -- 야간수당2
-             , 0                                                             AS holiday_allowance01     -- 휴일수당1
-             , holiday_allowance                                             AS holiday_allowance02     -- 휴일수당2
-             , 0                                                             AS position_allowance      -- 직책수당
-             , 0                                                             AS other_allowances        -- 기타수당
-             , 0                                                             AS subsidies               -- 보조금
-             , 0                                                             AS transportation_expenses -- 교통비
-             , IFNULL(hb.bonus_amount, 0)                                    AS bonus_amount            -- 상여금
-             , #{yyyymm}                                                     as yyyymm
-             , #{companyId}                                                  as company_id
-             , #{loginUserId}                                                AS loginUserId
+             , hsb.basic_salary                                      -- 기본급
+             , hsb.hourly_pay                                        -- 시급
+             , 0                          AS annual_allowance        -- 연차수당
+             , 0                          AS overtime_allowance01    -- 연장수당1
+             , hsb.overtime_allowance     AS overtime_allowance02    -- 연장수당2
+             , 0                          AS night_allowance01       -- 야간수당1
+             , night_allowance            AS night_allowance02       -- 야간수당2
+             , 0                          AS holiday_allowance01     -- 휴일수당1
+             , holiday_allowance          AS holiday_allowance02     -- 휴일수당2
+             , 0                          AS position_allowance      -- 직책수당
+             , 0                          AS other_allowances        -- 기타수당
+             , 0                          AS subsidies               -- 보조금
+             , 0                          AS transportation_expenses -- 교통비
+             , IFNULL(hb.bonus_amount, 0) AS bonus_amount            -- 상여금
+             , #{yyyymm}                  as yyyymm
+             , #{companyId}               as company_id
+             , #{loginUserId}             AS loginUserId
              , he.employee_type
              , he.hire_date
              , he.retire_date

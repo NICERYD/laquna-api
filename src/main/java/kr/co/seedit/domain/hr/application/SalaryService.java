@@ -429,7 +429,7 @@ public class SalaryService {
                         .map(amount -> new BigDecimal(amount)
                                 .multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP)).setScale(0, RoundingMode.FLOOR))
                         .orElse(BigDecimal.ZERO);
-                nightAllowance02 = nightAllowance02.add(totalAmount.subtract(basicAmount.add(overtimeAllowance02).add(nightAllowance02).add(holidayAllowance02)));
+                basicAmount = basicAmount.add(totalAmount.subtract(basicAmount.add(overtimeAllowance02).add(nightAllowance02).add(holidayAllowance02)));
             }
 
             // 01. 연봉제
@@ -702,7 +702,7 @@ public class SalaryService {
                         } else {
                             duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(17, 30)));
                         }
-                        earlyLeaveTime = earlyLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0);
+                        earlyLeaveTime = earlyLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 1 : 0.5);
                     }
                     // 기타수당 - 외출
                     if (adtDataDto.getOutTime() != null && !adtDataDto.getOutTime().equals("")) {
