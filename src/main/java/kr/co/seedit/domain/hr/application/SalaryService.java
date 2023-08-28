@@ -605,14 +605,20 @@ public class SalaryService {
                     // 연장수당1
                     if (!adtDataDto.getOvertime().equals("00:00") && (adtDataDto.getOutStatus().equals("연장근무") || adtDataDto.getOutStatus().equals("연장/야간근무"))) {
                         Duration duration = null;
-                        if (adtDataDto.getOutStatus().equals("연장근무")) {
-                            duration = Duration.between(workEndDateTime.with(LocalTime.of(18, 00)), workEndDateTime);
-                        } else if (adtDataDto.getOutStatus().equals("연장/야간근무") && workStartDate.equals(workEndDate)) {
-                            duration = Duration.ofHours(4);
-                        } else if (adtDataDto.getOutStatus().equals("연장/야간근무") && !workStartDate.equals(workEndDate)) {
-                            duration = Duration.ofHours(4);
-                            if (!workEndDateTime.isBefore(workEndDateTime.with(LocalTime.of(06, 00)))) {
-                                duration = duration.plus(Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime));
+                        if (adtDataDto.getWorkStatus().equals("야간")) {
+                            if (adtDataDto.getOutStatus().equals("연장근무")) {
+                                duration = Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime);
+                            }
+                        } else {
+                            if (adtDataDto.getOutStatus().equals("연장근무")) {
+                                duration = Duration.between(workEndDateTime.with(LocalTime.of(18, 00)), workEndDateTime);
+                            } else if (adtDataDto.getOutStatus().equals("연장/야간근무") && workStartDate.equals(workEndDate)) {
+                                duration = Duration.ofHours(4);
+                            } else if (adtDataDto.getOutStatus().equals("연장/야간근무") && !workStartDate.equals(workEndDate)) {
+                                duration = Duration.ofHours(4);
+                                if (!workEndDateTime.isBefore(workEndDateTime.with(LocalTime.of(06, 00)))) {
+                                    duration = duration.plus(Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime));
+                                }
                             }
                         }
                         if (duration != null) {
@@ -680,14 +686,17 @@ public class SalaryService {
 
                     // 기타수당 - 지각
                     if (adtDataDto.getInStatus().equals("지각")) {
-                        String[] timeParts = adtDataDto.getLateTime().split(":");
-                        int hours = Integer.parseInt(timeParts[0]);
-                        int minutes = Integer.parseInt(timeParts[1]);
-                        lateTime = lateTime + hours + (minutes % 60 > 30 ? 0.5 : 0);
+                        Duration duration = null;
+                        if (adtDataDto.getWorkStatus().equals("야간")) {
+                            duration = Duration.between(workStartDateTime.with(LocalTime.of(22, 00)), workStartDateTime );
+                        } else {
+                            duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime );
+                        }
+                        lateTime = lateTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 1 : 0.5);
                     }
                     // 기타수당 - 조퇴
                     if (adtDataDto.getOutStatus().equals("조퇴")) {
-                        Duration duration;
+                        Duration duration = null;
                         if (adtDataDto.getWorkStatus().contains("오후반차")) {
                             duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(12, 30)));
                         } else {
