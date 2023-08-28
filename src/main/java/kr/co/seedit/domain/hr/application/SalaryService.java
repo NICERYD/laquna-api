@@ -289,14 +289,14 @@ public class SalaryService {
         Double rtAnnualLeaveUsed = 0.0;       // 연차, 반차 사용
         String rtAnnualLeaveUsedDay = "";     // 연차, 반차 사용 일자
         Double rtOverTime01 = 0.0;            // 연장1 일수
-        Double rtOverTime02 = 0.0;            // 연장2 일수
+        Double rtOverDayTimeHours = 0.0;        // 연장1 주간시간
+        Double rtOverNightTimeHours = 0.0;      // 연장1 야간시간
         Double rtNightShift01 = 0.0;          // 야간1 일수
         Double rtNSDayTimeHours = 0.0;        // 야간1 일수(주간)
         Double rtNSNightTimeHours = 0.0;      // 야간1 일수(야간)
         Double rtNightShift02 = 0.0;          // 야간2 일수
         Double rtHolidaySaturday01 = 0.0;     // 휴일1 (토요일)
         Double rtHolidaySunday01 = 0.0;       // 휴일1 (일요일)
-        Double rtHoliday02 = 0.0;             // 휴일2
         Double rtTransportation = 0.0;        // 교통비
         Double rtMeal = 0.0;                  // 식대
         Integer rtOther = 0;                  // 기타비용
@@ -361,14 +361,14 @@ public class SalaryService {
             rtAnnualLeaveUsed = 0.0;       // 연차 사용
             rtAnnualLeaveUsedDay = "";     // 연차 사용 일자
             rtOverTime01 = 0.0;            // 연장1 일수
-            rtOverTime02 = 0.0;            // 연장2 일수
+            rtOverDayTimeHours = 0.0;        // 연장1 주간시간
+            rtOverNightTimeHours = 0.0;      // 연장1 야간시간
             rtNightShift01 = 0.0;          // 야간1 일수
             rtNSDayTimeHours = 0.0;        // 주간조 야간시간
             rtNSNightTimeHours = 0.0;      // 야간조 야간시간
             rtNightShift02 = 0.0;          // 야간2 일수
             rtHolidaySaturday01 = 0.0;     // 휴일1 (토요일)
             rtHolidaySunday01 = 0.0;       // 휴일1 (일요일)
-            rtHoliday02 = 0.0;             // 휴일2
             rtTransportation = 0.0;        // 교통비
             rtMeal = 0.0;                  // 식대
             rtOther = 0;                   // 기타비용
@@ -768,18 +768,19 @@ public class SalaryService {
 
             monthlyKeunTaeDto.setAnnualLeaveUsed(rtAnnualLeaveUsed);
             monthlyKeunTaeDto.setAnnualLeaveUsedDay(rtAnnualLeaveUsedDay);
-            monthlyKeunTaeDto.setOverTime01(rtOverTime01);
-            monthlyKeunTaeDto.setOverTime02(rtOverTime02);
-            monthlyKeunTaeDto.setNightShift01(rtNightShift01);
-            monthlyKeunTaeDto.setNightShift02(rtNightShift02);
-            monthlyKeunTaeDto.setHolidaySaturday01(rtHolidaySaturday01);
-            monthlyKeunTaeDto.setHolidaySunday01(rtHolidaySunday01);
+            monthlyKeunTaeDto.setOvertimeDaytime(rtOverTime01);
+            monthlyKeunTaeDto.setNightDaytime(rtNightShift01);
+            monthlyKeunTaeDto.setNightNighttime(rtNightShift02);
+            monthlyKeunTaeDto.setHolidaySaturday(rtHolidaySaturday01);
+            monthlyKeunTaeDto.setHolidaySunday(rtHolidaySunday01);
             monthlyKeunTaeDto.setTransportation(rtTransportation);
             monthlyKeunTaeDto.setMeal(rtMeal);
 
 
             if (!basicAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setBasicSalary(basicAmount.toString());
+            if (!hourlyPay.equals(BigDecimal.ZERO))
+                basicSalaryDto.setHourlyPay(hourlyPay.toString());
             if (!annualAllowance.equals(BigDecimal.ZERO))
                 basicSalaryDto.setAnnualAllowance(annualAllowance.toString());
             if (!overtimeAllowance01.equals(BigDecimal.ZERO))

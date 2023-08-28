@@ -539,7 +539,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             'D21749'
+--             'D21735'
 --             )
 --           AND fbe.est_id = 2
         UNION ALL
@@ -647,6 +647,7 @@
         , attribute11
         , attribute12
         , attribute13
+        , attribute14
         , created_by
         , creation_date
         , last_updated_by
@@ -673,6 +674,7 @@
             , #{item.transportationExpenses}
             , #{item.mealsExpenses}
             , #{item.bonusAmount}
+            , #{item.hourlyPay}
             , #{item.loginUserId}
             , now()
             , #{item.loginUserId}
@@ -860,20 +862,17 @@
         , yyyymm
         , annual_leave_used
         , annual_leave_used_day
-        , overtime_1
-        , overtime_2
-        , night_shift_1
-        , night_shift_2
-        , daytime_hours
-        , nighttime_hours
-        , holiday_saturday_1
-        , holiday_sunday_1
-        , holiday_2
+        , overtime_daytime
+        , overtime_nighttime
+        , night_daytime
+        , night_nighttime
+        , holiday_saturday
+        , holiday_sunday
         , transportation
         , meal
         , other
-        , half_day
-        , half_time
+        , half_leave_used_day
+        , half_leave_used
         , early_leave_day
         , early_leave_time
         , late_day
@@ -892,15 +891,12 @@
             , #{item.yyyymm}
             , #{item.annualLeaveUsed}
             , #{item.annualLeaveUsedDay}
-            , #{item.overTime01}
-            , #{item.overTime02}
-            , #{item.nightShift01}
-            , #{item.nightShift02}
-            , #{item.dayTimeHours}
-            , #{item.nightTimeHours}
-            , #{item.holidaySaturday01}
-            , #{item.holidaySunday01}
-            , #{item.holiday02}
+            , #{item.overtimeDaytime}
+            , #{item.overtimeNighttime}
+            , #{item.nightDaytime}
+            , #{item.nightNighttime}
+            , #{item.holidaySaturday}
+            , #{item.holidaySunday}
             , #{item.transportation}
             , #{item.meal}
             , #{item.other}

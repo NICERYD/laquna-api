@@ -15,14 +15,12 @@ public class MonthlyKeunTaeDto {
     private String yyyymm;
     private Double annualLeaveUsed;
     private String annualLeaveUsedDay;
-    private Double overTime01;
-    private Double overTime02;
-    private Double nightShift01;
-    private Double nightShift02;
-    private Double dayTimeHours;
-    private Double nightTimeHours;
-    private Double holidaySaturday01;
-    private Double holidaySunday01;
+    private Double overtimeDaytime;
+    private Double overtimeNighttime;
+    private Double nightDaytime;
+    private Double nightNighttime;
+    private Double holidaySaturday;
+    private Double holidaySunday;
     private Double holiday02;
     private Double transportation;
     private Double meal;
@@ -33,6 +31,5 @@ public class MonthlyKeunTaeDto {
     private Double earlyLeaveTime;
     private String lateDay;
     private Double lateTime;
-
     private Integer loginUserId;
 }
