@@ -70,6 +70,23 @@
 		  + IFNULL(hdcs.attribute04,0) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0) 
 		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
 		  + IFNULL(hdcs.attribute12,0) + IFNULL(hb.bonus_amount,0)	AS salary_sum
+		, AM_DEDUCT01 AS national_pension
+		, AM_DEDUCT02 AS health_insurance
+		, AM_DEDUCT03 AS care_insurance
+		, AM_DEDUCT04 AS employment_insurance
+		, AM_DEDUCT05 AS advance
+		, AM_DEDUCT06 AS other_tax
+		, AM_DEDUCT07 AS gyeongjobi
+		, AM_DEDUCT08 AS yearend_incomtax
+		, AM_DEDUCT09 AS yearend_residtax
+		, AM_DEDUCT10 AS health_insurance_settlement
+		, AM_DEDUCT11 AS care_insurance_settlement
+		, AM_DEDUCT12 AS holiday_tax
+		, AM_INCOMTAX AS incomtax
+		, AM_RESIDTAX AS residtax
+		, AM_DEDUCT01 + AM_DEDUCT02 + AM_DEDUCT03 + AM_DEDUCT04 + AM_DEDUCT05 + AM_DEDUCT06
+		  + AM_DEDUCT07 + AM_DEDUCT08 + AM_DEDUCT09 + AM_DEDUCT10 + AM_DEDUCT11 + AM_DEDUCT12
+		  + AM_INCOMTAX + AM_RESIDTAX AS tax_sum
         FROM   hr_dh_calc_salary hdcs
         INNER JOIN fnd_business_est fbe
         ON hdcs.company_id = fbe.company_id
@@ -93,6 +110,10 @@
         ON he.company_id = hb.company_id
         AND he.employee_id = hb.employee_id
         AND he.attribute1 = hb.yyyymm
+        LEFT JOIN hr_dh_tax hdt 
+        ON he.company_id = hdt.company_id
+        AND he.employee_id = hdt.employee_id
+        AND he.attribute1 = hdt.yyyymm
         WHERE  he.company_id = #{companyId}
         <if test="estId !=999 and estId != null">
             AND   he.est_id = #{estId}

@@ -42,4 +42,19 @@ public class ReportPayrollDto {
     private String retireDate;
     private String definedName;
     private Integer salarySum;
+    private Integer nationalPension;
+    private Integer healthInsurance;
+    private Integer careInsurance;
+    private Integer employmentInsurance;
+    private Integer advance;
+    private Integer otherTax;
+    private Integer gyeongjobi;
+    private Integer yearendIncomtax;
+    private Integer yearendResidtax;
+    private Integer healthInsuranceSettlement;
+    private Integer careInsuranceSettlement;
+    private Integer holidayTax;
+    private Integer incomtax;
+    private Integer residtax;
+    private Integer taxSum;
 }

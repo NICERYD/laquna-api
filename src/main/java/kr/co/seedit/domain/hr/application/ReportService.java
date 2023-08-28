@@ -19,6 +19,7 @@ import org.apache.poi.ss.usermodel.Footer;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
@@ -282,6 +283,19 @@ public class ReportService {
          GrayAllBorderStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
          GrayAllBorderStyle.setShrinkToFit(true);		//text 셀 맞춤
          
+         CellStyle NoneBorderStyle1 = workbook.createCellStyle();
+         NoneBorderStyle1.setBorderTop(BorderStyle.NONE);
+         NoneBorderStyle1.setBorderBottom(BorderStyle.MEDIUM);
+         NoneBorderStyle1.setBorderRight(BorderStyle.MEDIUM);
+         NoneBorderStyle1.setBorderLeft(BorderStyle.MEDIUM);
+         
+         CellStyle NoneBorderStyle2 = workbook.createCellStyle();
+         NoneBorderStyle2.setBorderTop(BorderStyle.NONE);
+         NoneBorderStyle2.setBorderBottom(BorderStyle.NONE);
+         NoneBorderStyle2.setBorderRight(BorderStyle.MEDIUM);
+         NoneBorderStyle2.setBorderLeft(BorderStyle.MEDIUM);
+         
+         
          //양식 내 상단 날짜 변경
          String yyyy = reportParamsDto.getYyyymm().substring(0,4);
          String mm = reportParamsDto.getYyyymm().substring(4,6);
@@ -356,6 +370,40 @@ public class ReportService {
              cell.setCellValue(m.getHolidayAllowance01());
              cell.setCellStyle(TopRightBorderStyle);
              cell.setCellType(CellType.NUMERIC);
+             
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getNationalPension());
+             cell.setCellStyle(TopBorderStyle);
+             cell.setCellType(CellType.NUMERIC);
+             
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getHealthInsurance());
+             cell.setCellStyle(TopBorderStyle);
+             cell.setCellType(CellType.NUMERIC);
+
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getEmploymentInsurance());
+             cell.setCellStyle(TopBorderStyle);
+             cell.setCellType(CellType.NUMERIC);
+             
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getCareInsurance());
+             cell.setCellStyle(TopBorderStyle);
+             cell.setCellType(CellType.NUMERIC);
+             
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getIncomtax());
+             cell.setCellStyle(TopBorderStyle);
+             cell.setCellType(CellType.NUMERIC);
+             
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getResidtax());
+             cell.setCellStyle(TopBorderStyle);
+             cell.setCellType(CellType.NUMERIC);
+             
+             cell= row.createCell(cellindex++);
+             cell.setBlank();
+             cell.setCellStyle(NoneBorderStyle2);
 
              //2열
              cellindex = 0;
@@ -403,6 +451,40 @@ public class ReportService {
              cell.setBlank();
              cell.setCellStyle(RightBorderStyle);
              
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getAdvance());
+             cell.setCellStyle(ThinBorderStyle);
+             cell.setCellType(CellType.NUMERIC);
+             
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getOtherTax());
+             cell.setCellStyle(ThinBorderStyle);
+             cell.setCellType(CellType.NUMERIC);
+             
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getGyeongjobi());
+             cell.setCellStyle(ThinBorderStyle);
+             cell.setCellType(CellType.NUMERIC);
+             
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getYearendIncomtax());
+             cell.setCellStyle(ThinBorderStyle);
+             cell.setCellType(CellType.NUMERIC);
+             
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getHealthInsuranceSettlement());
+             cell.setCellStyle(ThinBorderStyle);
+             cell.setCellType(CellType.NUMERIC);
+             
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getTaxSum());
+             cell.setCellStyle(AllBorderStyle);
+             cell.setCellType(CellType.NUMERIC);
+             
+             cell= row.createCell(cellindex++);
+             cell.setBlank();
+             cell.setCellStyle(NoneBorderStyle2);
+             
              //3열
              cellindex = 0;
              row = sheet.createRow(rowindex++);
@@ -426,6 +508,27 @@ public class ReportService {
              cell.setCellStyle(AllBorderStyle);
              cell.setCellType(CellType.NUMERIC);
              
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getCareInsuranceSettlement());
+             cell.setCellStyle(ThinBorderStyle);
+             
+             cell = row.createCell(cellindex++);
+             cell.setCellValue(m.getHolidayTax());
+             cell.setCellStyle(ThinBorderStyle);
+             
+             for(int i=0; i<3 ; i++) {	//blank cell 3개
+              	cell = row.createCell(cellindex++);
+                  cell.setBlank();
+                  cell.setCellStyle(ThinBorderStyle);
+              }
+             
+             cell = row.createCell(cellindex++);
+             cell.setCellStyle(AllBorderStyle);
+             cell.setCellFormula(new CellAddress(rowindex-1, 8)+"-"+new CellAddress(rowindex-2, 14));
+             
+             cell= row.createCell(cellindex++);
+             cell.setBlank();
+             cell.setCellStyle(NoneBorderStyle1);
 
          }
          
