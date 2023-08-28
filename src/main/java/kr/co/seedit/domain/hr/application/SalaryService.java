@@ -844,7 +844,7 @@ public class SalaryService {
         if (holidayAllowance02 != null) {
             nonPayHolidayAllowance02 = new BigDecimal(holidayAllowance02);
         }
-        return (nonPayBasicSalary.add(nonPayOvertimeAllowance02).add(nonPayNightAllowance02).add(nonPayHolidayAllowance02)).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 8, RoundingMode.HALF_UP)).setScale(0, RoundingMode.UP);
+        return (nonPayBasicSalary.add(nonPayOvertimeAllowance02).add(nonPayNightAllowance02).add(nonPayHolidayAllowance02)).multiply(BigDecimal.valueOf(nonPaycnt).divide(BigDecimal.valueOf(30), 8, RoundingMode.HALF_UP)).multiply(BigDecimal.valueOf(-1)).setScale(0, RoundingMode.UP);
     }
 
     public static boolean isBetween(LocalDateTime targetTime, LocalDateTime startTime, LocalDateTime endTime) {
