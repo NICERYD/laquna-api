@@ -690,9 +690,9 @@ public class SalaryService {
                     if (adtDataDto.getInStatus().equals("지각")) {
                         Duration duration = null;
                         if (adtDataDto.getWorkStatus().equals("야간")) {
-                            duration = Duration.between(workStartDateTime.with(LocalTime.of(22, 00)), workStartDateTime );
+                            duration = Duration.between(workStartDateTime.with(LocalTime.of(22, 00)), workStartDateTime);
                         } else {
-                            duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime );
+                            duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime);
                         }
                         double minutes = duration.toMinutes() % 60;
                         lateTime = lateTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes == 0) ? 0.0 : 0.5);
@@ -710,10 +710,43 @@ public class SalaryService {
                     }
                     // 기타수당 - 외출
                     if (adtDataDto.getOutTime() != null && !adtDataDto.getOutTime().equals("")) {
-//                        String[] timeParts = adtDataDto.getOutTime().split(":");
-//                        int hours = Integer.parseInt(timeParts[0]);
-//                        int minutes = Integer.parseInt(timeParts[1]);
-//                        outingTime = outingTime + hours + (minutes % 60 >= 30 ? 1 : 0.5);
+                        LocalDateTime OutStartDateTime = LocalDateTime.parse(adtDataDto.getOutStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        LocalDateTime OutEndDateTime = LocalDateTime.parse(adtDataDto.getOutEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        Duration duration = null;
+                        if (adtDataDto.getWorkStatus().equals("야간")) {
+                        } else {
+//                                          12:30	13:30
+//                            12:40 13:10
+//                            9:00	11:00
+//                            14:00	15:00
+//                            12:40	14:00
+//                            10:00	12:50
+//                            9:00	15:00
+                            if (!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(12, 30)) && !OutStartDateTime.toLocalTime().isAfter(LocalTime.of(13, 30))
+                                && !OutEndDateTime.toLocalTime().isBefore(LocalTime.of(12, 30)) && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(13, 30))) {
+                                System.out.println("제외");
+                            } else if ((!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30))) && (!OutEndDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)))) {
+                                System.out.println("9:00\t11:00");
+                                duration = Duration.between(OutStartDateTime, OutEndDateTime);
+                            } else if ((!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(13, 30))) && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)))) {
+                                System.out.println("14:00\t15:00");
+                                duration = Duration.between(OutStartDateTime, OutEndDateTime);
+                            } else if ((!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(12, 30))) && (!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(13, 30)))
+                                       && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)))) {
+                                System.out.println("12:40\t14:00");
+                                duration = Duration.between(OutStartDateTime.with(LocalTime.of(13, 30)), OutEndDateTime);
+                            } else if ((!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)) )
+                                    && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(12, 30))) && (!OutEndDateTime.toLocalTime().isAfter(LocalTime.of(13, 30)))) {
+                                System.out.println("10:00\t12:50");
+                                duration = Duration.between(OutStartDateTime, OutEndDateTime.with(LocalTime.of(12, 30)));
+                            } else if ((!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30))) && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)))) {
+                                System.out.println("9:00\t15:00");
+                                duration = Duration.between(OutStartDateTime, OutEndDateTime);
+                                duration = duration.minus(Duration.ofHours(1));
+                            }
+                        }
+                        double minutes = duration.toMinutes() % 60;
+                        outingTime = outingTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes == 0) ? 0.0 : 0.5);
                     }
                 }
                 // 기본급 퇴직여부

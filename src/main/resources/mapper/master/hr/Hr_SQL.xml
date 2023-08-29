@@ -539,7 +539,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             'D21735'
+--             'D21005'
 --             )
 --           AND fbe.est_id = 2
         UNION ALL
@@ -703,6 +703,8 @@
              , hadt.work_end_date -- 퇴근일시
              , hadt.in_status -- 출근판정
              , hadt.out_status -- 퇴근판정
+             , hadt.out_start_date
+             , hadt.out_end_date
              , TIME_FORMAT(TIMEDIFF(hadt.out_start_date, hadt.out_end_date ), '%H:%i')  AS out_time
              , hadt.late_time -- 지각
              , hadt.over_time -- 연장근무기간

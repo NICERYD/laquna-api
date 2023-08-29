@@ -17,6 +17,8 @@ public class ADTDataDto {
     private String workEndDate;
     private String inStatus;
     private String outStatus;
+    private String outStartDate;
+    private String outEndDate;
     private String outTime;
     private String lateTime;
     private String overtime;
