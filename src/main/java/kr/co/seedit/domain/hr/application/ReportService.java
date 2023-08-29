@@ -196,6 +196,7 @@ public class ReportService {
 		printSetup.setPaperSize(XSSFPrintSetup.A4_PAPERSIZE);
 		printSetup.setLandscape(true); // 인쇄방향 가로
 		printSetup.setFitWidth((short) 1);
+		printSetup.setBottomMargin((double)0.905512);
 
 		Footer footer = sheet.getFooter();
 		footer.setRight("page : " + HeaderFooter.page() + " / " + HeaderFooter.numPages());
