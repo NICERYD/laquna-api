@@ -565,6 +565,34 @@ public class ReportService {
 		cell = row.createCell(cellindex++);
 		cell.setCellStyle(TopRightBorderStyle);
 		cell.setCellFormula(determineSumFormula("I", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(TopBorderStyle);
+		cell.setCellFormula(determineSumFormula("J", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(TopBorderStyle);
+		cell.setCellFormula(determineSumFormula("K", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(TopBorderStyle);
+		cell.setCellFormula(determineSumFormula("L", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(TopBorderStyle);
+		cell.setCellFormula(determineSumFormula("M", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(TopBorderStyle);
+		cell.setCellFormula(determineSumFormula("N", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(TopBorderStyle);
+		cell.setCellFormula(determineSumFormula("O", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setBlank();
+		cell.setCellStyle(NoneBorderStyle2);
 
 		row = sheet.createRow(rowindex++);
 		for (cellindex = 0; cellindex < 2; cellindex++) {
@@ -600,6 +628,34 @@ public class ReportService {
 		cell = row.createCell(cellindex++);
 		cell.setCellStyle(RightBorderStyle);
 		cell.setBlank();
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(ThinBorderStyle);
+		cell.setCellFormula(determineSumFormula("J", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(ThinBorderStyle);
+		cell.setCellFormula(determineSumFormula("K", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(ThinBorderStyle);
+		cell.setCellFormula(determineSumFormula("L", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(ThinBorderStyle);
+		cell.setCellFormula(determineSumFormula("M", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(ThinBorderStyle);
+		cell.setCellFormula(determineSumFormula("N", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(AllBorderStyle);
+		cell.setCellFormula(determineSumFormula("O", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setBlank();
+		cell.setCellStyle(NoneBorderStyle2);
 
 		row = sheet.createRow(rowindex++);
 		for (cellindex = 0; cellindex < 2; cellindex++) {
@@ -617,6 +673,28 @@ public class ReportService {
 		cell = row.createCell(cellindex++);
 		cell.setCellStyle(AllBorderStyle);
 		cell.setCellFormula(determineSumFormula("I", 11, 11 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(BottomBorderStyle);
+		cell.setCellFormula(determineSumFormula("J", 11, 11 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(BottomBorderStyle);
+		cell.setCellFormula(determineSumFormula("K", 11, 11 + reportPayrollDtoList.size() * 3, 3));
+		
+		for (int i = 0; i < 3; i++) { // blank cell 3개
+			cell = row.createCell(cellindex++);
+			cell.setBlank();
+			cell.setCellStyle(BottomBorderStyle);
+		}
+		
+		cell = row.createCell(cellindex++);
+		cell.setCellStyle(AllBorderStyle);
+		cell.setCellFormula(determineSumFormula("O", 11, 11 + reportPayrollDtoList.size() * 3, 3));
+		
+		cell = row.createCell(cellindex++);
+		cell.setBlank();
+		cell.setCellStyle(NoneBorderStyle1);
 
 		formulaEvaluator.evaluateAll(); // 수식 전체 실행
 
@@ -653,6 +731,7 @@ public class ReportService {
 		printSetup.setPaperSize(XSSFPrintSetup.A4_PAPERSIZE);
         printSetup.setLandscape(false);		//인쇄방향 세로
 		printSetup.setFitWidth((short) 1);
+		printSetup.setBottomMargin((double)6.889764);
 		printSetup.setScale((short)85);
 
 		// Style Setting

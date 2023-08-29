@@ -70,23 +70,24 @@
 		  + IFNULL(hdcs.attribute04,0) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0) 
 		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
 		  + IFNULL(hdcs.attribute12,0) + IFNULL(hb.bonus_amount,0)	AS salary_sum
-		, AM_DEDUCT01 AS national_pension
-		, AM_DEDUCT02 AS health_insurance
-		, AM_DEDUCT03 AS care_insurance
-		, AM_DEDUCT04 AS employment_insurance
-		, AM_DEDUCT05 AS advance
-		, AM_DEDUCT06 AS other_tax
-		, AM_DEDUCT07 AS gyeongjobi
-		, AM_DEDUCT08 AS yearend_incomtax
-		, AM_DEDUCT09 AS yearend_residtax
-		, AM_DEDUCT10 AS health_insurance_settlement
-		, AM_DEDUCT11 AS care_insurance_settlement
-		, AM_DEDUCT12 AS holiday_tax
-		, AM_INCOMTAX AS incomtax
-		, AM_RESIDTAX AS residtax
-		, AM_DEDUCT01 + AM_DEDUCT02 + AM_DEDUCT03 + AM_DEDUCT04 + AM_DEDUCT05 + AM_DEDUCT06
-		  + AM_DEDUCT07 + AM_DEDUCT08 + AM_DEDUCT09 + AM_DEDUCT10 + AM_DEDUCT11 + AM_DEDUCT12
-		  + AM_INCOMTAX + AM_RESIDTAX AS tax_sum
+		, IFNULL(hdt.AM_DEDUCT01,0) AS national_pension
+		, IFNULL(hdt.AM_DEDUCT02,0) AS health_insurance
+		, IFNULL(hdt.AM_DEDUCT03,0) AS care_insurance
+		, IFNULL(hdt.AM_DEDUCT04,0) AS employment_insurance
+		, IFNULL(hdt.AM_DEDUCT05,0) AS advance
+		, IFNULL(hdt.AM_DEDUCT06,0) AS other_tax
+		, IFNULL(hdt.AM_DEDUCT07,0) AS gyeongjobi
+		, IFNULL(hdt.AM_DEDUCT08,0) AS yearend_incomtax
+		, IFNULL(hdt.AM_DEDUCT09,0) AS yearend_residtax
+		, IFNULL(hdt.AM_DEDUCT10,0) AS health_insurance_settlement
+		, IFNULL(hdt.AM_DEDUCT11,0) AS care_insurance_settlement
+		, IFNULL(hdt.AM_DEDUCT12,0) AS holiday_tax
+		, IFNULL(hdt.AM_INCOMTAX,0) AS incomtax
+		, IFNULL(hdt.AM_RESIDTAX,0) AS residtax
+		, IFNULL(hdt.AM_DEDUCT01,0) + IFNULL(hdt.AM_DEDUCT02,0) + IFNULL(hdt.AM_DEDUCT03,0) + IFNULL(hdt.AM_DEDUCT04,0)
+		  + IFNULL(hdt.AM_DEDUCT05,0) + IFNULL(hdt.AM_DEDUCT06,0) + IFNULL(hdt.AM_DEDUCT07,0) + IFNULL(hdt.AM_DEDUCT08,0) 
+		  + IFNULL(hdt.AM_DEDUCT09,0) + IFNULL(hdt.AM_DEDUCT10,0) + IFNULL(hdt.AM_DEDUCT11,0) + IFNULL(hdt.AM_DEDUCT12,0)
+		  + IFNULL(hdt.AM_INCOMTAX,0) + IFNULL(hdt.AM_RESIDTAX,0) AS tax_sum
         FROM   hr_dh_calc_salary hdcs
         INNER JOIN fnd_business_est fbe
         ON hdcs.company_id = fbe.company_id
