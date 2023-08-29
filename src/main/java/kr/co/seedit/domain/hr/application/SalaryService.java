@@ -272,41 +272,41 @@ public class SalaryService {
         requestDto.setLoginUserId(info.getUserId());
 
         // 기본 책정임금 변수 선언
-        BigDecimal basicAmount = BigDecimal.ZERO;          // 기본금
-        BigDecimal hourlyPay = BigDecimal.ZERO;            // 시급(시간제)
-        BigDecimal annualAllowance = BigDecimal.ZERO;      // 연차수당
-        BigDecimal overtimeAllowance01 = BigDecimal.ZERO;     // 연장1 수당
-        BigDecimal overtimeAllowance02 = BigDecimal.ZERO;     // 연장2 수당
-        BigDecimal nightAllowance01 = BigDecimal.ZERO;        // 야간1 수당
-        BigDecimal nightAllowance02 = BigDecimal.ZERO;        // 야간2 수당
-        BigDecimal holidayAllowance01 = BigDecimal.ZERO;      // 휴일1 수당
-        BigDecimal holidayAllowance02 = BigDecimal.ZERO;      // 휴일2 수당
-        BigDecimal transportationAmount = BigDecimal.ZERO; // 교통비
-        BigDecimal mealsAmount = BigDecimal.ZERO;          // 식대
-        BigDecimal otherAmount = BigDecimal.ZERO;          // 기타
+        BigDecimal basicAmount;          // 기본금
+        BigDecimal hourlyPay;            // 시급(시간제)
+        BigDecimal annualAllowance;      // 연차수당
+        BigDecimal overtimeAllowance01;     // 연장1 수당
+        BigDecimal overtimeAllowance02;     // 연장2 수당
+        BigDecimal nightAllowance01;        // 야간1 수당
+        BigDecimal nightAllowance02;        // 야간2 수당
+        BigDecimal holidayAllowance01;      // 휴일1 수당
+        BigDecimal holidayAllowance02;      // 휴일2 수당
+        BigDecimal transportationAmount; // 교통비
+        BigDecimal mealsAmount;          // 식대
+        BigDecimal otherAmount;          // 기타
         // 리포트 급여항목 항목 변수 선언
         List<MonthlyKeunTaeDto> monthlyKeunTaeDtos = new ArrayList<>();
-        Double rtAnnualLeaveUsed = 0.0;       // 연차, 반차 사용
-        String rtAnnualLeaveUsedDay = "";     // 연차, 반차 사용 일자
-        Double rtOverTime01 = 0.0;            // 연장1 일수
-        Double rtOverDayTimeHours = 0.0;        // 연장1 주간시간
-        Double rtOverNightTimeHours = 0.0;      // 연장1 야간시간
-        Double rtNightShift01 = 0.0;          // 야간1 일수
-        Double rtNSDayTimeHours = 0.0;        // 야간1 일수(주간)
-        Double rtNSNightTimeHours = 0.0;      // 야간1 일수(야간)
-        Double rtNightShift02 = 0.0;          // 야간2 일수
-        Double rtHolidaySaturday01 = 0.0;     // 휴일1 (토요일)
-        Double rtHolidaySunday01 = 0.0;       // 휴일1 (일요일)
-        Double rtTransportation = 0.0;        // 교통비
-        Double rtMeal = 0.0;                  // 식대
-        Integer rtOther = 0;                  // 기타비용
-        String rtHalfDay = "";                // 반차일자
-        Double rtHalfTime = 0.0;               // 반차시간
-        String rtEarlyLeaveDay = "";          // 조퇴일자
-        Double rtEarlyLeaveTime = 0.0;         // 조퇴시간
-        String rtLateDay = "";                // 지각일자
-        Double rtLateTime = 0.0;               // 지각시간
-        Double rtTotalTime = 0.0;             //총근무시간
+        Double rtAnnualLeaveUsed;       // 연차, 반차 사용
+        String rtAnnualLeaveUsedDay;     // 연차, 반차 사용 일자
+        Double rtOverTime01;            // 연장1 일수
+        Double rtOverDayTimeHours;        // 연장1 주간시간
+        Double rtOverNightTimeHours;      // 연장1 야간시간
+        Double rtNightShift01;          // 야간1 일수
+        Double rtNSDayTimeHours;        // 야간1 일수(주간)
+        Double rtNSNightTimeHours;      // 야간1 일수(야간)
+        Double rtNightShift02;          // 야간2 일수
+        Double rtHolidaySaturday01;     // 휴일1 (토요일)
+        Double rtHolidaySunday01;       // 휴일1 (일요일)
+        Double rtTransportation;        // 교통비
+        Double rtMeal;                  // 식대
+        Integer rtOther;                  // 기타비용
+        String rtHalfDay;                // 반차일자
+        Double rtHalfTime;               // 반차시간
+        String rtEarlyLeaveDay;          // 조퇴일자
+        Double rtEarlyLeaveTime;         // 조퇴시간
+        String rtLateDay;                // 지각일자
+        Double rtLateTime;               // 지각시간
+        Double rtTotalTime;             //총근무시간
 
         // 기준코드값
         LocalTime overtimeBaseTime = LocalTime.MIN;
@@ -577,7 +577,8 @@ public class SalaryService {
                             halfDayLeaveTime = halfDayLeaveTime + 4.0;
                         } else {
                             Duration duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime);
-                            halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 1 : 0.5);
+                            double minutes = duration.toMinutes() % 60;
+                            halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes == 0) ? 0.0 : 0.5);
                         }
                         halfDayLeave++;
                         String dayOfMonth = adtDataDto.getWorkDate().substring(8);
@@ -592,7 +593,8 @@ public class SalaryService {
                             halfDayLeaveTime = halfDayLeaveTime + 4.0;
                         } else {
                             Duration duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(17, 30)));
-                            halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 1 : 0.5);
+                            double minutes = duration.toMinutes() % 60;
+                            halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes == 0) ? 0.0 : 0.5);
                         }
                         halfDayLeave++;
                         String dayOfMonth = adtDataDto.getWorkDate().substring(8);
@@ -692,7 +694,8 @@ public class SalaryService {
                         } else {
                             duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime );
                         }
-                        lateTime = lateTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 1 : 0.5);
+                        double minutes = duration.toMinutes() % 60;
+                        lateTime = lateTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes == 0) ? 0.0 : 0.5);
                     }
                     // 기타수당 - 조퇴
                     if (adtDataDto.getOutStatus().equals("조퇴")) {
@@ -702,7 +705,8 @@ public class SalaryService {
                         } else {
                             duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(17, 30)));
                         }
-                        earlyLeaveTime = earlyLeaveTime + duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 1 : 0.5);
+                        double minutes = duration.toMinutes() % 60;
+                        earlyLeaveTime = earlyLeaveTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes == 0) ? 0.0 : 0.5);
                     }
                     // 기타수당 - 외출
                     if (adtDataDto.getOutTime() != null && !adtDataDto.getOutTime().equals("")) {
