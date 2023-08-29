@@ -15,6 +15,7 @@ public class ReportParamsDto {
 	private Integer estId;
     private String yyyymm;
     private Integer employeeId;
+    private Integer employeeType;
     
     private String reportType;
 }

@@ -25,11 +25,10 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import kr.co.seedit.domain.hr.dto.PayrollDto;
+import kr.co.seedit.domain.hr.dto.Payroll6InPageDto;
 import kr.co.seedit.domain.hr.dto.ReportParamsDto;
-import kr.co.seedit.domain.mapper.seedit.PayrollDao;
+import kr.co.seedit.domain.mapper.seedit.Payroll6InPageDao;
 import kr.co.seedit.global.common.dto.ResponseDto;
 import kr.co.seedit.global.utils.SeedXSSFUtil;
 import kr.co.seedit.global.utils.StringUtils;
@@ -47,11 +46,11 @@ public class Payroll6InPageService {
 //	final private String PAYROLL_PARTTIME_FILE = "classpath:hr/payrollFulltime.xlsx";
 	final private String PAYROLL_TABLE_FORMAT_FILE = "classpath:hr/payroll.xlsx";
 	
-    private final PayrollDao payrollDao;
+    private final Payroll6InPageDao payroll6InPageDao;
     private final ResourceLoader resourceLoader;
 	
 	final private int sheetFulltime  = 0 ; // sheet number
-	final private int countHeadLineFulltime = 17;
+	final private int countHeadLineFulltime = 18;
 	final private int sheetParttime  = 17; // sheet number
 	final private int countHeadLineParttime = 18;
 	final private int dataCountInRow   = 3;
@@ -79,7 +78,8 @@ public class Payroll6InPageService {
 		}
 
 		// get full-time user data
-		List<PayrollDto> listFulltime = payrollDao.getFulltimePayroll6InPageList(reportParamsDto);
+		reportParamsDto.setReportType("100");
+		List<Payroll6InPageDto> listFulltime = payroll6InPageDao.getPayroll6InPageList(reportParamsDto);
 		
 		try {
 			// set full-time user information
@@ -90,7 +90,8 @@ public class Payroll6InPageService {
 
 		
 		// get set part-time user data
-		List<PayrollDto> listParttime = payrollDao.getParttimePayroll6InPageList(reportParamsDto);
+		reportParamsDto.setReportType("200");
+		List<Payroll6InPageDto> listParttime = payroll6InPageDao.getPayroll6InPageList(reportParamsDto);
 		
 		try {
 			// set part-time user information
@@ -108,6 +109,335 @@ public class Payroll6InPageService {
 		return workbook;
 	}
 	
+	private boolean setFulltimePayroll6InPageList(XSSFWorkbook workbook, List<Payroll6InPageDto> list) throws IOException
+	{
+		final int sheetNumber    = 0;
+		final int countHeadLine  = 17; // 출력 포멧의 라인수
+		final int dataCountInRow = 3;  // 1열에 출력 포멧의 개수
+		final int dataOffsetCell = 6;  // 출력 포멧의 열 수 (+ 구분열 1개)
+
+		XSSFCellStyle styleLightGreen = workbook.createCellStyle();
+		styleLightGreen.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());  // 배경색
+		styleLightGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		styleLightGreen.setBorderTop(BorderStyle.THIN);
+		styleLightGreen.setBorderBottom(BorderStyle.THIN);
+		styleLightGreen.setBorderLeft(BorderStyle.THIN);
+		styleLightGreen.setBorderRight(BorderStyle.THIN);
+		styleLightGreen.setShrinkToFit(true);
+		XSSFCellStyle styleLemonChiffon = workbook.createCellStyle();
+		styleLemonChiffon.setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex());  // 배경색
+		styleLemonChiffon.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		styleLemonChiffon.setBorderTop(BorderStyle.THIN);
+		styleLemonChiffon.setBorderBottom(BorderStyle.THIN);
+		styleLemonChiffon.setBorderLeft(BorderStyle.THIN);
+		styleLemonChiffon.setBorderRight(BorderStyle.THIN);
+		styleLemonChiffon.setShrinkToFit(true);
+
+		// set format
+		SeedXSSFUtil.copyHeadlineCubeFormat(workbook, sheetNumber, countHeadLine, list.size(), dataCountInRow, dataOffsetCell);
+		
+		int curRow = 0, curCol = 0;
+		XSSFSheet sheet = workbook.getSheetAt(sheetNumber);
+		for (int i=0;i<list.size();i++)
+		{
+			Payroll6InPageDto data = list.get(i);
+			curRow = Math.floorDiv(i, dataCountInRow) * countHeadLine;
+			curCol = Math.floorMod(i, dataCountInRow)*dataOffsetCell;
+			
+			////////////////////////////////////////////
+			// data setting - start
+			
+
+			//NO.
+			sheet.getRow(curRow+0).getCell(curCol+1).setCellValue(i+1); //1
+			if (null != data.getDefinedName()) {
+				sheet.getRow(curRow+0).getCell(curCol+2).setCellValue(data.getDefinedName());
+			}
+			if (null != data.getKoreanName()) {
+				sheet.getRow(curRow+0).getCell(curCol+3).setCellValue(data.getKoreanName());
+			}
+			if (null != data.getBasicAmount()) {
+				sheet.getRow(curRow+0).getCell(curCol+4).setCellValue(data.getBasicAmount());
+			}
+
+			//44875
+			if (null != data.getHireDate()) {
+				if ("".equals(data.getHireDiv())) {
+					; // default color - do nothing
+				} else  if ("RETIRE".equals(data.getHireDiv())) {
+					sheet.getRow(curRow+1).getCell(curCol+0).setCellStyle(styleLightGreen);
+				} else if ("NEW".equals(data.getHireDiv())) {
+					sheet.getRow(curRow+1).getCell(curCol+0).setCellStyle(styleLemonChiffon);
+				}
+				sheet.getRow(curRow+1).getCell(curCol+0).setCellValue(data.getHireDate());
+			}
+			//연봉
+			if (null != data.getBasicAmount()) {
+				sheet.getRow(curRow+0).getCell(curCol+4).setCellValue(data.getBasicAmount()*12);
+			}
+
+			//기본급
+			if (null != data.getRtTotalTime()) {
+				sheet.getRow(curRow+2).getCell(curCol+2).setCellValue(data.getRtTotalTime());
+			}
+			if (null != data.getBasicAmount()) {
+				sheet.getRow(curRow+2).getCell(curCol+3).setCellValue(data.getBasicAmount());
+			}
+			//연차수당
+			//연장1
+			//주간
+			if (null != data.getRtOverDayTimeHours()) {
+				sheet.getRow(curRow+4).getCell(curCol+2).setCellValue(data.getRtOverDayTimeHours());
+			}
+			if (null != data.getOvertimeAllowance01()) {
+				sheet.getRow(curRow+4).getCell(curCol+3).setCellValue(data.getOvertimeAllowance01());
+			}
+			//야간
+			if (null != data.getRtOverNightTimeHours()) {
+				sheet.getRow(curRow+5).getCell(curCol+2).setCellValue(data.getRtOverNightTimeHours());
+			}
+			//연장2
+			//포괄
+			if (null != data.getOvertimeAllowance02()) {
+				sheet.getRow(curRow+6).getCell(curCol+3).setCellValue(data.getOvertimeAllowance02());
+			}
+			//야간1
+			//주간
+			if (null != data.getRtNSDayTimeHours()) {
+				sheet.getRow(curRow+7).getCell(curCol+2).setCellValue(data.getRtNSDayTimeHours());
+			}
+			if (null != data.getNightAllowance01()) {
+				sheet.getRow(curRow+7).getCell(curCol+3).setCellValue(data.getNightAllowance01());
+			}
+			//야간
+			if (null != data.getRtNSNightTimeHours()) {
+				sheet.getRow(curRow+8).getCell(curCol+2).setCellValue(data.getRtNSNightTimeHours());
+			}
+			//야간2
+			//포괄
+			if (null != data.getNightAllowance02()) {
+				sheet.getRow(curRow+9).getCell(curCol+3).setCellValue(data.getNightAllowance02());
+			}
+			//휴일1
+			//토요
+			if (null != data.getRtHolidaySaturday01()) {
+				sheet.getRow(curRow+10).getCell(curCol+2).setCellValue(data.getRtHolidaySaturday01());
+			}
+			if (null != data.getHolidayAllowance01()) {
+				sheet.getRow(curRow+10).getCell(curCol+3).setCellValue(data.getHolidayAllowance01());
+			}
+			//일요
+			if (null != data.getRtHolidaySunday01()) {
+				sheet.getRow(curRow+11).getCell(curCol+2).setCellValue(data.getRtHolidaySunday01());
+			}
+			//휴일2
+			//포괄
+			if (null != data.getHolidayAllowance02()) {
+				sheet.getRow(curRow+12).getCell(curCol+3).setCellValue(data.getHolidayAllowance02());
+			}
+			//연차사용
+			if (null != data.getRtAnnualLeaveUsedDay()) {
+				sheet.getRow(curRow+13).getCell(curCol+1).setCellValue(data.getRtAnnualLeaveUsedDay());
+			}
+			if (null != data.getAnnualLeave()) {
+				sheet.getRow(curRow+13).getCell(curCol+2).setCellValue(data.getAnnualLeave());
+			}
+			if (null != data.getAnnualAllowance()) {
+				sheet.getRow(curRow+13).getCell(curCol+3).setCellValue(data.getAnnualAllowance());
+			}
+			//반차사용
+			if (null != data.getRtHalfDay()) {
+				sheet.getRow(curRow+14).getCell(curCol+1).setCellValue(data.getRtHalfDay());
+			}
+			if (null != data.getRtHalfTime()) {
+				sheet.getRow(curRow+14).getCell(curCol+2).setCellValue(data.getRtHalfTime());
+			}
+			//halfTimeAllowance
+			//지각횟수
+			if (null != data.getRtLateDay()) {
+				sheet.getRow(curRow+15).getCell(curCol+1).setCellValue(data.getRtLateDay());
+			}
+			if (null != data.getRtLateTime()) {
+				sheet.getRow(curRow+15).getCell(curCol+2).setCellValue(data.getRtLateTime());
+			}
+			//초과상여
+			//합 계
+			if (null != data.getTotalSalary()) {
+				sheet.getRow(curRow+17).getCell(curCol+3).setCellValue(data.getTotalSalary());
+			}
+			
+			// data setting - end
+			////////////////////////////////////////////
+		}
+		
+		return true;
+	}
+		
+	private boolean setParttimePayroll6InPageList(XSSFWorkbook workbook, List<Payroll6InPageDto> list) throws IOException
+	{
+		final int sheetNumber    = 1;
+		final int countHeadLine  = 18; // 출력 포멧의 라인수
+		final int dataCountInRow = 3;  // 1열에 출력 포멧의 개수
+		final int dataOffsetCell = 6;  // 출력 포멧의 열 수 (+ 구분열 1개)
+
+//		final XSSFCellStyle styleWhite = workbook.createCellStyle();
+//		styleWhite.setFillForegroundColor(IndexedColors.WHITE.getIndex());  // 배경색
+//		styleWhite.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//		styleWhite.setShrinkToFit(true);
+		XSSFCellStyle styleLightGreen = workbook.createCellStyle();
+		styleLightGreen.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());  // 배경색
+		styleLightGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		styleLightGreen.setShrinkToFit(true);
+		XSSFCellStyle styleLemonChiffon = workbook.createCellStyle();
+		styleLemonChiffon.setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex());  // 배경색
+		styleLemonChiffon.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		styleLemonChiffon.setShrinkToFit(true);
+
+		// set format
+		SeedXSSFUtil.copyHeadlineCubeFormat(workbook, sheetNumber, countHeadLine, list.size(), dataCountInRow, dataOffsetCell);
+
+		int curRow = 0, curCol = 0;
+		XSSFSheet sheet = workbook.getSheetAt(sheetNumber);
+		for (int i=0;i<list.size();i++)
+		{
+			Payroll6InPageDto data = list.get(i);
+			curRow = Math.floorDiv(i, dataCountInRow) * countHeadLine;
+			curCol = Math.floorMod(i, dataCountInRow)*dataOffsetCell;
+
+			////////////////////////////////////////////
+			// data setting - start
+			
+			//NO.
+			sheet.getRow(curRow).getCell(curCol+1).setCellValue(i+1); //1
+			if (null != data.getDefinedName()) {
+				sheet.getRow(curRow+0).getCell(curCol+2).setCellValue(data.getDefinedName());
+			}
+			if (null != data.getKoreanName()) {
+				sheet.getRow(curRow+0).getCell(curCol+3).setCellValue(data.getKoreanName());
+			}
+			//hourlyPay*8
+			if (null != data.getHourlyPay()) {
+				sheet.getRow(curRow+1).getCell(curCol+4).setCellValue(data.getHourlyPay()*8);
+			}
+			if (null != data.getHireDate()) {
+				sheet.getRow(curRow+1).getCell(curCol+0).setCellValue(data.getHireDate());
+			}
+			if (null != data.getHourlyPay()) {
+				sheet.getRow(curRow+1).getCell(curCol+4).setCellValue(data.getHourlyPay());
+			}
+			//기본급
+			if (null != data.getRtTotalTime()) {
+				sheet.getRow(curRow+2).getCell(curCol+2).setCellValue(data.getRtTotalTime());
+			}
+			if (null != data.getBasicAmount()) {
+				sheet.getRow(curRow+2).getCell(curCol+3).setCellValue(data.getBasicAmount());
+			}
+			//연차수당
+			if (null != data.getAnnualAllowance()) {
+				sheet.getRow(curRow+3).getCell(curCol+3).setCellValue(data.getAnnualAllowance());
+			}
+			//연차수당(정산)
+			if (null != data.getRtOverDayTimeHours()) {
+				sheet.getRow(curRow+4).getCell(curCol+2).setCellValue(data.getRtOverDayTimeHours());
+			}
+			if (null != data.getOvertimeAllowance01()) {
+				sheet.getRow(curRow+4).getCell(curCol+3).setCellValue(data.getOvertimeAllowance01());
+			}
+			//연장
+			//주간
+			if (null != data.getRtOverDayTimeHours()) {
+				sheet.getRow(curRow+5).getCell(curCol+2).setCellValue(data.getRtOverDayTimeHours());
+			}
+			if (null != data.getOvertimeAllowance01()) {
+				sheet.getRow(curRow+5).getCell(curCol+3).setCellValue(data.getOvertimeAllowance01());
+			}
+			//야간
+			if (null != data.getRtOverNightTimeHours()) {
+				sheet.getRow(curRow+6).getCell(curCol+2).setCellValue(data.getRtOverNightTimeHours());
+			}
+			//야간 수당
+			//주간
+			if (null != data.getRtNSDayTimeHours()) {
+				sheet.getRow(curRow+7).getCell(curCol+2).setCellValue(data.getRtNSDayTimeHours());
+			}
+			if (null != data.getNightAllowance01()) {
+				sheet.getRow(curRow+7).getCell(curCol+3).setCellValue(data.getNightAllowance01());
+			}
+			//야간
+			if (null != data.getRtNSNightTimeHours()) {
+				sheet.getRow(curRow+8).getCell(curCol+2).setCellValue(data.getRtNSNightTimeHours());
+			}
+			//휴일
+			//토요
+			if (null != data.getRtHolidaySaturday01()) {
+				sheet.getRow(curRow+9).getCell(curCol+2).setCellValue(data.getRtHolidaySaturday01());
+			}
+			if (null != data.getHolidayAllowance01()) {
+				sheet.getRow(curRow+9).getCell(curCol+3).setCellValue(data.getHolidayAllowance01());
+			}
+			//일요
+			if (null != data.getRtHolidaySunday01()) {
+				sheet.getRow(curRow+10).getCell(curCol+2).setCellValue(data.getRtHolidaySunday01());
+			}
+			//보조금
+			//교통비
+			if (null != data.getRtTransportation()) {
+				sheet.getRow(curRow+11).getCell(curCol+2).setCellValue(data.getRtTransportation());
+			}
+			if (null != data.getTransportationAmount()) {
+				sheet.getRow(curRow+11).getCell(curCol+3).setCellValue(data.getTransportationAmount());
+			}
+			//식대
+			if (null != data.getRtMeal()) {
+				sheet.getRow(curRow+12).getCell(curCol+2).setCellValue(data.getRtMeal());
+			}
+			if (null != data.getMealsAmount()) {
+				sheet.getRow(curRow+12).getCell(curCol+3).setCellValue(data.getMealsAmount());
+			}
+			//반차
+			if (null != data.getRtHalfDay()) {
+				sheet.getRow(curRow+13).getCell(curCol+1).setCellValue(data.getRtHalfDay());
+			}
+			if (null != data.getRtHalfTime()) {
+				sheet.getRow(curRow+13).getCell(curCol+2).setCellValue(data.getRtHalfTime());
+			}
+			//halfTimeAllowance
+			//조퇴
+			if (null != data.getRtEarlyLeaveDay()) {
+				sheet.getRow(curRow+14).getCell(curCol+1).setCellValue(data.getRtEarlyLeaveDay());
+			}
+			if (null != data.getRtEarlyLeaveTime()) {
+				sheet.getRow(curRow+14).getCell(curCol+2).setCellValue(data.getRtEarlyLeaveTime());
+			}
+			if (null != data.getAnnualAllowance()) {
+				sheet.getRow(curRow+14).getCell(curCol+3).setCellValue(data.getAnnualAllowance());
+			}
+			//지각
+			if (null != data.getRtLateDay()) {
+				sheet.getRow(curRow+15).getCell(curCol+1).setCellValue(data.getRtLateDay());
+			}
+			if (null != data.getRtLateTime()) {
+				sheet.getRow(curRow+15).getCell(curCol+2).setCellValue(data.getRtLateTime());
+			}
+			//halfTimeAllowance
+			//외출
+			if (null != data.getRtOuterDay()) {
+				sheet.getRow(curRow+16).getCell(curCol+1).setCellValue(data.getRtOuterDay());
+			}
+			if (null != data.getRtOuterTime()) {
+				sheet.getRow(curRow+16).getCell(curCol+2).setCellValue(data.getRtOuterTime());
+			}
+			//합 계
+			if (null != data.getTotalSalary()) {
+				sheet.getRow(curRow+17).getCell(curCol+3).setCellValue(data.getTotalSalary()); //2115001
+			}
+
+			// data setting - end	
+		}
+		
+		return true;
+	}
+
 
 //	@Transactional
 	public Resource createPayroll6InPageLocalTest(Map<String, Object> in, HttpServletResponse response)
@@ -198,66 +528,8 @@ public class Payroll6InPageService {
 		return responseDto;
 	}
 	
-//	@SuppressWarnings("unused")
-//	private static void setCellStringFromMap(final XSSFSheet sheet, final int row, final int cell, final Object value) {
-//		try {
-//			sheet.getRow(row).getCell(cell).setCellValue((String        )value);
-//		}
-//		catch (Exception e) {
-//			logger.debug("setCellStringFromMap(,,,"+value+") Exception: "+e.getMessage());
-//		}
-//	}
-
-//	@SuppressWarnings("unused")
-//	private static void setCellDoubleFromMap(final XSSFSheet sheet, final int row, final int cell, final Object value) {
-//		try {
-//			double in = BigDecimal.valueOf(value); //(double) value.;
-//System.out.println("in:" +value +" > "+ in);
-//			sheet.getRow(curRow).getCell(cell).setCellValueImpl(in);
-//		}
-//		catch (Exception e) {
-//			logger.debug("setCellDoubleFromMap(,,,"+value+") Exception: "+e.getMessage());
-//		}
-//	}
-
-//	private static String final Object value)
-//	{
-//		String rst;
-//		String def = "0";
-//		try {
-//			final DecimalFormat df1 = new DecimalFormat("#,##0");
-//			if (null == value)
-//				return def;
-//			
-//			rst = df1.format(value);
-//			
-//			if ("0".equals(rst))
-//					return def;
-//		} catch (IllegalArgumentException | NullPointerException e) {
-//			rst = def;
-//		}
-//		return rst;
-//	}
-
-//	private static String final Object value, final String def)
-//	{
-//		String rst;
-//		try {
-//			final DecimalFormat df1 = new DecimalFormat("#,##0");
-//			if (null == value)
-//				return def;
-//			
-//			rst = df1.format(value);
-//			
-//			if ("0".equals(rst))
-//					return def;
-//		} catch (IllegalArgumentException | NullPointerException e) {
-//			rst = def;
-//		}
-//		return rst;
-//	}
-
-	private boolean setFulltimePayroll6InPageList(XSSFWorkbook workbook, List<PayrollDto> list) throws IOException
+	/*
+	private boolean setFulltimePayroll6InPageList(XSSFWorkbook workbook, List<Payroll6InPageDto> list) throws IOException
 	{
 		final int sheetNumber    = 0;
 		final int countHeadLine  = 17; // 출력 포멧의 라인수
@@ -452,7 +724,7 @@ public class Payroll6InPageService {
 		return true;
 	}
 		
-	private boolean setParttimePayroll6InPageList(XSSFWorkbook workbook, List<PayrollDto> list) throws IOException
+	private boolean setParttimePayroll6InPageList(XSSFWorkbook workbook, List<Payroll6InPageDto> list) throws IOException
 	{
 		final int sheetNumber    = 1;
 		final int countHeadLine  = 18; // 출력 포멧의 라인수
@@ -637,5 +909,6 @@ public class Payroll6InPageService {
 		
 		return true;
 	}
-
+	 */
+	
 }
