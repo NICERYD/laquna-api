@@ -224,7 +224,7 @@
 			<if test="eventType.equals('복귀')">
 				out_end_date = #{eventTime}
 			</if>
-				,last_updated_by = #{lastUpdatedBy}
+				,last_updated_by = #{loginUserId}
 				,last_update_date = now()
 			WHERE	employee_number = #{employeeNumber}
 			AND		work_date = #{workDate}
