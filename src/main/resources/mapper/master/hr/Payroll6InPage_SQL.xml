@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="kr.co.seedit.domain.mapper.seedit.Payroll6InPage">
+<mapper namespace="kr.co.seedit.domain.mapper.seedit.Payroll6InPageDao">
 	
-	<select id="getPayroll6InPageList" parameterType="Map" resultType="kr.co.seedit.domain.hr.dto.Payroll6InPageDto">
+	<select id="getPayroll6InPageList" parameterType="map" resultType="kr.co.seedit.domain.hr.dto.Payroll6InPageDto">
 		SELECT -- he.hire_date -- 입사년일
 			CONCAT(he.hire_date, CASE WHEN CONCAT(SUBSTRING(he.retire_date,1,4),SUBSTRING(he.retire_date,6,2)) = hdcs.yyyymm THEN CONCAT(' ',he.retire_date) ELSE '' END) as hire_date
 			, CASE
@@ -11,9 +11,9 @@
 				ELSE ''
 				END as hire_div
 			, fcd02.defined_name  -- 직급
--- , CONCAT('[',fcd06.defined_cd,']') -- 직군
--- , hd.department_name
-			, he.department_id -- 부서 아이디
+, CONCAT('[',fcd06.defined_cd,']') -- 직군
+, he.department_id -- 부서 아이디
+, hd.department_name
 			, '' AS department_name -- 시급제 부서(ex.머시닝)
 			, he.korean_name  -- 이름
 			, he.employee_type -- 100 연봉제
@@ -39,37 +39,48 @@
 			, hdcs.attribute06 as holiday_allowance01 -- 휴일1 수당
 			, hdmkt.holiday_saturday as rt_holiday_saturday01 -- 휴일1-토요일(시간)
 			, hdmkt.holiday_sunday as rt_holiday_sunday01 -- 휴일1-일요일(시간)
-			, hdcs.attribute07 as holiday_allowance02 -- 휴일2(년봉제 전용)
+			, IFNULL(hdcs.attribute07,0) as holiday_allowance02 -- 휴일2(년봉제 전용)
 --			,  as rt_holiday02 -- 휴일2(시간)(년봉제 전용)
-			, hdcs.attribute11 as transportation_amount -- 보조금-교통비(시급제 전용)
+			, IFNULL(hdcs.attribute11,0) as transportation_amount -- 보조금-교통비(시급제 전용)
 --			,  as rt_transportation -- 보조금-교통비(시간)(시급제 전용)
-			, hdcs.attribute12 as meals_amount -- 보조금-식대(시급제 전용)
+			, IFNULL(hdcs.attribute12,0) as meals_amount -- 보조금-식대(시급제 전용)
 --			,  as rt_meal -- 보조금-식대(시간)(시급제 전용)
 			, hdcs.attribute09 as other_amount -- 기타
 --			,  as rt_other -- 기타(시간)
-			, hdcs.attribute14 as late_amount -- 지각차감금액(시급제 전용)
+			, IFNULL(hdcs.attribute14,0) as late_amount -- 지각차감금액(시급제 전용)
 			, hdmkt.late_time as rt_late_time -- 지각시간(시간)
 			, hdmkt.late_day as rt_late_day -- 지각일자(시간)
---			,  as early_leave_amount -- 조퇴차감금액(시급제 전용)
+			, hdcs.attribute13 as early_leave_amount -- 조퇴차감금액(시급제 전용)
 			, hdmkt.early_leave_time as rt_early_leave_time -- 조퇴시간(시간)(시급제 전용)
 			, hdmkt.early_leave_day as rt_early_leave_day -- 조퇴일자(시간)(시급제 전용)
 			, hdcs.attribute17 as outer_amount -- 외출차감금액(시급제 전용)
 			, hdmkt.outer_time as rt_outer_time -- 외출시간(시간)(시급제 전용)
 			, hdmkt.outer_day as rt_outer_day -- 외출일자(시간)(시급제 전용)
 			, hdmkt.total_time as rt_total_time -- 총근무시간(시간) 
--- 			, IFNULL(hdcs.basic_salary,0) -- 기본금
--- 				+ IFNULL(hdcs.attribute02,0) -- AS overtime01_amt -- 연장1 수당
--- 				+ IFNULL(hdcs.attribute03,0) -- AS overtime02_amt -- 연장2 수당
--- 				+ IFNULL(hdcs.attribute04,0) -- AS night01_allowance -- 야간1 수당
--- 				+ IFNULL(hdcs.attribute05,0) -- AS night02_allowance -- 야간2 수당
--- 				+ CASE WHEN IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0) = 0 THEN 0
--- 					ELSE IFNULL(hdcs.attribute06,0) * (IFNULL(hdmkt.holiday_saturday_1,0)/(IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0))) -- AS holiday01_saturday_amt -- 휴일(토요일) 수당
--- 					END
--- 				+ CASE WHEN IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0) = 0 THEN 0
--- 					ELSE IFNULL(hdcs.attribute06,0) * (IFNULL(hdmkt.holiday_sunday_1  ,0)/(IFNULL(hdmkt.holiday_saturday_1,0)+IFNULL(hdmkt.holiday_sunday_1,0))) -- AS holiday01_sunday_amt -- 휴일(일요일) 수당
--- 					END
--- 				+ IFNULL(hdcs.attribute07,0) -- AS holiday02_amt -- 휴일2 수당 
--- 				as total_salary -- 합계
+			, CASE he.employee_type
+				WHEN 100 THEN
+					IFNULL(hdcs.basic_salary,0) -- as basic_amount -- 기본금
+					+ IFNULL(hdcs.attribute02,0) -- as overtime_allowance01 -- 연장1 수당
+					+ IFNULL(hdcs.attribute03,0) -- as overtime_allowance02 -- 연장2 수당(년봉제 전용)
+					+ IFNULL(hdcs.attribute04,0) -- as night_allowance01 -- 야간1 수당
+					+ IFNULL(hdcs.attribute05,0) -- as night_allowance02 -- 야간2 수당(년봉제 전용)
+					+ IFNULL(hdcs.attribute06,0) -- as holiday_allowance01 -- 휴일1 수당
+					+ IFNULL(hdcs.attribute07,0) -- as holiday_allowance02 -- 휴일2(년봉제 전용)
+					+ IFNULL(hdcs.attribute01,0) -- as annual_allowance -- 연차수당
+					+ IFNULL(hdcs.attribute15,0) -- as half_time_allowance -- 반차수당
+				WHEN 200 THEN
+					IFNULL(hdcs.basic_salary,0) -- as basic_amount -- 기본금
+					+ IFNULL(hdcs.attribute01,0) -- as annual_allowance -- 연차수당
+					+ IFNULL(hdcs.attribute02,0) -- as overtime_allowance01 -- 연장1 수당
+					+ IFNULL(hdcs.attribute04,0) -- as night_allowance01 -- 야간1 수당
+					+ IFNULL(hdcs.attribute06,0) -- as holiday_allowance01 -- 휴일1 수당
+					+ IFNULL(hdcs.attribute11,0) -- as transportation_amount -- 보조금-교통비(시급제 전용)
+					+ IFNULL(hdcs.attribute12,0) -- as meals_amount -- 보조금-식대(시급제 전용)
+					+ IFNULL(hdcs.attribute15,0) -- as half_time_allowance -- 반차수당
+					+ IFNULL(hdcs.attribute13,0) -- as early_leave_amount -- 조퇴차감금액(시급제 전용)
+					+ IFNULL(hdcs.attribute14,0) -- as late_amount -- 지각차감금액(시급제 전용)
+					+ IFNULL(hdcs.attribute17,0) -- as outer_amount -- 외출차감금액(시급제 전용)
+				END as total_salary -- 합계
 		FROM  hr_dh_calc_salary hdcs
 		INNER JOIN hr_dh_monthly_keun_tae hdmkt
 		ON hdcs.company_id = hdmkt.company_id 

@@ -76,11 +76,9 @@ public class ReportService {
 		case "PersonalPayroll":
 			workbook = createPersonalPayroll(reportParamsDto);
 			break;
-		case "Payroll6InPage":
+		case "Payroll6InTable":
 			workbook = Payroll6InPageService.createPayroll6InPage(reportParamsDto);
 			break;
-		default:
-			return new ByteArrayResource(null);
 		}
 
 		try {
