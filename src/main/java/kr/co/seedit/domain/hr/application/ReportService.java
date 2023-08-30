@@ -103,8 +103,10 @@ public class ReportService {
 
 		formula = formula.substring(0, formula.length() - 1); // 마지막 콤마 제거
 		formula += ")";
+		
+		String zeroCutFormula = "IF("+ formula + "=0,\"\" ,"+formula+")";
 
-		return formula;
+		return zeroCutFormula;
 	}
 
 	public XSSFWorkbook createERPIU(ReportParamsDto reportParamsDto) throws Exception {
@@ -194,7 +196,7 @@ public class ReportService {
 		printSetup.setPaperSize(XSSFPrintSetup.A4_PAPERSIZE);
 		printSetup.setLandscape(true); // 인쇄방향 가로
 		printSetup.setFitWidth((short) 1);
-		printSetup.setBottomMargin((double)0.905512);
+		printSetup.setBottomMargin((double)0.787402);
 
 		Footer footer = sheet.getFooter();
 		footer.setRight("page : " + HeaderFooter.page() + " / " + HeaderFooter.numPages());
@@ -202,7 +204,17 @@ public class ReportService {
 		// Style Setting
 		Font bodyFont = workbook.createFont();
 		bodyFont.setFontName("바탕체");
-		bodyFont.setFontHeightInPoints((short) 8);
+		bodyFont.setFontHeightInPoints((short) 9);
+		
+		CellStyle ThinBorderCenterStyle = workbook.createCellStyle();
+		ThinBorderCenterStyle.setBorderTop(BorderStyle.THIN);
+		ThinBorderCenterStyle.setBorderBottom(BorderStyle.THIN);
+		ThinBorderCenterStyle.setBorderLeft(BorderStyle.THIN);
+		ThinBorderCenterStyle.setBorderRight(BorderStyle.THIN);
+		ThinBorderCenterStyle.setFont(bodyFont);
+		ThinBorderCenterStyle.setAlignment(HorizontalAlignment.CENTER);
+		ThinBorderCenterStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		ThinBorderCenterStyle.setShrinkToFit(true); // text 셀 맞춤
 
 		CellStyle ThinBorderStyle = workbook.createCellStyle();
 		ThinBorderStyle.setBorderTop(BorderStyle.THIN);
@@ -210,7 +222,6 @@ public class ReportService {
 		ThinBorderStyle.setBorderLeft(BorderStyle.THIN);
 		ThinBorderStyle.setBorderRight(BorderStyle.THIN);
 		ThinBorderStyle.setFont(bodyFont);
-		ThinBorderStyle.setAlignment(HorizontalAlignment.CENTER);
 		ThinBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		ThinBorderStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0")); // 1000단위 콤마
 		ThinBorderStyle.setShrinkToFit(true); // text 셀 맞춤
@@ -224,6 +235,16 @@ public class ReportService {
 		RightBorderStyle.setAlignment(HorizontalAlignment.CENTER);
 		RightBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		RightBorderStyle.setShrinkToFit(true); // text 셀 맞춤
+		
+		CellStyle TopBorderCenterStyle = workbook.createCellStyle();
+		TopBorderCenterStyle.setBorderTop(BorderStyle.MEDIUM);
+		TopBorderCenterStyle.setBorderBottom(BorderStyle.THIN);
+		TopBorderCenterStyle.setBorderLeft(BorderStyle.THIN);
+		TopBorderCenterStyle.setBorderRight(BorderStyle.THIN);
+		TopBorderCenterStyle.setFont(bodyFont);
+		TopBorderCenterStyle.setAlignment(HorizontalAlignment.CENTER);
+		TopBorderCenterStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		TopBorderCenterStyle.setShrinkToFit(true); // text 셀 맞춤
 
 		CellStyle TopBorderStyle = workbook.createCellStyle();
 		TopBorderStyle.setBorderTop(BorderStyle.MEDIUM);
@@ -231,10 +252,19 @@ public class ReportService {
 		TopBorderStyle.setBorderLeft(BorderStyle.THIN);
 		TopBorderStyle.setBorderRight(BorderStyle.THIN);
 		TopBorderStyle.setFont(bodyFont);
-		TopBorderStyle.setAlignment(HorizontalAlignment.CENTER);
 		TopBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		TopBorderStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0")); // 1000단위 콤마
 		TopBorderStyle.setShrinkToFit(true); // text 셀 맞춤
+		
+		CellStyle TopRightBorderCenterStyle = workbook.createCellStyle();
+		TopRightBorderCenterStyle.setBorderTop(BorderStyle.MEDIUM);
+		TopRightBorderCenterStyle.setBorderBottom(BorderStyle.THIN);
+		TopRightBorderCenterStyle.setBorderLeft(BorderStyle.THIN);
+		TopRightBorderCenterStyle.setBorderRight(BorderStyle.MEDIUM);
+		TopRightBorderCenterStyle.setFont(bodyFont);
+		TopRightBorderCenterStyle.setAlignment(HorizontalAlignment.CENTER);
+		TopRightBorderCenterStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		TopRightBorderCenterStyle.setShrinkToFit(true); // text 셀 맞춤
 
 		CellStyle TopRightBorderStyle = workbook.createCellStyle();
 		TopRightBorderStyle.setBorderTop(BorderStyle.MEDIUM);
@@ -242,18 +272,16 @@ public class ReportService {
 		TopRightBorderStyle.setBorderLeft(BorderStyle.THIN);
 		TopRightBorderStyle.setBorderRight(BorderStyle.MEDIUM);
 		TopRightBorderStyle.setFont(bodyFont);
-		TopRightBorderStyle.setAlignment(HorizontalAlignment.CENTER);
 		TopRightBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		TopRightBorderStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0")); // 1000단위 콤마
 		TopRightBorderStyle.setShrinkToFit(true); // text 셀 맞춤
-
+		
 		CellStyle BottomBorderStyle = workbook.createCellStyle();
 		BottomBorderStyle.setBorderTop(BorderStyle.THIN);
 		BottomBorderStyle.setBorderBottom(BorderStyle.MEDIUM);
 		BottomBorderStyle.setBorderLeft(BorderStyle.THIN);
 		BottomBorderStyle.setBorderRight(BorderStyle.THIN);
 		BottomBorderStyle.setFont(bodyFont);
-		BottomBorderStyle.setAlignment(HorizontalAlignment.CENTER);
 		BottomBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		BottomBorderStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0")); // 1000단위 콤마
 		BottomBorderStyle.setShrinkToFit(true); // text 셀 맞춤
@@ -264,7 +292,6 @@ public class ReportService {
 		AllBorderStyle.setBorderLeft(BorderStyle.MEDIUM);
 		AllBorderStyle.setBorderRight(BorderStyle.MEDIUM);
 		AllBorderStyle.setFont(bodyFont);
-		AllBorderStyle.setAlignment(HorizontalAlignment.CENTER);
 		AllBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		AllBorderStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0")); // 1000단위 콤마
 		AllBorderStyle.setShrinkToFit(true); // text 셀 맞춤
@@ -316,6 +343,23 @@ public class ReportService {
 		} else {
 			cell.setCellValue("전체 사업장");
 		}
+		
+		sheet.setColumnWidth(0, 2500);
+		sheet.setColumnWidth(1, 2000);
+		sheet.setColumnWidth(2, 2900);
+		sheet.setColumnWidth(3, 2400);
+		sheet.setColumnWidth(4, 2400);
+		sheet.setColumnWidth(5, 2400);
+		sheet.setColumnWidth(6, 2400);
+		sheet.setColumnWidth(7, 2400);
+		sheet.setColumnWidth(8, 2900);
+		sheet.setColumnWidth(9, 2400);
+		sheet.setColumnWidth(10, 2400);
+		sheet.setColumnWidth(11, 2400);
+		sheet.setColumnWidth(12, 2400);
+		sheet.setColumnWidth(13, 2400);
+		sheet.setColumnWidth(14, 2900);
+		sheet.setColumnWidth(15, 1000);
 
 		// Data Insert into Excel
 		for (ReportPayrollDto m : reportPayrollDtoList) {
@@ -323,14 +367,15 @@ public class ReportService {
 			// 1열
 			cellindex = 0;
 			row = sheet.createRow(rowindex++);
+			row.setHeightInPoints((float)12.8);
 
 			cell = row.createCell(cellindex++);
 			cell.setCellValue(m.getEmployeeNumber());
-			cell.setCellStyle(TopBorderStyle);
+			cell.setCellStyle(TopBorderCenterStyle);
 
 			cell = row.createCell(cellindex++);
 			cell.setCellValue(m.getKoreanName());
-			cell.setCellStyle(TopRightBorderStyle);
+			cell.setCellStyle(TopRightBorderCenterStyle);
 
 			cell = row.createCell(cellindex++);
 			cell.setCellValue(m.getBasicSalary());
@@ -404,10 +449,11 @@ public class ReportService {
 			// 2열
 			cellindex = 0;
 			row = sheet.createRow(rowindex++);
+			row.setHeightInPoints((float)12.8);
 
 			cell = row.createCell(cellindex++);
 			cell.setCellValue(m.getHireDate());
-			cell.setCellStyle(ThinBorderStyle);
+			cell.setCellStyle(ThinBorderCenterStyle);
 
 			cell = row.createCell(cellindex++);
 			cell.setCellValue(m.getDefinedName());
@@ -484,10 +530,11 @@ public class ReportService {
 			// 3열
 			cellindex = 0;
 			row = sheet.createRow(rowindex++);
+			row.setHeightInPoints((float)12.8);
 
 			cell = row.createCell(cellindex++);
 			cell.setCellValue(m.getRetireDate());
-			cell.setCellStyle(ThinBorderStyle);
+			cell.setCellStyle(ThinBorderCenterStyle);
 
 			cell = row.createCell(cellindex++);
 			cell.setCellValue(m.getDepartmentName());
@@ -496,7 +543,7 @@ public class ReportService {
 			for (int i = 0; i < 6; i++) { // blank cell 6개
 				cell = row.createCell(cellindex++);
 				cell.setBlank();
-				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellStyle(ThinBorderCenterStyle);
 			}
 
 			cell = row.createCell(cellindex++);
@@ -531,6 +578,7 @@ public class ReportService {
 		// 리스트 하단 합계
 
 		row = sheet.createRow(rowindex++);
+		row.setHeightInPoints((float)12.8);
 		for (cellindex = 0; cellindex < 2; cellindex++) {
 			cell = row.createCell(cellindex);
 			cell.setCellStyle(GrayAllBorderStyle);
@@ -594,6 +642,7 @@ public class ReportService {
 		cell.setCellStyle(NoneBorderStyle2);
 
 		row = sheet.createRow(rowindex++);
+		row.setHeightInPoints((float)12.8);
 		for (cellindex = 0; cellindex < 2; cellindex++) {
 			cell = row.createCell(cellindex);
 			cell.setCellStyle(GrayAllBorderStyle);
@@ -657,6 +706,7 @@ public class ReportService {
 		cell.setCellStyle(NoneBorderStyle2);
 
 		row = sheet.createRow(rowindex++);
+		row.setHeightInPoints((float)12.8);
 		for (cellindex = 0; cellindex < 2; cellindex++) {
 			cell = row.createCell(cellindex);
 			cell.setCellStyle(GrayAllBorderStyle);
@@ -701,6 +751,20 @@ public class ReportService {
 				(9 + reportPayrollDtoList.size() * 3) + 1, 0, 1));
 
 //        workbook.setPrintArea(0, "$A$1:$P$35");
+		
+		for(int i=5; i<rowindex; i++) {
+			row = sheet.getRow(i);
+			for(int k=0; k<15; k++) {
+				cell = row.getCell(k);
+				if(cell != null) {
+					if(cell.getCellType() == CellType.NUMERIC) {
+						if(cell.getNumericCellValue() == 0) {
+							cell.setBlank();
+						}
+					}
+				}
+			}
+		}
 
 		return workbook;
 	}
@@ -736,20 +800,34 @@ public class ReportService {
 		// Style Setting
 		Font titleFont = workbook.createFont();
 		titleFont.setFontName("바탕체");
-		titleFont.setFontHeightInPoints((short) 14);
+		titleFont.setFontHeightInPoints((short) 16);
 		titleFont.setBold(true);
 
 		Font headerFont = workbook.createFont();
-		headerFont.setFontName("바탕체");
-		headerFont.setFontHeightInPoints((short) 10);
+		headerFont.setFontName("돋움체");
+		headerFont.setFontHeightInPoints((short) 11);
+		
+		Font headerFont2 = workbook.createFont();
+		headerFont2.setFontName("돋움체");
+		headerFont2.setFontHeightInPoints((short) 10);
+		headerFont2.setBold(true);
+		
+		Font headerFont3 = workbook.createFont();
+		headerFont3.setFontName("바탕체");
+		headerFont3.setFontHeightInPoints((short) 10);
+		headerFont3.setBold(true);
 
 		Font bodyFont = workbook.createFont();
 		bodyFont.setFontName("바탕체");
-		bodyFont.setFontHeightInPoints((short) 8);
+		bodyFont.setFontHeightInPoints((short) 9);
 
 		Font footerfont = workbook.createFont();
-		footerfont.setFontName("바탕체");
+		footerfont.setFontName("돋움체");
 		footerfont.setFontHeightInPoints((short) 9);
+		
+		Font footerBatangfont = workbook.createFont();
+		footerBatangfont.setFontName("바탕체");
+		footerBatangfont.setFontHeightInPoints((short) 9);
 
 		CellStyle TitleStyle = workbook.createCellStyle();
 		TitleStyle.setFont(titleFont);
@@ -805,7 +883,7 @@ public class ReportService {
 		GrayBorderStyle.setBorderBottom(BorderStyle.THIN);
 		GrayBorderStyle.setBorderLeft(BorderStyle.THIN);
 		GrayBorderStyle.setBorderRight(BorderStyle.THIN);
-		GrayBorderStyle.setFont(headerFont);
+		GrayBorderStyle.setFont(headerFont2);
 		GrayBorderStyle.setAlignment(HorizontalAlignment.CENTER);
 		GrayBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		GrayBorderStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
@@ -816,7 +894,7 @@ public class ReportService {
 		NumberGrayBorderStyle.setBorderBottom(BorderStyle.THIN);
 		NumberGrayBorderStyle.setBorderLeft(BorderStyle.THIN);
 		NumberGrayBorderStyle.setBorderRight(BorderStyle.THIN);
-		NumberGrayBorderStyle.setFont(headerFont);
+		NumberGrayBorderStyle.setFont(headerFont3);
 		NumberGrayBorderStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		NumberGrayBorderStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 		NumberGrayBorderStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
@@ -827,7 +905,7 @@ public class ReportService {
 		FooterStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
 		CellStyle FooterRightStyle = workbook.createCellStyle();
-		FooterRightStyle.setFont(footerfont);
+		FooterRightStyle.setFont(footerBatangfont);
 		FooterRightStyle.setAlignment(HorizontalAlignment.RIGHT);
 		FooterRightStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
@@ -1163,6 +1241,20 @@ public class ReportService {
 			sheet.createRow(rowindex++);
 			sheet.createRow(rowindex++);
 			formulaEvaluator.evaluateAll(); // 수식 전체 실행
+			
+			for(int i=5; i<rowindex; i++) {
+				row = sheet.getRow(i);
+				for(int k=0; k<6; k++) {
+					cell = row.getCell(k);
+					if(cell != null) {
+						if(cell.getCellType() == CellType.NUMERIC) {
+							if(cell.getNumericCellValue() == 0) {
+								cell.setBlank();
+							}
+						}
+					}
+				}
+			}
 
 		}
 
