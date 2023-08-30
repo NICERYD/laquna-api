@@ -88,6 +88,7 @@
 		  + IFNULL(hdt.AM_DEDUCT05,0) + IFNULL(hdt.AM_DEDUCT06,0) + IFNULL(hdt.AM_DEDUCT07,0) + IFNULL(hdt.AM_DEDUCT08,0) 
 		  + IFNULL(hdt.AM_DEDUCT09,0) + IFNULL(hdt.AM_DEDUCT10,0) + IFNULL(hdt.AM_DEDUCT11,0) + IFNULL(hdt.AM_DEDUCT12,0)
 		  + IFNULL(hdt.AM_INCOMTAX,0) + IFNULL(hdt.AM_RESIDTAX,0) AS tax_sum
+		, IFNULL(hdt.DT_PAY,'00000000') AS dt_pay
         FROM   hr_dh_calc_salary hdcs
         INNER JOIN fnd_business_est fbe
         ON hdcs.company_id = fbe.company_id

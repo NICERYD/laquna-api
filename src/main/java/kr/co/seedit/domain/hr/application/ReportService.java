@@ -64,19 +64,19 @@ public class ReportService {
 		XSSFWorkbook workbook = null;
 
 		switch (reportParamsDto.getReportType()) {
-		case "ERPIU":
+		case "ERPIU":	//ERP IU 업로드용 엑셀
 			workbook = createERPIU(reportParamsDto);
 			break;
-		case "Payroll":
+		case "Payroll":		//급여대장
 			workbook = createPayroll(reportParamsDto);
 			break;
-		case "Paystub":
+		case "Paystub":		//급여명세서
 			workbook = createPaystub(reportParamsDto);
 			break;
-		case "PersonalPayroll":
+		case "PersonalPayroll":		//개인급여내역
 			workbook = createPersonalPayroll(reportParamsDto);
 			break;
-		case "Payroll6InTable":
+		case "Payroll6InTable":		//급여표(6쪽)
 			workbook = Payroll6InPageService.createPayroll6InPage(reportParamsDto);
 			break;
 		}
@@ -104,7 +104,7 @@ public class ReportService {
 		formula = formula.substring(0, formula.length() - 1); // 마지막 콤마 제거
 		formula += ")";
 		
-		String zeroCutFormula = "IF("+ formula + "=0,\"\" ,"+formula+")";
+		String zeroCutFormula = "IF("+ formula + "=0,\"\" ,"+formula+")";	//수식 결과값이 0일 경우 빈칸으로 표시
 
 		return zeroCutFormula;
 	}
@@ -115,7 +115,7 @@ public class ReportService {
 		salaryExcelDtoList = reportDao.findERPIUData(reportParamsDto);
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
-		XSSFSheet sheet = workbook.createSheet(reportParamsDto.getYyyymm() + "SalaryUpload");
+		XSSFSheet sheet = workbook.createSheet(reportParamsDto.getYyyymm() + "ERPIU");
 		int rowindex = 0;
 		int cellindex = 0;
 
@@ -192,6 +192,7 @@ public class ReportService {
 		XSSFRow row = null;
 		XSSFCell cell = null;
 
+		// Print Setting
 		XSSFPrintSetup printSetup = sheet.getPrintSetup();
 		printSetup.setPaperSize(XSSFPrintSetup.A4_PAPERSIZE);
 		printSetup.setLandscape(true); // 인쇄방향 가로
@@ -323,17 +324,16 @@ public class ReportService {
 		// 양식 내 상단 날짜 변경
 		String yyyy = reportParamsDto.getYyyymm().substring(0, 4);
 		String mm = reportParamsDto.getYyyymm().substring(4, 6);
-
-		Date now = new Date();
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy년 MM월 dd일");
-		String today = formatter.format(now);
+		
+		String dtPay = reportPayrollDtoList.get(0).getDtPay();	//data list의 첫번째 지급일자를 가져옴
+		dtPay = dtPay.substring(0,4)+"년 "+dtPay.substring(4,6)+"월 "+dtPay.substring(6,8)+"일";
 
 		row = sheet.getRow(0);
 		cell = row.getCell(7);
 		cell.setCellValue(yyyy + "년 " + mm + "월분 " + "급여대장");
 		row = sheet.getRow(2);
 		cell = row.getCell(7);
-		cell.setCellValue("[귀속:" + yyyy + "년" + mm + "월] [지급:" + today + "]");
+		cell.setCellValue("[귀속:" + yyyy + "년" + mm + "월] [지급:" + dtPay + "]");
 
 		// 양식 내 상단 사업장 변경
 		row = sheet.getRow(2);

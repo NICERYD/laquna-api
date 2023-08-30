@@ -57,4 +57,5 @@ public class ReportPayrollDto {
     private int incomtax;
     private int residtax;
     private int taxSum;
+    private String dtPay;
 }
