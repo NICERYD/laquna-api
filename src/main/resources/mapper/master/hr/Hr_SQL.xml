@@ -539,7 +539,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             'D21005'
+--             'D06166'
 --             )
 --           AND fbe.est_id = 2
         UNION ALL
@@ -955,6 +955,7 @@
         , am_deduct12
         , am_incomtax
         , am_residtax
+        , dt_pay
         , created_by
         , creation_date
         , last_updated_by
@@ -981,6 +982,7 @@
             , #{item.amDeduct12}
             , #{item.amIncomTax}
             , #{item.amResidTax}
+            , #{item.dtPay}
             , #{item.loginUserId}
             , now()
             , #{item.loginUserId}

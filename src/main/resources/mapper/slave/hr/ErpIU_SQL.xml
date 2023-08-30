@@ -106,8 +106,8 @@
 
     <select id="getCalcTax" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" resultType="kr.co.seedit.domain.hr.dto.ErpIUDto$CalcTaxDto">
         SELECT  pay.no_emp as employeeNumber
-                , ym as yyyymm
-                , cd_company
+                , pay.ym as yyyymm
+                , pay.cd_company
                 , SUM(PAY.AM_DEDUCT01) AS amDeduct01 -- 국민연금
                 , SUM(AM_DEDUCT02)     AS amDeduct02 -- 건강보험
                 , SUM(AM_DEDUCT03)     AS amDeduct03 -- 장기요양보험료
@@ -122,10 +122,17 @@
                 , SUM(AM_DEDUCT12)     AS amDeduct12 -- (미정) 연차수당
                 , SUM(AM_INCOMTAX)     AS amIncomTax -- 소득세
                 , SUM(AM_RESIDTAX)     AS amResidTax -- 지방소득세
+                , hpt.DT_PAY
                 , #{loginUserId} AS loginUserId
         FROM    hr_pcalcpay pay
-        WHERE   cd_company = '1000'
-        AND     ym = #{yyyymm}
-        GROUP BY ym, no_emp, cd_company
+                inner join (select dt_pay, cd_company, ym
+                            from HR_PTITLE HPT
+                            where no_seq = 1
+                            group by dt_pay, cd_company, ym ) HPT
+                           on pay.cd_company = HPT.cd_company
+                               and pay.ym = hpt.ym
+        WHERE   pay.cd_company = '1000'
+        AND     pay.ym = #{yyyymm}
+        GROUP BY pay.ym, pay.no_emp, pay.cd_company,hpt.DT_PAY
     </select>
 </mapper>

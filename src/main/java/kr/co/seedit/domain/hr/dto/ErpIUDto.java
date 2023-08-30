@@ -131,6 +131,7 @@ public class ErpIUDto {
         private double amDeduct12;
         private double amIncomTax;
         private double amResidTax;
+        private String dtPay;
         private Integer loginUserId;
     }
 }

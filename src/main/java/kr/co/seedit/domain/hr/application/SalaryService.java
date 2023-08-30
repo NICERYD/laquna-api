@@ -578,7 +578,7 @@ public class SalaryService {
                         } else {
                             Duration duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime);
                             double minutes = duration.toMinutes() % 60;
-                            halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes == 0) ? 0.0 : 0.5);
+                            halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                         }
                         halfDayLeave++;
                         String dayOfMonth = adtDataDto.getWorkDate().substring(8);
@@ -594,7 +594,7 @@ public class SalaryService {
                         } else {
                             Duration duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(17, 30)));
                             double minutes = duration.toMinutes() % 60;
-                            halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes == 0) ? 0.0 : 0.5);
+                            halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                         }
                         halfDayLeave++;
                         String dayOfMonth = adtDataDto.getWorkDate().substring(8);
@@ -695,7 +695,7 @@ public class SalaryService {
                             duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime);
                         }
                         double minutes = duration.toMinutes() % 60;
-                        lateTime = lateTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes == 0) ? 0.0 : 0.5);
+                        lateTime = lateTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                     }
                     // 기타수당 - 조퇴
                     if (adtDataDto.getOutStatus().equals("조퇴")) {
@@ -706,7 +706,7 @@ public class SalaryService {
                             duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(17, 30)));
                         }
                         double minutes = duration.toMinutes() % 60;
-                        earlyLeaveTime = earlyLeaveTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes == 0) ? 0.0 : 0.5);
+                        earlyLeaveTime = earlyLeaveTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                     }
                     // 기타수당 - 외출
                     if (adtDataDto.getOutTime() != null && !adtDataDto.getOutTime().equals("")) {
@@ -722,8 +722,9 @@ public class SalaryService {
 //                            12:40	14:00
 //                            10:00	12:50
 //                            9:00	15:00
+//                            앞뒤 30분 외출무급인증. 단 1번만
                             if (!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(12, 30)) && !OutStartDateTime.toLocalTime().isAfter(LocalTime.of(13, 30))
-                                && !OutEndDateTime.toLocalTime().isBefore(LocalTime.of(12, 30)) && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(13, 30))) {
+                                    && !OutEndDateTime.toLocalTime().isBefore(LocalTime.of(12, 30)) && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(13, 30))) {
                                 System.out.println("제외");
                             } else if ((!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30))) && (!OutEndDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)))) {
                                 System.out.println("9:00\t11:00");
@@ -732,7 +733,7 @@ public class SalaryService {
                                 System.out.println("14:00\t15:00");
                                 duration = Duration.between(OutStartDateTime, OutEndDateTime);
                             } else if ((!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(12, 30))) && (!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(13, 30)))
-                                       && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)))) {
+                                    && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)))) {
                                 System.out.println("12:40\t14:00");
                                 duration = Duration.between(OutStartDateTime.with(LocalTime.of(13, 30)), OutEndDateTime);
                             } else if ((!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)) )
@@ -744,9 +745,21 @@ public class SalaryService {
                                 duration = Duration.between(OutStartDateTime, OutEndDateTime);
                                 duration = duration.minus(Duration.ofHours(1));
                             }
+                            boolean intime = false;
+                            if ((!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(12, 00)) && !OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)))
+                                    || !OutStartDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)) && !OutStartDateTime.toLocalTime().isAfter(LocalTime.of(14, 00))) {
+                                intime = true;
+                            }
+                            if ((!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(12, 00)) && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)))
+                                    || !OutEndDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)) && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(14, 00))) {
+                                intime = true;
+                            }
+                            if (intime) {
+                                duration = duration.minus(Duration.ofMinutes(30));
+                            }
                         }
                         double minutes = duration.toMinutes() % 60;
-                        outingTime = outingTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes == 0) ? 0.0 : 0.5);
+                        outingTime = outingTime + duration.toHours() + ((minutes > 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                     }
                 }
                 // 기본급 퇴직여부
