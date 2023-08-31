@@ -74,11 +74,11 @@ public class ReportService {
 		case "ERPIU":	//ERP IU 업로드용 엑셀
 			workbook = createERPIU(reportParamsDto);
 			break;
-		case "PayrollAll":		//급여대장 전체
-			workbook = createPayroll(reportParamsDto);
-			break;
-		case "PayrollEst":			//급여대장 지사별
-			workbook = createPayrollEst(reportParamsDto);
+		case "Payroll":		//급여대장
+			if("All".equals(reportParamsDto.getSort()))
+				workbook = createPayroll(reportParamsDto);	//개인별
+			else if("Est".equals(reportParamsDto.getSort()))
+				workbook = createPayrollEst(reportParamsDto);	//지사별
 			break;
 		case "Paystub":		//급여명세서
 			workbook = createPaystub(reportParamsDto);
@@ -331,451 +331,452 @@ public class ReportService {
 		NoneBorderStyle2.setBorderRight(BorderStyle.MEDIUM);
 		NoneBorderStyle2.setBorderLeft(BorderStyle.MEDIUM);
 
-		// 양식 내 상단 날짜 변경
-		String yyyy = reportParamsDto.getYyyymm().substring(0, 4);
-		String mm = reportParamsDto.getYyyymm().substring(4, 6);
-		
-		String dtPay = reportPayrollDtoList.get(0).getDtPay();	//data list의 첫번째 지급일자를 가져옴
-		dtPay = dtPay.substring(0,4)+"년 "+dtPay.substring(4,6)+"월 "+dtPay.substring(6,8)+"일";
-
-		row = sheet.getRow(0);
-		cell = row.getCell(7);
-		cell.setCellValue(yyyy + "년 " + mm + "월분 " + "급여대장");
-		row = sheet.getRow(2);
-		cell = row.getCell(7);
-		cell.setCellValue("[귀속:" + yyyy + "년" + mm + "월] [지급:" + dtPay + "]");
-
-		// 양식 내 상단 사업장 변경
-		row = sheet.getRow(2);
-		cell = row.getCell(0);
-		if (reportParamsDto.getEstId() != null && reportParamsDto.getEstId() != 999) {
-			cell.setCellValue(reportPayrollDtoList.get(0).getEstName());
-		} else {
-			cell.setCellValue("전체 사업장");
-		}
-		
-		sheet.setColumnWidth(0, 2500);
-		sheet.setColumnWidth(1, 2000);
-		sheet.setColumnWidth(2, 2900);
-		sheet.setColumnWidth(3, 2400);
-		sheet.setColumnWidth(4, 2400);
-		sheet.setColumnWidth(5, 2400);
-		sheet.setColumnWidth(6, 2400);
-		sheet.setColumnWidth(7, 2400);
-		sheet.setColumnWidth(8, 2900);
-		sheet.setColumnWidth(9, 2400);
-		sheet.setColumnWidth(10, 2400);
-		sheet.setColumnWidth(11, 2400);
-		sheet.setColumnWidth(12, 2400);
-		sheet.setColumnWidth(13, 2400);
-		sheet.setColumnWidth(14, 2900);
-		sheet.setColumnWidth(15, 1000);
-
-		// Data Insert into Excel
-		for (ReportPayrollDto m : reportPayrollDtoList) {
-
-			// 1열
-			cellindex = 0;
+		if(reportPayrollDtoList.size()!=0) {
+			// 양식 내 상단 날짜 변경
+			String yyyy = reportParamsDto.getYyyymm().substring(0, 4);
+			String mm = reportParamsDto.getYyyymm().substring(4, 6);
+			
+			String dtPay = reportPayrollDtoList.get(0).getDtPay();	//data list의 첫번째 지급일자를 가져옴
+			dtPay = dtPay.substring(0,4)+"년 "+dtPay.substring(4,6)+"월 "+dtPay.substring(6,8)+"일";
+	
+			row = sheet.getRow(0);
+			cell = row.getCell(7);
+			cell.setCellValue(yyyy + "년 " + mm + "월분 " + "급여대장");
+			row = sheet.getRow(2);
+			cell = row.getCell(7);
+			cell.setCellValue("[귀속:" + yyyy + "년" + mm + "월] [지급:" + dtPay + "]");
+	
+			// 양식 내 상단 사업장 변경
+			row = sheet.getRow(2);
+			cell = row.getCell(0);
+			if (reportParamsDto.getEstId() != null && reportParamsDto.getEstId() != 999) {
+				cell.setCellValue(reportPayrollDtoList.get(0).getEstName());
+			} else {
+				cell.setCellValue("전체 사업장");
+			}
+			
+			sheet.setColumnWidth(0, 2500);
+			sheet.setColumnWidth(1, 2000);
+			sheet.setColumnWidth(2, 2900);
+			sheet.setColumnWidth(3, 2400);
+			sheet.setColumnWidth(4, 2400);
+			sheet.setColumnWidth(5, 2400);
+			sheet.setColumnWidth(6, 2400);
+			sheet.setColumnWidth(7, 2400);
+			sheet.setColumnWidth(8, 2900);
+			sheet.setColumnWidth(9, 2400);
+			sheet.setColumnWidth(10, 2400);
+			sheet.setColumnWidth(11, 2400);
+			sheet.setColumnWidth(12, 2400);
+			sheet.setColumnWidth(13, 2400);
+			sheet.setColumnWidth(14, 2900);
+			sheet.setColumnWidth(15, 1000);
+	
+			// Data Insert into Excel
+			for (ReportPayrollDto m : reportPayrollDtoList) {
+	
+				// 1열
+				cellindex = 0;
+				row = sheet.createRow(rowindex++);
+				row.setHeightInPoints((float)12.8);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getEmployeeNumber());
+				cell.setCellStyle(TopBorderCenterStyle);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getKoreanName());
+				cell.setCellStyle(TopRightBorderCenterStyle);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getBasicSalary());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getAnnualAllowance());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getOvertimeAllowance01());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getOvertimeAllowance02());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getNightAllowance01());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getNightAllowance02());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getHolidayAllowance01());
+				cell.setCellStyle(TopRightBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getNationalPension());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getHealthInsurance());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getEmploymentInsurance());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getCareInsurance());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getIncomtax());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getResidtax());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setBlank();
+				cell.setCellStyle(NoneBorderStyle2);
+	
+				// 2열
+				cellindex = 0;
+				row = sheet.createRow(rowindex++);
+				row.setHeightInPoints((float)12.8);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getHireDate());
+				cell.setCellStyle(ThinBorderCenterStyle);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getDefinedName());
+				cell.setCellStyle(RightBorderStyle);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getHolidayAllowance02());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getPositionAllowance());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getOtherAllowances());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getSubsidies());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getTransportationExpenses());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getMealsExpenses());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setBlank();
+				cell.setCellStyle(RightBorderStyle);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getAdvance());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getOtherTax());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getGyeongjobi());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getYearendIncomtax());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getHealthInsuranceSettlement());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getTaxSum());
+				cell.setCellStyle(AllBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setBlank();
+				cell.setCellStyle(NoneBorderStyle2);
+	
+				// 3열
+				cellindex = 0;
+				row = sheet.createRow(rowindex++);
+				row.setHeightInPoints((float)12.8);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getRetireDate());
+				cell.setCellStyle(ThinBorderCenterStyle);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getDepartmentName());
+				cell.setCellStyle(RightBorderStyle);
+	
+				for (int i = 0; i < 6; i++) { // blank cell 6개
+					cell = row.createCell(cellindex++);
+					cell.setBlank();
+					cell.setCellStyle(ThinBorderCenterStyle);
+				}
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getSalarySum());
+				cell.setCellStyle(AllBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getCareInsuranceSettlement());
+				cell.setCellStyle(ThinBorderStyle);
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getHolidayTax());
+				cell.setCellStyle(ThinBorderStyle);
+	
+				for (int i = 0; i < 3; i++) { // blank cell 3개
+					cell = row.createCell(cellindex++);
+					cell.setBlank();
+					cell.setCellStyle(ThinBorderStyle);
+				}
+	
+				cell = row.createCell(cellindex++);
+				cell.setCellStyle(AllBorderStyle);
+				cell.setCellFormula(new CellAddress(rowindex - 1, 8) + "-" + new CellAddress(rowindex - 2, 14));
+	
+				cell = row.createCell(cellindex++);
+				cell.setBlank();
+				cell.setCellStyle(NoneBorderStyle1);
+	
+			}
+	
+			// 리스트 하단 합계
+	
 			row = sheet.createRow(rowindex++);
 			row.setHeightInPoints((float)12.8);
-
+			for (cellindex = 0; cellindex < 2; cellindex++) {
+				cell = row.createCell(cellindex);
+				cell.setCellStyle(GrayAllBorderStyle);
+				cell.setCellValue("합계 (" + reportPayrollDtoList.size() + "명)");
+			}
+	
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getEmployeeNumber());
-			cell.setCellStyle(TopBorderCenterStyle);
-
-			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getKoreanName());
-			cell.setCellStyle(TopRightBorderCenterStyle);
-
-			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getBasicSalary());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("C", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+	
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getAnnualAllowance());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("D", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+	
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getOvertimeAllowance01());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("E", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+	
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getOvertimeAllowance02());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("F", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+	
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getNightAllowance01());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("G", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+	
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getNightAllowance02());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("H", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+	
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getHolidayAllowance01());
 			cell.setCellStyle(TopRightBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("I", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getNationalPension());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("J", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getHealthInsurance());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("K", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getEmploymentInsurance());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("L", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getCareInsurance());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("M", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getIncomtax());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("N", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getResidtax());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("O", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
 			cell.setBlank();
 			cell.setCellStyle(NoneBorderStyle2);
-
-			// 2열
-			cellindex = 0;
+	
 			row = sheet.createRow(rowindex++);
 			row.setHeightInPoints((float)12.8);
-
+			for (cellindex = 0; cellindex < 2; cellindex++) {
+				cell = row.createCell(cellindex);
+				cell.setCellStyle(GrayAllBorderStyle);
+	//             cell.setCellValue("합계 ("+reportPayrollDtoList.size()+"명)");
+			}
+	
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getHireDate());
-			cell.setCellStyle(ThinBorderCenterStyle);
-
+			cell.setCellStyle(ThinBorderStyle);
+			cell.setCellFormula(determineSumFormula("C", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+	
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getDefinedName());
+			cell.setCellStyle(ThinBorderStyle);
+			cell.setCellFormula(determineSumFormula("D", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+	
+			cell = row.createCell(cellindex++);
+			cell.setCellStyle(ThinBorderStyle);
+			cell.setCellFormula(determineSumFormula("E", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+	
+			cell = row.createCell(cellindex++);
+			cell.setCellStyle(ThinBorderStyle);
+			cell.setCellFormula(determineSumFormula("F", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+	
+			cell = row.createCell(cellindex++);
+			cell.setCellStyle(ThinBorderStyle);
+			cell.setCellFormula(determineSumFormula("G", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+	
+			cell = row.createCell(cellindex++);
+			cell.setCellStyle(ThinBorderStyle);
+			cell.setCellFormula(determineSumFormula("H", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+	
+			cell = row.createCell(cellindex++);
 			cell.setCellStyle(RightBorderStyle);
-
-			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getHolidayAllowance02());
-			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
-			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getPositionAllowance());
-			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
-			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getOtherAllowances());
-			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
-			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getSubsidies());
-			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
-			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getTransportationExpenses());
-			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
-			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getMealsExpenses());
-			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
-			cell = row.createCell(cellindex++);
 			cell.setBlank();
-			cell.setCellStyle(RightBorderStyle);
-
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getAdvance());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("J", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getOtherTax());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("K", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getGyeongjobi());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("L", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getYearendIncomtax());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("M", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getHealthInsuranceSettlement());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("N", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getTaxSum());
 			cell.setCellStyle(AllBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("O", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
 			cell.setBlank();
 			cell.setCellStyle(NoneBorderStyle2);
-
-			// 3열
-			cellindex = 0;
+	
 			row = sheet.createRow(rowindex++);
 			row.setHeightInPoints((float)12.8);
-
-			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getRetireDate());
-			cell.setCellStyle(ThinBorderCenterStyle);
-
-			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getDepartmentName());
-			cell.setCellStyle(RightBorderStyle);
-
+			for (cellindex = 0; cellindex < 2; cellindex++) {
+				cell = row.createCell(cellindex);
+				cell.setCellStyle(GrayAllBorderStyle);
+	//             cell.setCellValue("합계 ("+reportPayrollDtoList.size()+"명)");
+			}
+	
 			for (int i = 0; i < 6; i++) { // blank cell 6개
 				cell = row.createCell(cellindex++);
 				cell.setBlank();
-				cell.setCellStyle(ThinBorderCenterStyle);
+				cell.setCellStyle(BottomBorderStyle);
 			}
-
+	
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getSalarySum());
 			cell.setCellStyle(AllBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("I", 11, 11 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getCareInsuranceSettlement());
-			cell.setCellStyle(ThinBorderStyle);
-
+			cell.setCellStyle(BottomBorderStyle);
+			cell.setCellFormula(determineSumFormula("J", 11, 11 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getHolidayTax());
-			cell.setCellStyle(ThinBorderStyle);
-
+			cell.setCellStyle(BottomBorderStyle);
+			cell.setCellFormula(determineSumFormula("K", 11, 11 + reportPayrollDtoList.size() * 3, 3));
+			
 			for (int i = 0; i < 3; i++) { // blank cell 3개
 				cell = row.createCell(cellindex++);
 				cell.setBlank();
-				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellStyle(BottomBorderStyle);
 			}
-
+			
 			cell = row.createCell(cellindex++);
 			cell.setCellStyle(AllBorderStyle);
-			cell.setCellFormula(new CellAddress(rowindex - 1, 8) + "-" + new CellAddress(rowindex - 2, 14));
-
+			cell.setCellFormula(determineSumFormula("O", 11, 11 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
 			cell.setBlank();
 			cell.setCellStyle(NoneBorderStyle1);
-
-		}
-
-		// 리스트 하단 합계
-
-		row = sheet.createRow(rowindex++);
-		row.setHeightInPoints((float)12.8);
-		for (cellindex = 0; cellindex < 2; cellindex++) {
-			cell = row.createCell(cellindex);
-			cell.setCellStyle(GrayAllBorderStyle);
-			cell.setCellValue("합계 (" + reportPayrollDtoList.size() + "명)");
-		}
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("C", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("D", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("E", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("F", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("G", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("H", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopRightBorderStyle);
-		cell.setCellFormula(determineSumFormula("I", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("J", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("K", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("L", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("M", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("N", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("O", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setBlank();
-		cell.setCellStyle(NoneBorderStyle2);
-
-		row = sheet.createRow(rowindex++);
-		row.setHeightInPoints((float)12.8);
-		for (cellindex = 0; cellindex < 2; cellindex++) {
-			cell = row.createCell(cellindex);
-			cell.setCellStyle(GrayAllBorderStyle);
-//             cell.setCellValue("합계 ("+reportPayrollDtoList.size()+"명)");
-		}
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("C", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("D", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("E", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("F", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("G", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("H", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(RightBorderStyle);
-		cell.setBlank();
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("J", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("K", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("L", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("M", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("N", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(AllBorderStyle);
-		cell.setCellFormula(determineSumFormula("O", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setBlank();
-		cell.setCellStyle(NoneBorderStyle2);
-
-		row = sheet.createRow(rowindex++);
-		row.setHeightInPoints((float)12.8);
-		for (cellindex = 0; cellindex < 2; cellindex++) {
-			cell = row.createCell(cellindex);
-			cell.setCellStyle(GrayAllBorderStyle);
-//             cell.setCellValue("합계 ("+reportPayrollDtoList.size()+"명)");
-		}
-
-		for (int i = 0; i < 6; i++) { // blank cell 6개
-			cell = row.createCell(cellindex++);
-			cell.setBlank();
-			cell.setCellStyle(BottomBorderStyle);
-		}
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(AllBorderStyle);
-		cell.setCellFormula(determineSumFormula("I", 11, 11 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(BottomBorderStyle);
-		cell.setCellFormula(determineSumFormula("J", 11, 11 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(BottomBorderStyle);
-		cell.setCellFormula(determineSumFormula("K", 11, 11 + reportPayrollDtoList.size() * 3, 3));
-		
-		for (int i = 0; i < 3; i++) { // blank cell 3개
-			cell = row.createCell(cellindex++);
-			cell.setBlank();
-			cell.setCellStyle(BottomBorderStyle);
-		}
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(AllBorderStyle);
-		cell.setCellFormula(determineSumFormula("O", 11, 11 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setBlank();
-		cell.setCellStyle(NoneBorderStyle1);
-
-		formulaEvaluator.evaluateAll(); // 수식 전체 실행
-
-		sheet.addMergedRegion(new CellRangeAddress((8 + reportPayrollDtoList.size() * 3),
-				(9 + reportPayrollDtoList.size() * 3) + 1, 0, 1));
-
-//        workbook.setPrintArea(0, "$A$1:$P$35");
-		
-		for(int i=5; i<rowindex; i++) {
-			row = sheet.getRow(i);
-			for(int k=0; k<15; k++) {
-				cell = row.getCell(k);
-				if(cell != null) {
-					if(cell.getCellType() == CellType.NUMERIC) {
-						if(cell.getNumericCellValue() == 0) {
-							cell.setBlank();
+	
+			formulaEvaluator.evaluateAll(); // 수식 전체 실행
+	
+			sheet.addMergedRegion(new CellRangeAddress((8 + reportPayrollDtoList.size() * 3),
+					(9 + reportPayrollDtoList.size() * 3) + 1, 0, 1));
+	
+	//        workbook.setPrintArea(0, "$A$1:$P$35");
+			
+			for(int i=5; i<rowindex; i++) {
+				row = sheet.getRow(i);
+				for(int k=0; k<15; k++) {
+					cell = row.getCell(k);
+					if(cell != null) {
+						if(cell.getCellType() == CellType.NUMERIC) {
+							if(cell.getNumericCellValue() == 0) {
+								cell.setBlank();
+							}
 						}
 					}
 				}
 			}
 		}
-
 		return workbook;
 	}
 	
@@ -938,440 +939,441 @@ public class ReportService {
 		NoneBorderStyle2.setBorderLeft(BorderStyle.MEDIUM);
 
 		int cntSum = 0;		//하단 총합계
-		// 양식 내 상단 날짜 변경
-		String yyyy = reportParamsDto.getYyyymm().substring(0, 4);
-		String mm = reportParamsDto.getYyyymm().substring(4, 6);
-		
-		String dtPay = reportPayrollDtoList.get(0).getDtPay();	//data list의 첫번째 지급일자를 가져옴
-		dtPay = dtPay.substring(0,4)+"년 "+dtPay.substring(4,6)+"월 "+dtPay.substring(6,8)+"일";
-
-		row = sheet.getRow(0);
-		cell = row.getCell(7);
-		cell.setCellValue(yyyy + "년 " + mm + "월분 " + "급여대장");
-		row = sheet.getRow(2);
-		cell = row.getCell(7);
-		cell.setCellValue("[귀속:" + yyyy + "년" + mm + "월] [지급:" + dtPay + "]");
-
-		// 양식 내 상단 사업장 변경
-		row = sheet.getRow(2);
-		cell = row.getCell(0);
-		cell.setCellValue("디에이치(주)/본사");
-		
-		cell = row.getCell(1);
-		cell.setCellValue("정렬:");
-		cell = row.getCell(2);
-		cell.setCellValue("부서>직급순");
-
-		
-		sheet.setColumnWidth(0, 2500);
-		sheet.setColumnWidth(1, 2000);
-		sheet.setColumnWidth(2, 2900);
-		sheet.setColumnWidth(3, 2400);
-		sheet.setColumnWidth(4, 2400);
-		sheet.setColumnWidth(5, 2400);
-		sheet.setColumnWidth(6, 2400);
-		sheet.setColumnWidth(7, 2400);
-		sheet.setColumnWidth(8, 2900);
-		sheet.setColumnWidth(9, 2400);
-		sheet.setColumnWidth(10, 2400);
-		sheet.setColumnWidth(11, 2400);
-		sheet.setColumnWidth(12, 2400);
-		sheet.setColumnWidth(13, 2400);
-		sheet.setColumnWidth(14, 2900);
-		sheet.setColumnWidth(15, 1000);
-
-		// Data Insert into Excel
-		for (ReportPayrollDto m : reportPayrollDtoList) {
-			cntSum += m.getCnt();
-			// 1열
-			cellindex = 0;
-			row = sheet.createRow(rowindex++);
-			row.setHeightInPoints((float)12.8);
-
-			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getEstName()+" ("+m.getCnt()+"명)");
-			cell.setCellStyle(GrayAllBorderStyle);
+		if(reportPayrollDtoList.size()!=0) {
+			// 양식 내 상단 날짜 변경
+			String yyyy = reportParamsDto.getYyyymm().substring(0, 4);
+			String mm = reportParamsDto.getYyyymm().substring(4, 6);
 			
-			row.createCell(cellindex++).setCellStyle(GrayAllBorderStyle);
+			String dtPay = reportPayrollDtoList.get(0).getDtPay();	//data list의 첫번째 지급일자를 가져옴
+			dtPay = dtPay.substring(0,4)+"년 "+dtPay.substring(4,6)+"월 "+dtPay.substring(6,8)+"일";
+	
+			row = sheet.getRow(0);
+			cell = row.getCell(7);
+			cell.setCellValue(yyyy + "년 " + mm + "월분 " + "급여대장");
+			row = sheet.getRow(2);
+			cell = row.getCell(7);
+			cell.setCellValue("[귀속:" + yyyy + "년" + mm + "월] [지급:" + dtPay + "]");
+	
+			// 양식 내 상단 사업장 변경
+			row = sheet.getRow(2);
+			cell = row.getCell(0);
+			cell.setCellValue("디에이치(주)/본사");
+			
+			cell = row.getCell(1);
+			cell.setCellValue("정렬:");
+			cell = row.getCell(2);
+			cell.setCellValue("부서>직급순");
+	
+			
+			sheet.setColumnWidth(0, 2500);
+			sheet.setColumnWidth(1, 2000);
+			sheet.setColumnWidth(2, 2900);
+			sheet.setColumnWidth(3, 2400);
+			sheet.setColumnWidth(4, 2400);
+			sheet.setColumnWidth(5, 2400);
+			sheet.setColumnWidth(6, 2400);
+			sheet.setColumnWidth(7, 2400);
+			sheet.setColumnWidth(8, 2900);
+			sheet.setColumnWidth(9, 2400);
+			sheet.setColumnWidth(10, 2400);
+			sheet.setColumnWidth(11, 2400);
+			sheet.setColumnWidth(12, 2400);
+			sheet.setColumnWidth(13, 2400);
+			sheet.setColumnWidth(14, 2900);
+			sheet.setColumnWidth(15, 1000);
+	
+			// Data Insert into Excel
+			for (ReportPayrollDto m : reportPayrollDtoList) {
+				cntSum += m.getCnt();
+				// 1열
+				cellindex = 0;
+				row = sheet.createRow(rowindex++);
+				row.setHeightInPoints((float)12.8);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getEstName()+" ("+m.getCnt()+"명)");
+				cell.setCellStyle(GrayAllBorderStyle);
+				
+				row.createCell(cellindex++).setCellStyle(GrayAllBorderStyle);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getBasicSalary());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getAnnualAllowance());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getOvertimeAllowance01());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getOvertimeAllowance02());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getNightAllowance01());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getNightAllowance02());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getHolidayAllowance01());
+				cell.setCellStyle(TopRightBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getNationalPension());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getHealthInsurance());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getEmploymentInsurance());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getCareInsurance());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getIncomtax());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getResidtax());
+				cell.setCellStyle(TopBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setBlank();
+				cell.setCellStyle(NoneBorderStyle2);
+
+				// 2열
+				cellindex = 0;
+				row = sheet.createRow(rowindex++);
+				row.setHeightInPoints((float)12.8);
+
+				row.createCell(cellindex++).setCellStyle(GrayAllBorderStyle);
+				row.createCell(cellindex++).setCellStyle(GrayAllBorderStyle);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getHolidayAllowance02());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getPositionAllowance());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getOtherAllowances());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getSubsidies());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getTransportationExpenses());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getMealsExpenses());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setBlank();
+				cell.setCellStyle(RightBorderStyle);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getAdvance());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getOtherTax());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getGyeongjobi());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getYearendIncomtax());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getHealthInsuranceSettlement());
+				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getTaxSum());
+				cell.setCellStyle(AllBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setBlank();
+				cell.setCellStyle(NoneBorderStyle2);
+
+				// 3열
+				cellindex = 0;
+				row = sheet.createRow(rowindex++);
+				row.setHeightInPoints((float)12.8);
+
+				row.createCell(cellindex++).setCellStyle(GrayAllBorderStyle);
+				row.createCell(cellindex++).setCellStyle(GrayAllBorderStyle);
+
+				for (int i = 0; i < 6; i++) { // blank cell 6개
+					cell = row.createCell(cellindex++);
+					cell.setBlank();
+					cell.setCellStyle(ThinBorderCenterStyle);
+				}
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getSalarySum());
+				cell.setCellStyle(AllBorderStyle);
+				cell.setCellType(CellType.NUMERIC);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getCareInsuranceSettlement());
+				cell.setCellStyle(ThinBorderStyle);
+
+				cell = row.createCell(cellindex++);
+				cell.setCellValue(m.getHolidayTax());
+				cell.setCellStyle(ThinBorderStyle);
+
+				for (int i = 0; i < 3; i++) { // blank cell 3개
+					cell = row.createCell(cellindex++);
+					cell.setBlank();
+					cell.setCellStyle(ThinBorderStyle);
+				}
+
+				cell = row.createCell(cellindex++);
+				cell.setCellStyle(AllBorderStyle);
+				cell.setCellFormula(new CellAddress(rowindex - 1, 8) + "-" + new CellAddress(rowindex - 2, 14));
+
+				cell = row.createCell(cellindex++);
+				cell.setBlank();
+				cell.setCellStyle(NoneBorderStyle1);
+				
+				sheet.addMergedRegion(new CellRangeAddress(rowindex-3, rowindex-1, 0, 1));
+
+			}
+
+			// 리스트 하단 합계
+			row = sheet.createRow(rowindex++);
+			row.setHeightInPoints((float)12.8);
+			for (cellindex = 0; cellindex < 2; cellindex++) {
+				cell = row.createCell(cellindex);
+				cell.setCellStyle(SumBorderStyle);
+				cell.setCellValue("합계 (" + cntSum + "명)");
+			}
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getBasicSalary());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
+			cell.setCellFormula(determineSumFormula("C", 9, 9 + reportPayrollDtoList.size() * 3, 3));
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getAnnualAllowance());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
+			cell.setCellFormula(determineSumFormula("D", 9, 9 + reportPayrollDtoList.size() * 3, 3));
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getOvertimeAllowance01());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
+			cell.setCellFormula(determineSumFormula("E", 9, 9 + reportPayrollDtoList.size() * 3, 3));
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getOvertimeAllowance02());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
+			cell.setCellFormula(determineSumFormula("F", 9, 9 + reportPayrollDtoList.size() * 3, 3));
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getNightAllowance01());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
+			cell.setCellFormula(determineSumFormula("G", 9, 9 + reportPayrollDtoList.size() * 3, 3));
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getNightAllowance02());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
+			cell.setCellFormula(determineSumFormula("H", 9, 9 + reportPayrollDtoList.size() * 3, 3));
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getHolidayAllowance01());
 			cell.setCellStyle(TopRightBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("I", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getNationalPension());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("J", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getHealthInsurance());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("K", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getEmploymentInsurance());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("L", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getCareInsurance());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("M", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getIncomtax());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("N", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getResidtax());
 			cell.setCellStyle(TopBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("O", 9, 9 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
 			cell.setBlank();
 			cell.setCellStyle(NoneBorderStyle2);
 
-			// 2열
-			cellindex = 0;
 			row = sheet.createRow(rowindex++);
 			row.setHeightInPoints((float)12.8);
-
-			row.createCell(cellindex++).setCellStyle(GrayAllBorderStyle);
-			row.createCell(cellindex++).setCellStyle(GrayAllBorderStyle);
+			for (cellindex = 0; cellindex < 2; cellindex++) {
+				cell = row.createCell(cellindex);
+				cell.setCellStyle(SumBorderStyle);
+			}
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getHolidayAllowance02());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
+			cell.setCellFormula(determineSumFormula("C", 10, 10 + reportPayrollDtoList.size() * 3, 3));
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getPositionAllowance());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
+			cell.setCellFormula(determineSumFormula("D", 10, 10 + reportPayrollDtoList.size() * 3, 3));
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getOtherAllowances());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
+			cell.setCellFormula(determineSumFormula("E", 10, 10 + reportPayrollDtoList.size() * 3, 3));
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getSubsidies());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
+			cell.setCellFormula(determineSumFormula("F", 10, 10 + reportPayrollDtoList.size() * 3, 3));
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getTransportationExpenses());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
+			cell.setCellFormula(determineSumFormula("G", 10, 10 + reportPayrollDtoList.size() * 3, 3));
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getMealsExpenses());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
+			cell.setCellFormula(determineSumFormula("H", 10, 10 + reportPayrollDtoList.size() * 3, 3));
 
 			cell = row.createCell(cellindex++);
-			cell.setBlank();
 			cell.setCellStyle(RightBorderStyle);
-
+			cell.setBlank();
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getAdvance());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("J", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getOtherTax());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("K", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getGyeongjobi());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("L", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getYearendIncomtax());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("M", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getHealthInsuranceSettlement());
 			cell.setCellStyle(ThinBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("N", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getTaxSum());
 			cell.setCellStyle(AllBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("O", 10, 10 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
 			cell.setBlank();
 			cell.setCellStyle(NoneBorderStyle2);
 
-			// 3열
-			cellindex = 0;
 			row = sheet.createRow(rowindex++);
 			row.setHeightInPoints((float)12.8);
-
-			row.createCell(cellindex++).setCellStyle(GrayAllBorderStyle);
-			row.createCell(cellindex++).setCellStyle(GrayAllBorderStyle);
+			for (cellindex = 0; cellindex < 2; cellindex++) {
+				cell = row.createCell(cellindex);
+				cell.setCellStyle(SumBorderStyle);
+			}
 
 			for (int i = 0; i < 6; i++) { // blank cell 6개
 				cell = row.createCell(cellindex++);
 				cell.setBlank();
-				cell.setCellStyle(ThinBorderCenterStyle);
+				cell.setCellStyle(BottomBorderStyle);
 			}
 
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getSalarySum());
 			cell.setCellStyle(AllBorderStyle);
-			cell.setCellType(CellType.NUMERIC);
-
+			cell.setCellFormula(determineSumFormula("I", 11, 11 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getCareInsuranceSettlement());
-			cell.setCellStyle(ThinBorderStyle);
-
+			cell.setCellStyle(BottomBorderStyle);
+			cell.setCellFormula(determineSumFormula("J", 11, 11 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
-			cell.setCellValue(m.getHolidayTax());
-			cell.setCellStyle(ThinBorderStyle);
-
+			cell.setCellStyle(BottomBorderStyle);
+			cell.setCellFormula(determineSumFormula("K", 11, 11 + reportPayrollDtoList.size() * 3, 3));
+			
 			for (int i = 0; i < 3; i++) { // blank cell 3개
 				cell = row.createCell(cellindex++);
 				cell.setBlank();
-				cell.setCellStyle(ThinBorderStyle);
+				cell.setCellStyle(BottomBorderStyle);
 			}
-
+			
 			cell = row.createCell(cellindex++);
 			cell.setCellStyle(AllBorderStyle);
-			cell.setCellFormula(new CellAddress(rowindex - 1, 8) + "-" + new CellAddress(rowindex - 2, 14));
-
+			cell.setCellFormula(determineSumFormula("O", 11, 11 + reportPayrollDtoList.size() * 3, 3));
+			
 			cell = row.createCell(cellindex++);
 			cell.setBlank();
 			cell.setCellStyle(NoneBorderStyle1);
+
+			formulaEvaluator.evaluateAll(); // 수식 전체 실행
+
+			sheet.addMergedRegion(new CellRangeAddress((8 + reportPayrollDtoList.size() * 3),
+					(9 + reportPayrollDtoList.size() * 3) + 1, 0, 1));
+
+//	        workbook.setPrintArea(0, "$A$1:$P$35");
 			
-			sheet.addMergedRegion(new CellRangeAddress(rowindex-3, rowindex-1, 0, 1));
-
-		}
-
-		// 리스트 하단 합계
-		row = sheet.createRow(rowindex++);
-		row.setHeightInPoints((float)12.8);
-		for (cellindex = 0; cellindex < 2; cellindex++) {
-			cell = row.createCell(cellindex);
-			cell.setCellStyle(SumBorderStyle);
-			cell.setCellValue("합계 (" + cntSum + "명)");
-		}
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("C", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("D", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("E", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("F", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("G", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("H", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopRightBorderStyle);
-		cell.setCellFormula(determineSumFormula("I", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("J", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("K", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("L", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("M", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("N", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(TopBorderStyle);
-		cell.setCellFormula(determineSumFormula("O", 9, 9 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setBlank();
-		cell.setCellStyle(NoneBorderStyle2);
-
-		row = sheet.createRow(rowindex++);
-		row.setHeightInPoints((float)12.8);
-		for (cellindex = 0; cellindex < 2; cellindex++) {
-			cell = row.createCell(cellindex);
-			cell.setCellStyle(SumBorderStyle);
-		}
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("C", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("D", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("E", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("F", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("G", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("H", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(RightBorderStyle);
-		cell.setBlank();
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("J", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("K", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("L", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("M", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(ThinBorderStyle);
-		cell.setCellFormula(determineSumFormula("N", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(AllBorderStyle);
-		cell.setCellFormula(determineSumFormula("O", 10, 10 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setBlank();
-		cell.setCellStyle(NoneBorderStyle2);
-
-		row = sheet.createRow(rowindex++);
-		row.setHeightInPoints((float)12.8);
-		for (cellindex = 0; cellindex < 2; cellindex++) {
-			cell = row.createCell(cellindex);
-			cell.setCellStyle(SumBorderStyle);
-		}
-
-		for (int i = 0; i < 6; i++) { // blank cell 6개
-			cell = row.createCell(cellindex++);
-			cell.setBlank();
-			cell.setCellStyle(BottomBorderStyle);
-		}
-
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(AllBorderStyle);
-		cell.setCellFormula(determineSumFormula("I", 11, 11 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(BottomBorderStyle);
-		cell.setCellFormula(determineSumFormula("J", 11, 11 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(BottomBorderStyle);
-		cell.setCellFormula(determineSumFormula("K", 11, 11 + reportPayrollDtoList.size() * 3, 3));
-		
-		for (int i = 0; i < 3; i++) { // blank cell 3개
-			cell = row.createCell(cellindex++);
-			cell.setBlank();
-			cell.setCellStyle(BottomBorderStyle);
-		}
-		
-		cell = row.createCell(cellindex++);
-		cell.setCellStyle(AllBorderStyle);
-		cell.setCellFormula(determineSumFormula("O", 11, 11 + reportPayrollDtoList.size() * 3, 3));
-		
-		cell = row.createCell(cellindex++);
-		cell.setBlank();
-		cell.setCellStyle(NoneBorderStyle1);
-
-		formulaEvaluator.evaluateAll(); // 수식 전체 실행
-
-		sheet.addMergedRegion(new CellRangeAddress((8 + reportPayrollDtoList.size() * 3),
-				(9 + reportPayrollDtoList.size() * 3) + 1, 0, 1));
-
-//        workbook.setPrintArea(0, "$A$1:$P$35");
-		
-		for(int i=5; i<rowindex; i++) {
-			row = sheet.getRow(i);
-			for(int k=0; k<15; k++) {
-				cell = row.getCell(k);
-				if(cell != null) {
-					if(cell.getCellType() == CellType.NUMERIC) {
-						if(cell.getNumericCellValue() == 0) {
-							cell.setBlank();
+			for(int i=5; i<rowindex; i++) {
+				row = sheet.getRow(i);
+				for(int k=0; k<15; k++) {
+					cell = row.getCell(k);
+					if(cell != null) {
+						if(cell.getCellType() == CellType.NUMERIC) {
+							if(cell.getNumericCellValue() == 0) {
+								cell.setBlank();
+							}
 						}
 					}
 				}
 			}
 		}
-
 		return workbook;
 	}
 
