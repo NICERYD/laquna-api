@@ -589,35 +589,33 @@ public class SalaryService {
                     }
                     // 연차수당 - 반차
                     else if (adtDataDto.getWorkStatus().contains("오전반차")) {
-                        rtHalfLeaverUsed++;
                         if (!workStartDateTime.isBefore(workEndDateTime.with(LocalTime.of(12, 00)))) {
-                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + 4.0;
+                            rtHalfLeaverUsed = rtHalfLeaverUsed + 4.0;
                         } else {
                             Duration duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime);
                             double minutes = duration.toMinutes() % 60;
-                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                            rtHalfLeaverUsed = rtHalfLeaverUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                         }
                         String dayOfMonth = adtDataDto.getWorkDate().substring(8);
-                        if (rtAnnualLeaveUsedDay.isEmpty()) {
-                            rtAnnualLeaveUsedDay = adtDataDto.getWorkDate();
+                        if (rtHalfLeaveUseDay.isEmpty()) {
+                            rtHalfLeaveUseDay = adtDataDto.getWorkDate();
                         } else {
-                            rtAnnualLeaveUsedDay = rtAnnualLeaveUsedDay + ", " + dayOfMonth;
+                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + ", " + dayOfMonth;
                         }
 
                     } else if (adtDataDto.getWorkStatus().contains("오후반차")) {
-                        rtHalfLeaverUsed++;
                         if (!workEndDateTime.isAfter(workEndDateTime.with(LocalTime.of(13, 00)))) {
-                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + 4.0;
+                            rtHalfLeaverUsed = rtHalfLeaverUsed + 4.0;
                         } else {
                             Duration duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(17, 30)));
                             double minutes = duration.toMinutes() % 60;
-                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                            rtHalfLeaverUsed = rtHalfLeaverUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                         }
                         String dayOfMonth = adtDataDto.getWorkDate().substring(8);
-                        if (rtAnnualLeaveUsedDay.isEmpty()) {
-                            rtAnnualLeaveUsedDay = adtDataDto.getWorkDate();
+                        if (rtHalfLeaveUseDay.isEmpty()) {
+                            rtHalfLeaveUseDay = adtDataDto.getWorkDate();
                         } else {
-                            rtAnnualLeaveUsedDay = rtAnnualLeaveUsedDay + ", " + dayOfMonth;
+                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + ", " + dayOfMonth;
                         }
                     }
                     // 연장수당1
@@ -788,7 +786,7 @@ public class SalaryService {
                 }
                 // 연차수당 - 반차
                 if (rtHalfLeaverUsed != 0) {
-                    halfAllowance = halfAllowance.subtract(hourlyPay.multiply(BigDecimal.valueOf(rtHalfLeaverUsed*0.5))).setScale(0, RoundingMode.CEILING);
+                    halfAllowance = halfAllowance.subtract(hourlyPay.multiply(BigDecimal.valueOf(rtHalfLeaverUsed))).setScale(0, RoundingMode.CEILING);
                 }
                 // 연차수당 - 해당월입사
                 if (basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
@@ -821,9 +819,6 @@ public class SalaryService {
                 if (outingTime != 0) {
                     otherAmount = otherAmount.add(hourlyPay.multiply(BigDecimal.valueOf(outingTime * -1))).setScale(0, RoundingMode.CEILING);
                 }
-
-                // 반차 갯수 처리
-                rtHalfLeaverUsed = rtHalfLeaverUsed * 0.5;
             }
 
             monthlyKeunTaeDto.setAnnualLeaveUsed(rtAnnualLeaveUsed);

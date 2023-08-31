@@ -540,7 +540,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             'D06166'
+--             'D23008'
 --             )
 --           AND fbe.est_id = 2
         UNION ALL
