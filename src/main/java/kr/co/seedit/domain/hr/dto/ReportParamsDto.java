@@ -18,4 +18,5 @@ public class ReportParamsDto {
     private Integer employeeType;
     
     private String reportType;
+    private String sort;
 }
