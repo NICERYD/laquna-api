@@ -19,8 +19,11 @@ public class MonthlyKeunTaeDto {
     private String halfLeaveUsedDay;
     private Double overtimeDaytime;
     private Double overtimeNighttime;
+
     private Double nightDaytime;
     private Double nightNighttime;
+
+
     private Double holidaySaturday;
     private Double holidaySunday;
     private Double holiday02;
