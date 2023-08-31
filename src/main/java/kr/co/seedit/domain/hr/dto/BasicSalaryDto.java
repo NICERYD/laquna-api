@@ -32,7 +32,8 @@ public class BasicSalaryDto {
     private String holidayAllowance01;
     private String holidayAllowance02;
     private String positionAllowance;
-    private String otherAllowances;
+    private String otherAllowance01;
+    private String otherAllowance02;
     private String subsidies;
     private String transportationExpenses;
     private String mealsExpenses;

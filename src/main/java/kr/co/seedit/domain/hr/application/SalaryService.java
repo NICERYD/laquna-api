@@ -861,7 +861,7 @@ public class SalaryService {
             if (!holidayAllowance02.equals(BigDecimal.ZERO))
                 basicSalaryDto.setHolidayAllowance02(holidayAllowance02.toString());
             if (!otherAmount.equals(BigDecimal.ZERO))
-                basicSalaryDto.setOtherAllowances(otherAmount.toString());
+                basicSalaryDto.setOtherAllowance01(otherAmount.toString());
             if (!transportationAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setTransportationExpenses(transportationAmount.toString());
             if (!mealsAmount.equals(BigDecimal.ZERO))
