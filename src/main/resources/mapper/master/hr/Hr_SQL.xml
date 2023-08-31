@@ -681,7 +681,8 @@
             , #{item.halfAllowance}
             , #{item.overtimeAllowance01}
             , #{item.overtimeAllowance02}
-            , #{item.nightAllowance01}
+            , #{item.nightAllowance01Day}
+            , #{item.nightAllowance01Night}
             , #{item.nightAllowance02}
             , #{item.holidayAllowance01}
             , #{item.holidayAllowance02}

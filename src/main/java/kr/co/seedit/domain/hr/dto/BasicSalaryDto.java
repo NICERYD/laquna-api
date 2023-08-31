@@ -27,8 +27,12 @@ public class BasicSalaryDto {
     private String halfAllowance;
     private String overtimeAllowance01;
     private String overtimeAllowance02;
-    private String nightAllowance01;
+
+    private String nightAllowance01Day;
+    private String nightAllowance01Night;
     private String nightAllowance02;
+
+
     private String holidayAllowance01;
     private String holidayAllowance02;
     private String positionAllowance;
