@@ -715,14 +715,8 @@ public class SalaryService {
                         Duration duration = null;
                         if (adtDataDto.getWorkStatus().equals("야간")) {
                         } else {
-//                                          12:30	13:30
-//                            12:40 13:10
-//                            9:00	11:00
-//                            14:00	15:00
-//                            12:40	14:00
-//                            10:00	12:50
-//                            9:00	15:00
-//                            앞뒤 30분 외출무급인증. 단 1번만
+                            // 점심시간 제외 12:30~13:30
+                            // 점심시간 앞뒤 30분 제외.
                             if (!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(12, 30)) && !OutStartDateTime.toLocalTime().isAfter(LocalTime.of(13, 30))
                                     && !OutEndDateTime.toLocalTime().isBefore(LocalTime.of(12, 30)) && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(13, 30))) {
                                 System.out.println("제외");
