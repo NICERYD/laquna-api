@@ -24,6 +24,7 @@ public class BasicSalaryDto {
     private String basicSalary;
     private String hourlyPay;
     private String annualAllowance;
+    private String halfAllowance;
     private String overtimeAllowance01;
     private String overtimeAllowance02;
     private String nightAllowance01;

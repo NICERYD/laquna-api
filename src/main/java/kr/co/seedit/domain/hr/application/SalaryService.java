@@ -275,6 +275,7 @@ public class SalaryService {
         BigDecimal basicAmount;          // 기본금
         BigDecimal hourlyPay;            // 시급(시간제)
         BigDecimal annualAllowance;      // 연차수당
+        BigDecimal halfAllowance;        // 반차수당
         BigDecimal overtimeAllowance01;     // 연장1 수당
         BigDecimal overtimeAllowance02;     // 연장2 수당
         BigDecimal nightAllowance01;        // 야간1 수당
@@ -286,8 +287,11 @@ public class SalaryService {
         BigDecimal otherAmount;          // 기타
         // 리포트 급여항목 항목 변수 선언
         List<MonthlyKeunTaeDto> monthlyKeunTaeDtos = new ArrayList<>();
-        Double rtAnnualLeaveUsed;       // 연차, 반차 사용
-        String rtAnnualLeaveUsedDay;     // 연차, 반차 사용 일자
+        Double rtAnnualLeaveUsed;       // 연차사용
+        String rtAnnualLeaveUsedDay;     // 연차사용 일자
+        Double rtHalfLeaverUsed;               // 반차시간
+        String rtHalfLeaveUseDay;                // 반차일자
+
         Double rtOverTime01;            // 연장1 일수
         Double rtOverDayTimeHours;        // 연장1 주간시간
         Double rtOverNightTimeHours;      // 연장1 야간시간
@@ -300,8 +304,6 @@ public class SalaryService {
         Double rtTransportation;        // 교통비
         Double rtMeal;                  // 식대
         Integer rtOther;                  // 기타비용
-        String rtHalfDay;                // 반차일자
-        Double rtHalfTime;               // 반차시간
         String rtEarlyLeaveDay;          // 조퇴일자
         Double rtEarlyLeaveTime;         // 조퇴시간
         String rtLateDay;                // 지각일자
@@ -344,6 +346,7 @@ public class SalaryService {
             basicAmount = BigDecimal.ZERO;          // 기본금
             hourlyPay = BigDecimal.ZERO;            // 시급(시간제)
             annualAllowance = BigDecimal.ZERO;      // 연차수당
+            halfAllowance = BigDecimal.ZERO;      // 반차수당
             overtimeAllowance01 = BigDecimal.ZERO;     // 연장1 수당
             overtimeAllowance02 = BigDecimal.ZERO;     // 연장2 수당
             nightAllowance01 = BigDecimal.ZERO;        // 야간1 수당
@@ -360,6 +363,9 @@ public class SalaryService {
             MonthlyKeunTaeDto monthlyKeunTaeDto = new MonthlyKeunTaeDto();
             rtAnnualLeaveUsed = 0.0;       // 연차 사용
             rtAnnualLeaveUsedDay = "";     // 연차 사용 일자
+            rtHalfLeaverUsed = 0.0;        // 반차시간
+            rtHalfLeaveUseDay = "";        // 반차일자
+
             rtOverTime01 = 0.0;            // 연장1 일수
             rtOverDayTimeHours = 0.0;        // 연장1 주간시간
             rtOverNightTimeHours = 0.0;      // 연장1 야간시간
@@ -372,8 +378,6 @@ public class SalaryService {
             rtTransportation = 0.0;        // 교통비
             rtMeal = 0.0;                  // 식대
             rtOther = 0;                   // 기타비용
-            rtHalfDay = "";                // 반차일자
-            rtHalfTime = 0.0;                // 반차시간
             rtEarlyLeaveDay = "";           // 조퇴일자
             rtEarlyLeaveTime = 0.0;          // 조퇴시간
             rtLateDay = "";                 // 지각일자
@@ -490,6 +494,18 @@ public class SalaryService {
                     if (adtDataDto.getWorkStatus().equals("무급")) {
                         nonPaycnt++;
                     }
+
+                    // 연차/반차 count
+                    // 연차수당 - 연차
+                    if (adtDataDto.getWorkStatus().equals("연차")) {
+                        rtAnnualLeaveUsed++;
+                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+                        if (rtAnnualLeaveUsedDay.isEmpty()) {
+                            rtAnnualLeaveUsedDay = adtDataDto.getWorkDate();
+                        } else {
+                            rtAnnualLeaveUsedDay = rtAnnualLeaveUsedDay + ", " + dayOfMonth;
+                        }
+                    }
                 }
                 // 무급처리
                 // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
@@ -514,9 +530,9 @@ public class SalaryService {
                 // 평일 실근무일수
                 Integer workcnt = 0;
                 // 연차/반차 사용 count, 시간 변수
-                Integer annualLeave = 0;
-                Integer halfDayLeave = 0;
-                double halfDayLeaveTime = 0;
+//                Integer annualLeave = 0;
+//                Integer halfDayLeave = 0;
+//                double halfDayLeaveTime = 0;
                 // 기타수당. 지각, 조퇴, 외출
                 double lateTime = 0;
                 double earlyLeaveTime = 0;
@@ -563,7 +579,7 @@ public class SalaryService {
                     // 연차/반차 count
                     // 연차수당 - 연차
                     if (adtDataDto.getWorkStatus().equals("연차")) {
-                        annualLeave++;
+                        rtAnnualLeaveUsed++;
                         String dayOfMonth = adtDataDto.getWorkDate().substring(8);
                         if (rtAnnualLeaveUsedDay.isEmpty()) {
                             rtAnnualLeaveUsedDay = adtDataDto.getWorkDate();
@@ -573,14 +589,14 @@ public class SalaryService {
                     }
                     // 연차수당 - 반차
                     else if (adtDataDto.getWorkStatus().contains("오전반차")) {
+                        rtHalfLeaverUsed++;
                         if (!workStartDateTime.isBefore(workEndDateTime.with(LocalTime.of(12, 00)))) {
-                            halfDayLeaveTime = halfDayLeaveTime + 4.0;
+                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + 4.0;
                         } else {
                             Duration duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime);
                             double minutes = duration.toMinutes() % 60;
-                            halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                         }
-                        halfDayLeave++;
                         String dayOfMonth = adtDataDto.getWorkDate().substring(8);
                         if (rtAnnualLeaveUsedDay.isEmpty()) {
                             rtAnnualLeaveUsedDay = adtDataDto.getWorkDate();
@@ -589,14 +605,14 @@ public class SalaryService {
                         }
 
                     } else if (adtDataDto.getWorkStatus().contains("오후반차")) {
+                        rtHalfLeaverUsed++;
                         if (!workEndDateTime.isAfter(workEndDateTime.with(LocalTime.of(13, 00)))) {
-                            halfDayLeaveTime = halfDayLeaveTime + 4.0;
+                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + 4.0;
                         } else {
                             Duration duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(17, 30)));
                             double minutes = duration.toMinutes() % 60;
-                            halfDayLeaveTime = halfDayLeaveTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                         }
-                        halfDayLeave++;
                         String dayOfMonth = adtDataDto.getWorkDate().substring(8);
                         if (rtAnnualLeaveUsedDay.isEmpty()) {
                             rtAnnualLeaveUsedDay = adtDataDto.getWorkDate();
@@ -767,16 +783,17 @@ public class SalaryService {
                 // 연차수당
                 annualAllowance = annualAllowance.add(hourlyPay.multiply(BigDecimal.valueOf(8))).setScale(0, RoundingMode.CEILING);
                 // 연차수당 - 연차
-                if (annualLeave != 0) {
-                    annualAllowance = annualAllowance.subtract(hourlyPay.multiply(BigDecimal.valueOf(annualLeave * 8))).setScale(0, RoundingMode.CEILING);
+                if (rtAnnualLeaveUsed != 0) {
+                    annualAllowance = annualAllowance.subtract(hourlyPay.multiply(BigDecimal.valueOf(rtAnnualLeaveUsed * 8))).setScale(0, RoundingMode.CEILING);
                 }
                 // 연차수당 - 반차
-                if (halfDayLeave != 0) {
-                    annualAllowance = annualAllowance.subtract(hourlyPay.multiply(BigDecimal.valueOf(halfDayLeaveTime))).setScale(0, RoundingMode.CEILING);
+                if (rtHalfLeaverUsed != 0) {
+                    halfAllowance = halfAllowance.subtract(hourlyPay.multiply(BigDecimal.valueOf(rtHalfLeaverUsed*0.5))).setScale(0, RoundingMode.CEILING);
                 }
                 // 연차수당 - 해당월입사
                 if (basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
                     annualAllowance = BigDecimal.ZERO;
+                    halfAllowance = BigDecimal.ZERO;
                 }
                 // 야간조 야간수당, 교통비, 식대
                 if (nightCnt != 0) {
@@ -805,13 +822,15 @@ public class SalaryService {
                     otherAmount = otherAmount.add(hourlyPay.multiply(BigDecimal.valueOf(outingTime * -1))).setScale(0, RoundingMode.CEILING);
                 }
 
-                // 리포트용
-                // 연차사용횟수, 사용일
-                rtAnnualLeaveUsed = annualLeave + (halfDayLeave * 0.5);
+                // 반차 갯수 처리
+                rtHalfLeaverUsed = rtHalfLeaverUsed * 0.5;
             }
 
             monthlyKeunTaeDto.setAnnualLeaveUsed(rtAnnualLeaveUsed);
             monthlyKeunTaeDto.setAnnualLeaveUsedDay(rtAnnualLeaveUsedDay);
+            monthlyKeunTaeDto.setHalfLeaveUsed(rtHalfLeaverUsed);
+            monthlyKeunTaeDto.setHalfLeaveUsedDay(rtHalfLeaveUseDay);
+
             monthlyKeunTaeDto.setOvertimeDaytime(rtOverTime01);
             monthlyKeunTaeDto.setNightDaytime(rtNightShift01);
             monthlyKeunTaeDto.setNightNighttime(rtNightShift02);
@@ -827,6 +846,8 @@ public class SalaryService {
                 basicSalaryDto.setHourlyPay(hourlyPay.toString());
             if (!annualAllowance.equals(BigDecimal.ZERO))
                 basicSalaryDto.setAnnualAllowance(annualAllowance.toString());
+            if (!halfAllowance.equals(BigDecimal.ZERO))
+                basicSalaryDto.setHalfAllowance(halfAllowance.toString());
             if (!overtimeAllowance01.equals(BigDecimal.ZERO))
                 basicSalaryDto.setOvertimeAllowance01(overtimeAllowance01.toString());
             if (!nightAllowance01.equals(BigDecimal.ZERO))

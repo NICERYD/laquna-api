@@ -635,6 +635,7 @@
         , yyyymm
         , basic_salary
         , attribute01
+        , attribute15
         , attribute02
         , attribute03
         , attribute04
@@ -647,7 +648,7 @@
         , attribute11
         , attribute12
         , attribute13
-        , attribute14
+        , attribute20
         , created_by
         , creation_date
         , last_updated_by
@@ -662,6 +663,7 @@
             , #{item.yyyymm}
             , #{item.basicSalary}
             , #{item.annualAllowance}
+            , #{item.halfAllowance}
             , #{item.overtimeAllowance01}
             , #{item.overtimeAllowance02}
             , #{item.nightAllowance01}
@@ -873,8 +875,8 @@
         , transportation
         , meal
         , other
-        , half_leave_used_day
         , half_leave_used
+        , half_leave_used_day
         , early_leave_day
         , early_leave_time
         , late_day
@@ -902,8 +904,8 @@
             , #{item.transportation}
             , #{item.meal}
             , #{item.other}
-            , #{item.halfDay}
-            , #{item.halfTime}
+            , #{item.halfLeaveUsed}
+            , #{item.halfLeaveUsedDay}
             , #{item.earlyLeaveDay}
             , #{item.earlyLeaveTime}
             , #{item.lateDay}

@@ -15,6 +15,8 @@ public class MonthlyKeunTaeDto {
     private String yyyymm;
     private Double annualLeaveUsed;
     private String annualLeaveUsedDay;
+    private Double halfLeaveUsed;
+    private String halfLeaveUsedDay;
     private Double overtimeDaytime;
     private Double overtimeNighttime;
     private Double nightDaytime;
@@ -25,8 +27,6 @@ public class MonthlyKeunTaeDto {
     private Double transportation;
     private Double meal;
     private Double other;
-    private String halfDay;
-    private Double halfTime;
     private String earlyLeaveDay;
     private Double earlyLeaveTime;
     private String lateDay;
