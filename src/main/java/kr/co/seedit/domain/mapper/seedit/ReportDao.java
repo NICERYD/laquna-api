@@ -25,6 +25,8 @@ public interface ReportDao {
 	
 	List<ReportPayrollDto> findPayrollData(ReportParamsDto reportParamsDto);
 	
+	List<ReportPayrollDto> findEstPayrollData(ReportParamsDto reportParamsDto);
+	
 	List<EmployeeInformationDto> findPersonalPayroll(ReportParamsDto reportParamsDto);
 	
 	List<PersonalPayrollParamsDto> findEmployees(ReportParamsDto reportParamsDto);

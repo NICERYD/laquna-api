@@ -124,6 +124,79 @@
         ORDER BY he.department_id, he.position_code
 	</select>
 	
+	<select id="findEstPayrollData" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.ReportPayrollDto">
+		/*ReportDao.findEstPayrollData*/
+		SELECT fbe.est_name
+		, count(*) AS cnt
+		, sum(IFNULL(hdcs.basic_salary,0)) AS basic_salary
+		, sum(IFNULL(hdcs.attribute01,0)) AS annual_allowance
+		, sum(IFNULL(hdcs.attribute02,0)) AS overtime_allowance01
+		, sum(IFNULL(hdcs.attribute03,0)) AS overtime_allowance02
+		, sum(IFNULL(hdcs.attribute04,0)) AS night_allowance01
+		, sum(IFNULL(hdcs.attribute05,0)) AS night_allowance02
+		, sum(IFNULL(hdcs.attribute06,0)) AS holiday_allowance01
+		, sum(IFNULL(hdcs.attribute07,0)) AS holiday_allowance02
+		, sum(IFNULL(hdcs.attribute08,0)) AS position_allowance
+		, sum(IFNULL(hdcs.attribute09,0)) AS other_allowances
+		, sum(IFNULL(hdcs.attribute10,0)) AS subsidies
+		, sum(IFNULL(hdcs.attribute11,0)) AS transportation_expenses
+		, sum(IFNULL(hdcs.attribute12,0)) AS meals_expenses
+		, sum(IFNULL(hb.bonus_amount,0)) AS bonus_amount
+		, sum(IFNULL(hdcs.basic_salary,0)) + sum(IFNULL(hdcs.attribute01,0)) + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0))
+			+ sum(IFNULL(hdcs.attribute04,0)) + sum(IFNULL(hdcs.attribute05,0)) + sum(IFNULL(hdcs.attribute06,0)) + sum(IFNULL(hdcs.attribute07,0))
+			+ sum(IFNULL(hdcs.attribute08,0)) + sum(IFNULL(hdcs.attribute09,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0))
+			+ sum(IFNULL(hdcs.attribute12,0)) + sum(IFNULL(hb.bonus_amount,0)) AS salary_sum
+		, sum(IFNULL(hdt.AM_DEDUCT01,0)) AS national_pension
+		, sum(IFNULL(hdt.AM_DEDUCT02,0)) AS health_insurance
+		, sum(IFNULL(hdt.AM_DEDUCT03,0)) AS care_insurance
+		, sum(IFNULL(hdt.AM_DEDUCT04,0)) AS employment_insurance
+		, sum(IFNULL(hdt.AM_DEDUCT05,0)) AS advance
+		, sum(IFNULL(hdt.AM_DEDUCT06,0)) AS other_tax
+		, sum(IFNULL(hdt.AM_DEDUCT07,0)) AS gyeongjobi
+		, sum(IFNULL(hdt.AM_DEDUCT08,0)) AS yearend_incomtax
+		, sum(IFNULL(hdt.AM_DEDUCT09,0)) AS yearend_residtax
+		, sum(IFNULL(hdt.AM_DEDUCT10,0)) AS health_insurance_settlement
+		, sum(IFNULL(hdt.AM_DEDUCT11,0)) AS care_insurance_settlement
+		, sum(IFNULL(hdt.AM_DEDUCT12,0)) AS holiday_tax
+		, sum(IFNULL(hdt.AM_INCOMTAX,0)) AS incomtax
+		, sum(IFNULL(hdt.AM_RESIDTAX,0)) AS residtax
+		, sum(IFNULL(hdt.AM_DEDUCT01,0)) + sum(IFNULL(hdt.AM_DEDUCT02,0)) + sum(IFNULL(hdt.AM_DEDUCT03,0)) + sum(IFNULL(hdt.AM_DEDUCT04,0))
+			+ sum(IFNULL(hdt.AM_DEDUCT05,0)) + sum(IFNULL(hdt.AM_DEDUCT06,0)) + sum(IFNULL(hdt.AM_DEDUCT07,0)) + sum(IFNULL(hdt.AM_DEDUCT08,0))
+			+ sum(IFNULL(hdt.AM_DEDUCT09,0)) + sum(IFNULL(hdt.AM_DEDUCT10,0)) + sum(IFNULL(hdt.AM_DEDUCT11,0)) + sum(IFNULL(hdt.AM_DEDUCT12,0))
+			+ sum(IFNULL(hdt.AM_INCOMTAX,0)) + sum(IFNULL(hdt.AM_RESIDTAX,0)) AS tax_sum
+		, IFNULL(hdt.DT_PAY,'00000000') AS dt_pay
+		FROM hr_dh_calc_salary hdcs
+		INNER JOIN fnd_business_est fbe
+		ON hdcs.company_id = fbe.company_id
+		INNER JOIN hr_employee he
+		ON hdcs.company_id = he.company_id
+		AND hdcs.employee_id = he.employee_id
+		AND hdcs.yyyymm = he.attribute1
+		AND he.est_id = fbe.est_id
+		INNER JOIN hr_department hd
+		ON he.company_id = hd.company_id
+		AND he.department_id = hd.department_id
+		AND he.attribute1 = hd.attribute2
+		INNER JOIN fnd_code fc02
+		ON fc02.company_id = he.company_id
+		AND fc02.code_field = 'HR_A0003'
+		INNER JOIN fnd_code_detail fcd02
+		ON fcd02.company_id = he.company_id
+		AND fcd02.code_id = fc02.code_id
+		AND fcd02.defined_cd = he.position_code
+		LEFT JOIN hr_bonus hb
+		ON he.company_id = hb.company_id
+		AND he.employee_id = hb.employee_id
+		AND he.attribute1 = hb.yyyymm
+		LEFT JOIN hr_dh_tax hdt
+		ON he.company_id = hdt.company_id
+		AND he.employee_id = hdt.employee_id
+		AND he.attribute1 = hdt.yyyymm
+		WHERE he.company_id = #{companyId}
+		AND he.attribute1  = #{yyyymm}
+		GROUP BY fbe.est_name
+	</select>
+	
 	<select id="findEmployees" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.PersonalPayrollParamsDto">
 		/*ReportDao.findEmployees*/
 		SELECT DISTINCT(he.employee_id)
