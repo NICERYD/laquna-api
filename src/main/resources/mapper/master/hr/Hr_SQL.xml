@@ -108,7 +108,8 @@
         , hdcs.attribute06 AS holiday_allowance01
         , hdcs.attribute07 AS holiday_allowance02
         , hdcs.attribute08 AS position_allowance
-        , hdcs.attribute09 AS other_allowances
+        , hdcs.attribute09 AS otherAllowance01
+        , hdcs.attribute16 AS otherAllowance02
         , hdcs.attribute10 AS subsidies
         , hdcs.attribute11 AS transportation_expenses
         , hdcs.attribute12 AS meals_expenses
