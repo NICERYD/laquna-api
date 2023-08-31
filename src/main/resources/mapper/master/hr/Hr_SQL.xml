@@ -672,7 +672,7 @@
             , #{item.holidayAllowance01}
             , #{item.holidayAllowance02}
             , #{item.positionAllowance}
-            , #{item.otherAllowances}
+            , #{item.otherAllowance01}
             , #{item.subsidies}
             , #{item.transportationExpenses}
             , #{item.mealsExpenses}
