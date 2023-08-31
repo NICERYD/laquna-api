@@ -151,6 +151,20 @@
         AND   he.attribute1  = #{yyyymm}
         ORDER BY he.employee_type, he.employee_number
     </select>
+    
+    <update id="upadateOtherAllowance" parameterType="kr.co.seedit.domain.hr.dto.OtherAllowanceDto">
+	/*SalaryDao.upadateOtherAllowance*/
+		UPDATE hr_dh_calc_salary hdcs
+		INNER JOIN hr_employee he
+			ON hdcs.company_id  = he.company_id
+			AND hdcs.employee_id  = he.employee_id
+			AND hdcs.yyyymm  = he.attribute1
+		SET	hdcs.attribute16 = (IFNULL(hdcs.attribute16,0) + #{otherAllowance02})
+			,hdcs.last_updated_by = #{loginUserId}
+			,hdcs.last_update_date = now()
+		WHERE	he.employee_number = #{employeeNumber}
+		AND		hdcs.yyyymm = #{yyyymm}
+	</update>
 
     <delete id ="deleteADTData" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" >
         delete from hr_dh_adt_manage

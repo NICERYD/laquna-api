@@ -83,6 +83,64 @@ public class SalaryService {
 
         return salaryDao.getCalcSalaryList(basicSalaryDto);
     }
+    
+    @Transactional
+    public ResponseDto uploadOtherAllowance(MultipartFile file, String yyyymm, ErpIUDto.RequestDto erpIUDto ) throws CustomException, IOException, InvalidFormatException {
+    	ResponseDto responseDto = ResponseDto.builder().build();
+    	
+    	CompanyDto companyDto = new CompanyDto();
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userName = ((UserDetails) principal).getUsername();
+        companyDto.setEmailId(userName);
+        CompanyDto info = companyDao.selectTokenInfo(companyDto);
+        
+        List<OtherAllowanceDto> listOtherAllowance = new ArrayList<>();
+        try {
+        	OPCPackage opcPackage = OPCPackage.open(file.getInputStream());
+            XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+            XSSFSheet sheet = workbook.getSheetAt(0);
+            
+            int rows = sheet.getPhysicalNumberOfRows();
+            int rowindex = 0;
+            int cellindex = 0;
+            
+            for (rowindex = 1; rowindex < rows; rowindex++) {
+            	OtherAllowanceDto otherAllowanceDto = new OtherAllowanceDto();
+            	otherAllowanceDto.setCompanyId(info.getCompanyId());
+            	otherAllowanceDto.setLoginUserId(info.getUserId());
+            	otherAllowanceDto.setYyyymm(yyyymm);
+
+                XSSFRow row = sheet.getRow(rowindex);
+                int cells = row.getPhysicalNumberOfCells();
+
+                for (cellindex = 0; cellindex <= cells; cellindex++) {
+                    XSSFCell cell = row.getCell(cellindex);
+                    switch (cellindex) {
+                        case 0:
+                        	otherAllowanceDto.setEmployeeNumber(cell.getStringCellValue());
+                            break;
+                        case 2:
+                        	otherAllowanceDto.setOtherAllowance02(cell.getNumericCellValue());
+                            break;
+                    }
+                    if (cellindex == 2) break;
+                }
+                listOtherAllowance.add(otherAllowanceDto);
+            }
+            opcPackage.close();
+            workbook.close();
+            
+            for (OtherAllowanceDto item : listOtherAllowance) {
+                salaryDao.upadateOtherAllowance(item);
+            }
+        	
+        }catch(Exception e) {
+        	logger.error("Exception", e);
+            throw e;
+        }
+    	
+    	return responseDto;
+    }
 
     @Transactional
     public ResponseDto uploadADTExcel(MultipartFile adtExcel01, MultipartFile adtExcel02, String yyyymm, ErpIUDto.RequestDto erpIUDto, HttpServletRequest request) throws CustomException, IOException, InvalidFormatException {
