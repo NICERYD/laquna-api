@@ -701,8 +701,11 @@
         , attribute02
         , attribute03
         , attribute04
+        , attribute18
         , attribute05
         , attribute06
+        , attribute21
+        , attribute22
         , attribute07
         , attribute08
         , attribute09
@@ -732,6 +735,8 @@
             , #{item.nightAllowance01Night}
             , #{item.nightAllowance02}
             , #{item.holidayAllowance01}
+            , #{item.holidayAllowanceSat}
+            , #{item.holidayAllowanceSun}
             , #{item.holidayAllowance02}
             , #{item.positionAllowance}
             , #{item.otherAllowance01}
