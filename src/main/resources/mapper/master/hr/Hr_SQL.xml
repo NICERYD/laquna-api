@@ -120,12 +120,12 @@
 		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
 		  + IFNULL(hdcs.attribute12,0) + IFNULL(hb.bonus_amount,0)	AS salary_sum
         FROM   hr_dh_calc_salary hdcs
-        INNER JOIN fnd_business_est fbe
-        ON hdcs.company_id = fbe.company_id
         INNER JOIN hr_employee he
         ON hdcs.company_id  = he.company_id
         AND hdcs.employee_id  = he.employee_id
         AND hdcs.yyyymm  = he.attribute1
+        INNER JOIN fnd_business_est fbe
+        ON hdcs.company_id = fbe.company_id
         AND he.est_id = fbe.est_id
         INNER JOIN hr_department  hd
         ON he.company_id = hd.company_id
@@ -150,7 +150,55 @@
 			AND	  he.korean_name LIKE CONCAT('%', #{koreanName}, '%')
 		</if>
         AND   he.attribute1  = #{yyyymm}
-        ORDER BY he.employee_type, he.employee_number
+        union all
+        SELECT "" as employee_number
+        , 0000 as salary_id
+        , "" as korean_name
+        , "" as est_name
+        , "" as department_name
+        , "" as defined_name
+        , "" as employee_type
+        , sum(hdcs.basic_salary) as basic_salary
+        , sum(hdcs.attribute01) AS annual_allowance
+        , sum(hdcs.attribute02) AS overtime_allowance01
+        , sum(hdcs.attribute03) AS overtime_allowance02
+        , sum(hdcs.attribute04) AS night_allowance01
+        , sum(hdcs.attribute05) AS night_allowance02
+        , sum(hdcs.attribute06) AS holiday_allowance01
+        , sum(hdcs.attribute07) AS holiday_allowance02
+        , sum(hdcs.attribute08) AS position_allowance
+        , sum(hdcs.attribute09) AS otherAllowance01
+        , sum(hdcs.attribute16) AS otherAllowance02
+        , sum(hdcs.attribute10) AS subsidies
+        , sum(hdcs.attribute11) AS transportation_expenses
+        , sum(hdcs.attribute12) AS meals_expenses
+        , sum(IFNULL(hb.bonus_amount,0)) AS bonus_amount
+        , sum(IFNULL(hdcs.basic_salary,0)) + sum(IFNULL(hdcs.attribute01,0)) + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0))
+        + sum(IFNULL(hdcs.attribute04,0)) + sum(IFNULL(hdcs.attribute05,0)) + sum(IFNULL(hdcs.attribute06,0)) + sum(IFNULL(hdcs.attribute07,0))
+        + sum(IFNULL(hdcs.attribute08,0)) + sum(IFNULL(hdcs.attribute09,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0))
+        + sum(IFNULL(hdcs.attribute12,0)) + sum(IFNULL(hb.bonus_amount,0))	AS salary_sum
+        FROM   hr_dh_calc_salary hdcs
+        INNER JOIN hr_employee he
+        ON hdcs.company_id  = he.company_id
+        AND hdcs.employee_id  = he.employee_id
+        AND hdcs.yyyymm  = he.attribute1
+        INNER JOIN fnd_business_est fbe
+        ON hdcs.company_id = fbe.company_id
+        AND he.est_id = fbe.est_id
+        LEFT JOIN hr_bonus hb
+        ON he.company_id = hb.company_id
+        AND he.employee_id = hb.employee_id
+        AND he.attribute1 = hb.yyyymm
+        WHERE  he.company_id = #{companyId}
+        AND   he.attribute1  = #{yyyymm}
+        group by he.company_id, he.attribute1
+        <if test="estId != 999">
+            , fbe.est_id
+        </if>
+        <if test="koreanName != null and koreanName != ''">
+            , he.employee_number
+        </if>
+        ORDER BY employee_type, employee_number
     </select>
     
     <update id="updateSalaryList" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
