@@ -191,6 +191,12 @@
         AND he.attribute1 = hb.yyyymm
         WHERE  he.company_id = #{companyId}
         AND   he.attribute1  = #{yyyymm}
+        <if test="estId !=999">
+            AND   he.est_id = #{estId}
+        </if>
+        <if test="koreanName != null and koreanName != ''">
+            AND	  he.korean_name LIKE CONCAT('%', #{koreanName}, '%')
+        </if>
         group by he.company_id, he.attribute1
         <if test="estId != 999">
             , fbe.est_id
