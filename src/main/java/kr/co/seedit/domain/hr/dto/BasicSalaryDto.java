@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 public class BasicSalaryDto {
+	private Integer salaryId;
     private Integer companyId;
     private Integer employeeId;
     private Integer estId;

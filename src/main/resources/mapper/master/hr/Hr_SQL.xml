@@ -94,6 +94,7 @@
     <select id="getCalcSalaryList" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto" resultType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
         /*SalaryDao.getCalcSalaryList*/
         SELECT he.employee_number
+        , hdcs.salary_id
         , he.korean_name
         , fbe.est_name
         , hd.department_name
