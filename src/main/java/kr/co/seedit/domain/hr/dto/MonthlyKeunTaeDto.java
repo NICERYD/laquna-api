@@ -31,5 +31,7 @@ public class MonthlyKeunTaeDto {
     private Double earlyLeaveTime;
     private String lateDay;
     private Double lateTime;
+    private String outerDay;
+    private Double outerTime;
     private Integer loginUserId;
 }

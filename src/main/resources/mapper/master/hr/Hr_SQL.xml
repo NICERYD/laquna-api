@@ -765,10 +765,11 @@
         , attribute07
         , attribute08
         , attribute09
-        , attribute10
+        , attribute14
+        , attribute13
+        , attribute17
         , attribute11
         , attribute12
-        , attribute13
         , attribute20
         , created_by
         , creation_date
@@ -796,10 +797,11 @@
             , #{item.holidayAllowance02}
             , #{item.positionAllowance}
             , #{item.otherAllowance01}
-            , #{item.subsidies}
+            , #{item.lateAmount}
+            , #{item.earlyAmount}
+            , #{item.outerAmount}
             , #{item.transportationExpenses}
             , #{item.mealsExpenses}
-            , #{item.bonusAmount}
             , #{item.hourlyPay}
             , #{item.loginUserId}
             , now()
@@ -1005,6 +1007,8 @@
         , early_leave_time
         , late_day
         , late_time
+        , outer_day
+        , outer_time
         , created_by
         , creation_date
         , last_updated_by
@@ -1034,6 +1038,8 @@
             , #{item.earlyLeaveTime}
             , #{item.lateDay}
             , #{item.lateTime}
+            , #{item.outerDay}
+            , #{item.outerTime}
             , #{item.loginUserId}
             , now()
             , #{item.loginUserId}

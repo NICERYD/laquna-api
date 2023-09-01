@@ -368,6 +368,10 @@ public class SalaryService {
         BigDecimal transportationAmount; // 교통비
         BigDecimal mealsAmount;          // 식대
         BigDecimal otherAmount;          // 기타
+        BigDecimal lateAmount;           // 지각
+        BigDecimal earlyLeaverAmount;    // 조퇴
+        BigDecimal OuterAmount;    // 조퇴
+
         // 리포트 급여항목 항목 변수 선언
         List<MonthlyKeunTaeDto> monthlyKeunTaeDtos = new ArrayList<>();
         Double rtAnnualLeaveUsed;       // 연차사용
@@ -377,21 +381,26 @@ public class SalaryService {
         Double rtOverTimeUsed01;            // 연장1 일수
 //        Double rtOverDayTimeHours;        // 연장1 주간시간
 //        Double rtOverNightTimeHours;      // 연장1 야간시간
-        Double rtNightShiftUsed01;      // 야간1 시간
+//        Double rtNightShiftUsed01;      // 야간1 시간
         Double rtNSDayTimeUsed;        // 야간1 시간(주간조)
         Double rtNSNightTimeUsed;      // 야간1 시간(야간조)
-        Double rtNightShift02;          // 야간2 일수
+//        Double rtNightShift02;          // 야간2 일수
 
         Double rtHolidaySaturdayUsed;     // 휴일1 (토요일)
         Double rtHolidaySundayUsed;       // 휴일1 (일요일)
 
         Double rtTransportation;        // 교통비
         Double rtMeal;                  // 식대
+
         Integer rtOther;                  // 기타비용
+
         String rtEarlyLeaveDay;          // 조퇴일자
-        Double rtEarlyLeaveTime;         // 조퇴시간
+        Double rtEarlyLeaveUsed;         // 조퇴시간
         String rtLateDay;                // 지각일자
-        Double rtLateTime;               // 지각시간
+        Double rtLateUsed;               // 지각시간
+        String rtOuterDay;                // 외출일자
+        Double rtOuterUsed;               // 외출시간
+
         Double rtTotalTime;             //총근무시간
 
         // 기준코드값
@@ -447,6 +456,9 @@ public class SalaryService {
             transportationAmount = BigDecimal.ZERO; // 교통비
             mealsAmount = BigDecimal.ZERO;          // 식대
             otherAmount = BigDecimal.ZERO;          // 기타
+            lateAmount =  BigDecimal.ZERO;          // 지각
+            earlyLeaverAmount = BigDecimal.ZERO;    // 조퇴
+            OuterAmount  = BigDecimal.ZERO;    // 외출
             // 입사일, 퇴사일
             LocalDate hireDate = LocalDate.parse(basicSalaryDto.getHireDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             LocalDate retireDate = LocalDate.parse(basicSalaryDto.getRetireDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -460,10 +472,10 @@ public class SalaryService {
 //            rtOverDayTimeHours = 0.0;        // 연장1 주간시간
 //            rtOverNightTimeHours = 0.0;      // 연장1 야간시간
 
-            rtNightShiftUsed01 = 0.0;          // 야간1 일수
+//            rtNightShiftUsed01 = 0.0;          // 야간1 일수
             rtNSDayTimeUsed = 0.0;        // 주간조 야간시간
             rtNSNightTimeUsed = 0.0;      // 야간조 야간시간
-            rtNightShift02 = 0.0;          // 야간2 일수
+//            rtNightShift02 = 0.0;          // 야간2 일수
 
             rtHolidaySaturdayUsed = 0.0;     // 휴일1 (토요일)
             rtHolidaySundayUsed = 0.0;       // 휴일1 (일요일)
@@ -471,10 +483,14 @@ public class SalaryService {
             rtTransportation = 0.0;        // 교통비
             rtMeal = 0.0;                  // 식대
             rtOther = 0;                   // 기타비용
+
             rtEarlyLeaveDay = "";           // 조퇴일자
-            rtEarlyLeaveTime = 0.0;          // 조퇴시간
+            rtEarlyLeaveUsed = 0.0;         // 조퇴시간
             rtLateDay = "";                 // 지각일자
-            rtLateTime = 0.0;                // 지각시간
+            rtLateUsed = 0.0;               // 지각시간
+            rtOuterDay = "";                // 외출일자
+            rtOuterUsed = 0.0;              // 외출시간
+
             monthlyKeunTaeDto.setCompanyId(basicSalaryDto.getCompanyId());
             monthlyKeunTaeDto.setEmployeeId(basicSalaryDto.getEmployeeId());
             monthlyKeunTaeDto.setYyyymm(basicSalaryDto.getYyyymm());
@@ -642,9 +658,9 @@ public class SalaryService {
 //                Integer halfDayLeave = 0;
 //                double halfDayLeaveTime = 0;
                 // 기타수당. 지각, 조퇴, 외출
-                double lateTime = 0;
-                double earlyLeaveTime = 0;
-                double outingTime = 0;
+//                double lateTime = 0;
+//                double earlyLeaveTime = 0;
+//                double outingTime = 0;
 
                 String yyyymm = LocalDate.parse(requestDto.getYyyymm() + "01", DateTimeFormatter.ofPattern("yyyyMMdd")).minusMonths(1).format(DateTimeFormatter.ofPattern("yyyyMM"));
                 // 유급휴가 지난달 index값 있으면 해당값으로 초기화
@@ -816,7 +832,13 @@ public class SalaryService {
                             duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime);
                         }
                         double minutes = duration.toMinutes() % 60;
-                        lateTime = lateTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                        rtLateUsed = rtLateUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+                        if (rtLateDay.isEmpty()) {
+                            rtLateDay = adtDataDto.getWorkDate();
+                        } else {
+                            rtLateDay = rtLateDay + ", " + dayOfMonth;
+                        }
                     }
                     // 기타수당 - 조퇴
                     if (adtDataDto.getOutStatus().equals("조퇴")) {
@@ -827,7 +849,13 @@ public class SalaryService {
                             duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(17, 30)));
                         }
                         double minutes = duration.toMinutes() % 60;
-                        earlyLeaveTime = earlyLeaveTime + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                        rtEarlyLeaveUsed = rtEarlyLeaveUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+                        if (rtEarlyLeaveDay.isEmpty()) {
+                            rtEarlyLeaveDay = adtDataDto.getWorkDate();
+                        } else {
+                            rtEarlyLeaveDay = rtEarlyLeaveDay + ", " + dayOfMonth;
+                        }
                     }
                     // 기타수당 - 외출
                     if (adtDataDto.getOutTime() != null && !adtDataDto.getOutTime().equals("")) {
@@ -874,7 +902,15 @@ public class SalaryService {
                             }
                         }
                         double minutes = duration.toMinutes() % 60;
-                        outingTime = outingTime + duration.toHours() + ((minutes > 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                        rtOuterUsed = rtOuterUsed + duration.toHours() + ((minutes > 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+                        if (rtOuterUsed > 0) {
+                            if (rtOuterDay.isEmpty()) {
+                                rtOuterDay = adtDataDto.getWorkDate();
+                            } else {
+                                rtOuterDay = rtOuterDay + ", " + dayOfMonth;
+                            }
+                        }
                     }
                 }
                 // 기본급 퇴직여부
@@ -910,7 +946,6 @@ public class SalaryService {
                 // 휴일수당1
                 if (holidayMinite != Duration.ZERO) {
                     holidayAllowance01 = holidayAllowance01.add(BigDecimal.valueOf(holidayMinite.toHours() + (holidayMinite.toMinutes() % 60 >= 30 ? 0.5 : 0)).multiply(hourlyPay).multiply(BigDecimal.valueOf(1.5)));
-
                 }
                 // 휴일수당1(야간조 5일근무 +1)
                 if (nightTeamPlus != 0) {
@@ -918,14 +953,17 @@ public class SalaryService {
                 }
 
                 // 기타수당
-                if (lateTime != 0) {
-                    otherAmount = otherAmount.add(hourlyPay.multiply(BigDecimal.valueOf(lateTime * -1))).setScale(0, RoundingMode.CEILING);
+                if (rtLateUsed != 0) {
+                    otherAmount = otherAmount.add(hourlyPay.multiply(BigDecimal.valueOf(rtLateUsed * -1))).setScale(0, RoundingMode.CEILING);
+                    lateAmount = lateAmount.add(hourlyPay.multiply(BigDecimal.valueOf(rtLateUsed * -1))).setScale(0, RoundingMode.CEILING);
                 }
-                if (earlyLeaveTime != 0) {
-                    otherAmount = otherAmount.add(hourlyPay.multiply(BigDecimal.valueOf(earlyLeaveTime * -1))).setScale(0, RoundingMode.CEILING);
+                if (rtEarlyLeaveUsed != 0) {
+                    otherAmount = otherAmount.add(hourlyPay.multiply(BigDecimal.valueOf(rtEarlyLeaveUsed * -1))).setScale(0, RoundingMode.CEILING);
+                    earlyLeaverAmount = earlyLeaverAmount.add(hourlyPay.multiply(BigDecimal.valueOf(rtEarlyLeaveUsed * -1))).setScale(0, RoundingMode.CEILING);
                 }
-                if (outingTime != 0) {
-                    otherAmount = otherAmount.add(hourlyPay.multiply(BigDecimal.valueOf(outingTime * -1))).setScale(0, RoundingMode.CEILING);
+                if (rtOuterUsed != 0) {
+                    otherAmount = otherAmount.add(hourlyPay.multiply(BigDecimal.valueOf(rtOuterUsed * -1))).setScale(0, RoundingMode.CEILING);
+                    OuterAmount = OuterAmount.add(hourlyPay.multiply(BigDecimal.valueOf(rtOuterUsed * -1))).setScale(0, RoundingMode.CEILING);
                 }
             }
 
@@ -943,7 +981,12 @@ public class SalaryService {
 
             monthlyKeunTaeDto.setTransportation(rtTransportation);
             monthlyKeunTaeDto.setMeal(rtMeal);
-
+            monthlyKeunTaeDto.setLateTime(rtLateUsed);
+            monthlyKeunTaeDto.setLateDay(rtLateDay);
+            monthlyKeunTaeDto.setEarlyLeaveTime(rtEarlyLeaveUsed);
+            monthlyKeunTaeDto.setEarlyLeaveDay(rtEarlyLeaveDay);
+            monthlyKeunTaeDto.setOuterTime(rtOuterUsed);
+            monthlyKeunTaeDto.setOuterDay(rtOuterDay);
 
             if (!basicAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setBasicSalary(basicAmount.toString());
@@ -978,6 +1021,13 @@ public class SalaryService {
 
             if (!otherAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setOtherAllowance01(otherAmount.toString());
+            if (!lateAmount.equals(BigDecimal.ZERO))
+                basicSalaryDto.setLateAmount(lateAmount.toString());
+            if (!earlyLeaverAmount.equals(BigDecimal.ZERO))
+                basicSalaryDto.setEarlyAmount(earlyLeaverAmount.toString());
+            if (!OuterAmount.equals(BigDecimal.ZERO))
+                basicSalaryDto.setOuterAmount(OuterAmount.toString());
+
             if (!transportationAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setTransportationExpenses(transportationAmount.toString());
             if (!mealsAmount.equals(BigDecimal.ZERO))
