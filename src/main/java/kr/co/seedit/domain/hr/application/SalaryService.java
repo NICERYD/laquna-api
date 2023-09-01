@@ -85,6 +85,25 @@ public class SalaryService {
     }
     
     @Transactional
+    public ResponseDto updateSalaryList(List<BasicSalaryDto> basicSalaryDtoList) throws Exception {
+    	ResponseDto responseDto = ResponseDto.builder().build();
+    	
+    	CompanyDto companyDto = new CompanyDto();
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userName = ((UserDetails) principal).getUsername();
+        companyDto.setEmailId(userName);
+        CompanyDto info = companyDao.selectTokenInfo(companyDto);
+        
+    	for(BasicSalaryDto b : basicSalaryDtoList) {
+    		b.setLoginUserId(info.getUserId());
+    		salaryDao.updateSalaryList(b);
+    	}
+    	
+    	return responseDto;
+    			
+    }
+    
+    @Transactional
     public ResponseDto uploadOtherAllowance(MultipartFile file, String yyyymm, ErpIUDto.RequestDto erpIUDto ) throws CustomException, IOException, InvalidFormatException {
     	ResponseDto responseDto = ResponseDto.builder().build();
     	

@@ -153,6 +153,52 @@
         ORDER BY he.employee_type, he.employee_number
     </select>
     
+    <update id="updateSalaryList" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
+		/*SalaryDao.updateSalaryList*/
+		UPDATE hr_dh_calc_salary
+		<set>
+			<if test="annualAllowance != null">
+				attribute01 = #{annualAllowance},
+			</if>
+			<if test="overtimeAllowance01 != null">
+				attribute02 = #{overtimeAllowance01},
+			</if>
+			<if test="overtimeAllowance02 != null">
+				attribute03 = #{overtimeAllowance02},
+			</if>
+			<if test="nightAllowance02 != null">
+				attribute05 = #{nightAllowance02},
+			</if>
+			<if test="holidayAllowance01 != null">
+				attribute06 = #{holidayAllowance01},
+			</if>
+			<if test="holidayAllowance02 != null">
+				attribute07 = #{holidayAllowance02},
+			</if>
+			<if test="positionAllowance != null">
+				attribute08 = #{positionAllowance},
+			</if>
+			<if test="otherAllowance01 != null">
+				attribute09 = #{otherAllowance01},
+			</if>
+			<if test="otherAllowance02 != null">
+				attribute16 = #{otherAllowance02},
+			</if>
+			<if test="subsidies != null">
+				attribute10 = #{subsidies},
+			</if>
+			<if test="transportationExpenses != null">
+				attribute11 = #{transportationExpenses},
+			</if>
+			<if test="mealsExpenses != null">
+				attribute12 = #{mealsExpenses},
+			</if>
+			last_updated_by = #{loginUserId},
+			last_update_date = now()
+		</set>
+		WHERE	salary_id = #{salaryId}
+	</update>
+    
     <update id="upadateOtherAllowance" parameterType="kr.co.seedit.domain.hr.dto.OtherAllowanceDto">
 	/*SalaryDao.upadateOtherAllowance*/
 		UPDATE hr_dh_calc_salary hdcs

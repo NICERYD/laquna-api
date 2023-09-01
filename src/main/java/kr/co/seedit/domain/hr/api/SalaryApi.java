@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,6 +70,14 @@ public class SalaryApi {
                 .builder()
                 .code("200")
                 .data(salaryService.getCalcSalaryList(basicSalaryDto)).build(), HttpStatus.OK);
+    }
+    
+    @PostMapping("hr/updateSalaryList")
+    public ResponseEntity<ResponseDto> updateSalaryList(@RequestBody List<BasicSalaryDto> basicSalaryDtoList) throws Exception{
+        return new ResponseEntity<>(ResponseDto
+                .builder()
+                .code("200")
+                .data(salaryService.updateSalaryList(basicSalaryDtoList)).build(), HttpStatus.OK);
     }
     
     @PostMapping("/hr/uploadOtherAllowance")

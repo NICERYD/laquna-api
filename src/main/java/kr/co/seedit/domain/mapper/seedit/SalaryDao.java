@@ -21,6 +21,8 @@ public interface SalaryDao {
     void deleteADTData(ErpIUDto.RequestDto erpIUDto);
     List<BasicSalaryDto> getCalcSalaryList(BasicSalaryDto basicSalaryDto);
     
+    void updateSalaryList (BasicSalaryDto basicSalaryDto);
+    
     void upadateOtherAllowance(OtherAllowanceDto otherAllowanceDto);
 
     void insetADTData(List<ADTExcelDto> adtExcelDtos);
