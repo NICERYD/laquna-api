@@ -342,8 +342,8 @@ public class SalaryService {
         BigDecimal nightAllowance02;        // 야간2 수당
 
         BigDecimal holidayAllowance01;      // 휴일1 수당
-        BigDecimal holidayAllowance01Sat;      // 휴일1 수당(토요일)
-        BigDecimal holidayAllowance01Sun;      // 휴일1 수당(일요일)
+        BigDecimal holidayAllowanceSat;      // 휴일1 수당(토요일)
+        BigDecimal holidayAllowanceSun;      // 휴일1 수당(일요일)
         BigDecimal holidayAllowance02;      // 휴일2 수당
 
         BigDecimal transportationAmount; // 교통비
@@ -363,8 +363,8 @@ public class SalaryService {
         Double rtNSNightTimeUsed;      // 야간1 시간(야간조)
         Double rtNightShift02;          // 야간2 일수
 
-        Double rtHolidaySaturday01;     // 휴일1 (토요일)
-        Double rtHolidaySunday01;       // 휴일1 (일요일)
+        Double rtHolidaySaturdayUsed;     // 휴일1 (토요일)
+        Double rtHolidaySundayUsed;       // 휴일1 (일요일)
 
         Double rtTransportation;        // 교통비
         Double rtMeal;                  // 식대
@@ -421,6 +421,9 @@ public class SalaryService {
             nightAllowance02 = BigDecimal.ZERO;        // 야간2 수당
 
             holidayAllowance01 = BigDecimal.ZERO;      // 휴일1 수당
+            holidayAllowanceSat = BigDecimal.ZERO;    // 휴일1 수당(토요일)
+            holidayAllowanceSun = BigDecimal.ZERO;   // 휴일1 수당(일요일)
+
             holidayAllowance02 = BigDecimal.ZERO;      // 휴일2 수당
             transportationAmount = BigDecimal.ZERO; // 교통비
             mealsAmount = BigDecimal.ZERO;          // 식대
@@ -443,8 +446,9 @@ public class SalaryService {
             rtNSNightTimeUsed = 0.0;      // 야간조 야간시간
             rtNightShift02 = 0.0;          // 야간2 일수
 
-            rtHolidaySaturday01 = 0.0;     // 휴일1 (토요일)
-            rtHolidaySunday01 = 0.0;       // 휴일1 (일요일)
+            rtHolidaySaturdayUsed = 0.0;     // 휴일1 (토요일)
+            rtHolidaySundayUsed = 0.0;       // 휴일1 (일요일)
+
             rtTransportation = 0.0;        // 교통비
             rtMeal = 0.0;                  // 식대
             rtOther = 0;                   // 기타비용
@@ -548,6 +552,7 @@ public class SalaryService {
                             && !adtDataDto.getHolidayTime().equals("00:00")) {
                         LocalDateTime workStartTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDateTime workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        String dataWeek = adtDataDto.getDateWeek();
                         // 10:30분 이전 출근
                         boolean startyn = (workStartTime.toLocalTime().isBefore(LocalTime.of(10, 30)) || workStartTime.toLocalTime().equals(LocalTime.of(10, 30)));
                         // 17:30분 이후 퇴근
@@ -556,8 +561,22 @@ public class SalaryService {
                         LocalTime localTime = LocalTime.parse(adtDataDto.getHolidayTime(), DateTimeFormatter.ofPattern("HH:mm"));
                         if (startyn && endyn && localTime.getHour() >= 8) {
                             holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
+                            if (dataWeek.equals("6")) {
+                                rtHolidaySaturdayUsed = 8.0;
+                                holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
+                            } else if (dataWeek.equals("7")) {
+                                rtHolidaySundayUsed = 8.0;
+                                holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
+                            }
                         } else if ((startyn || endyn) && localTime.getHour() >= 4) {
                             holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount);
+                            if (dataWeek.equals("6")) {
+                                rtHolidaySaturdayUsed = 4.0;
+                                holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount);
+                            } else if (dataWeek.equals("7")) {
+                                rtHolidaySundayUsed = 4.0;
+                                holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount);
+                            }
                         }
                     }
                     // 무급처리 count
@@ -731,7 +750,6 @@ public class SalaryService {
                     // 야간수당1 - 야간조(연장)
                     if (adtDataDto.getWorkStatus().equals("야간")) {
                         nightAllowance01Night = nightAllowance01Night.add(BigDecimal.valueOf(6.5).multiply(hourlyPay).multiply(BigDecimal.valueOf(0.5)));
-//                        rtNightShift01 = rtNightShift01 + 6.5;
                         rtNSNightTimeUsed = rtNSNightTimeUsed + 6.5;
                     }
                     // 야간수당1 - 야간조(연장) count
@@ -763,9 +781,9 @@ public class SalaryService {
                     if (!adtDataDto.getHolidayTime().equals("00:00")) {
                         LocalTime localTime = LocalTime.parse(adtDataDto.getHolidayTime(), DateTimeFormatter.ofPattern("HH:mm"));
                         if (adtDataDto.getDateWeek().equals("6")) {
-                            rtHolidaySaturday01 = rtHolidaySaturday01 + (Duration.between(LocalTime.MIN, localTime).toHours() + (Duration.between(LocalTime.MIN, localTime).toMinutes() % 60 >= 30 ? 0.5 : 0));
+                            rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + (Duration.between(LocalTime.MIN, localTime).toHours() + (Duration.between(LocalTime.MIN, localTime).toMinutes() % 60 >= 30 ? 0.5 : 0));
                         } else if (adtDataDto.getDateWeek().equals("7")) {
-                            rtHolidaySunday01 = rtHolidaySunday01 + (Duration.between(LocalTime.MIN, localTime).toHours() + (Duration.between(LocalTime.MIN, localTime).toMinutes() % 60 >= 30 ? 0.5 : 0));
+                            rtHolidaySundayUsed = rtHolidaySundayUsed + (Duration.between(LocalTime.MIN, localTime).toHours() + (Duration.between(LocalTime.MIN, localTime).toMinutes() % 60 >= 30 ? 0.5 : 0));
                         }
                         holidayMinite = holidayMinite.plus(Duration.between(LocalTime.MIN, localTime));
                     }
@@ -873,6 +891,7 @@ public class SalaryService {
                 // 휴일수당1
                 if (holidayMinite != Duration.ZERO) {
                     holidayAllowance01 = holidayAllowance01.add(BigDecimal.valueOf(holidayMinite.toHours() + (holidayMinite.toMinutes() % 60 >= 30 ? 0.5 : 0)).multiply(hourlyPay).multiply(BigDecimal.valueOf(1.5)));
+
                 }
                 // 휴일수당1(야간조 5일근무 +1)
                 if (nightTeamPlus != 0) {
@@ -900,8 +919,9 @@ public class SalaryService {
             monthlyKeunTaeDto.setNightDaytime(rtNSDayTimeUsed);
             monthlyKeunTaeDto.setNightNighttime(rtNSNightTimeUsed);
 
-            monthlyKeunTaeDto.setHolidaySaturday(rtHolidaySaturday01);
-            monthlyKeunTaeDto.setHolidaySunday(rtHolidaySunday01);
+            monthlyKeunTaeDto.setHolidaySaturday(rtHolidaySaturdayUsed);
+            monthlyKeunTaeDto.setHolidaySunday(rtHolidaySundayUsed);
+
             monthlyKeunTaeDto.setTransportation(rtTransportation);
             monthlyKeunTaeDto.setMeal(rtMeal);
 
@@ -910,10 +930,12 @@ public class SalaryService {
                 basicSalaryDto.setBasicSalary(basicAmount.toString());
             if (!hourlyPay.equals(BigDecimal.ZERO))
                 basicSalaryDto.setHourlyPay(hourlyPay.toString());
+
             if (!annualAllowance.equals(BigDecimal.ZERO))
                 basicSalaryDto.setAnnualAllowance(annualAllowance.toString());
             if (!halfAllowance.equals(BigDecimal.ZERO))
                 basicSalaryDto.setHalfAllowance(halfAllowance.toString());
+
             if (!overtimeAllowance01.equals(BigDecimal.ZERO))
                 basicSalaryDto.setOvertimeAllowance01(overtimeAllowance01.toString());
             if (!overtimeAllowance02.equals(BigDecimal.ZERO))
@@ -923,13 +945,18 @@ public class SalaryService {
                 basicSalaryDto.setNightAllowance01Day(nightAllowance01Day.toString());
             if (!nightAllowance01Night.equals(BigDecimal.ZERO))
                 basicSalaryDto.setNightAllowance01Night(nightAllowance01Night.toString());
-
             if (!nightAllowance02.equals(BigDecimal.ZERO))
                 basicSalaryDto.setNightAllowance02(nightAllowance02.toString());
+
             if (!holidayAllowance01.equals(BigDecimal.ZERO))
                 basicSalaryDto.setHolidayAllowance01(holidayAllowance01.toString());
+            if (!holidayAllowanceSat.equals(BigDecimal.ZERO))
+                basicSalaryDto.setHolidayAllowanceSat(holidayAllowanceSat.toString());
+            if (!holidayAllowanceSun.equals(BigDecimal.ZERO))
+                basicSalaryDto.setHolidayAllowanceSun(holidayAllowanceSun.toString());
             if (!holidayAllowance02.equals(BigDecimal.ZERO))
                 basicSalaryDto.setHolidayAllowance02(holidayAllowance02.toString());
+
             if (!otherAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setOtherAllowance01(otherAmount.toString());
             if (!transportationAmount.equals(BigDecimal.ZERO))
