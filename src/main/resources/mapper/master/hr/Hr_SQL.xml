@@ -90,8 +90,8 @@
     AND   he.attribute1  = #{yyyymm}
     ORDER BY he.korean_name, hadt.work_date
 	</select>
-
-    <select id="getCalcSalaryList" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto" resultType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
+	
+	<select id="getCalcSalaryList" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto" resultType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
         /*SalaryDao.getCalcSalaryList*/
         SELECT he.employee_number
         , hdcs.salary_id
@@ -151,7 +151,7 @@
 		</if>
         AND   he.attribute1  = #{yyyymm}
         union all
-        SELECT "" as employee_number
+        SELECT "합계" as employee_number
         , 0000 as salary_id
         , "" as korean_name
         , "" as est_name
@@ -190,21 +190,23 @@
         AND he.employee_id = hb.employee_id
         AND he.attribute1 = hb.yyyymm
         WHERE  he.company_id = #{companyId}
-        AND   he.attribute1  = #{yyyymm}
-        <if test="estId !=999">
+		AND he.attribute1 = #{yyyymm}
+		<if test="estId !=999">
             AND   he.est_id = #{estId}
         </if>
         <if test="koreanName != null and koreanName != ''">
-            AND	  he.korean_name LIKE CONCAT('%', #{koreanName}, '%')
+            AND     he.korean_name LIKE CONCAT('%', #{koreanName}, '%')
         </if>
         group by he.company_id, he.attribute1
         <if test="estId != 999">
             , fbe.est_id
         </if>
         <if test="koreanName != null and koreanName != ''">
-            , he.employee_number
+            , he.korean_name LIKE CONCAT('%', #{koreanName}, '%')
         </if>
-        ORDER BY employee_type, employee_number
+        ORDER BY CASE WHEN salary_id =000 THEN 1
+        			ELSE 2
+        			END, employee_type, employee_number
     </select>
     
     <update id="updateSalaryList" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
