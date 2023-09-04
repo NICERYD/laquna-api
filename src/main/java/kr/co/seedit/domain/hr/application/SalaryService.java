@@ -398,6 +398,7 @@ public class SalaryService {
         Double rtEarlyLeaveUsed;         // 조퇴시간
         String rtLateDay;                // 지각일자
         Double rtLateUsed;               // 지각시간
+        Integer rtLatecnt;               // 지각횟수
         String rtOuterDay;                // 외출일자
         Double rtOuterUsed;               // 외출시간
         Integer rtAbsence;               // 결근
@@ -489,6 +490,7 @@ public class SalaryService {
             rtEarlyLeaveUsed = 0.0;         // 조퇴시간
             rtLateDay = "";                 // 지각일자
             rtLateUsed = 0.0;               // 지각시간
+            rtLatecnt = 0;                  // 지각횟수
             rtOuterDay = "";                // 외출일자
             rtOuterUsed = 0.0;              // 외출시간
 
@@ -645,6 +647,30 @@ public class SalaryService {
                     if (adtDataDto.getInStatus().equals("결근")) {
                         rtAbsence++;
                     }
+                    // 기타수당 - 지각
+                    if (adtDataDto.getInStatus().equals("지각")) {
+                        Duration duration = null;
+                        LocalDate workStartDate = null;
+                        LocalDate workEndDate = null;
+                        LocalDateTime workStartDateTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        LocalDateTime workEndDateTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+                        if (adtDataDto.getWorkStatus().equals("야간")) {
+                            duration = Duration.between(workStartDateTime.with(LocalTime.of(22, 00)), workStartDateTime);
+                        } else {
+                            duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime);
+                        }
+                        double minutes = duration.toMinutes() % 60;
+                        rtLateUsed = rtLateUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                        rtLatecnt++;
+                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+                        if (rtLateDay.isEmpty()) {
+                            rtLateDay = adtDataDto.getWorkDate();
+                        } else {
+                            rtLateDay = rtLateDay + ", " + dayOfMonth;
+                        }
+                    }
+
                 }
                 // 무급처리
                 // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
@@ -848,6 +874,7 @@ public class SalaryService {
                         }
                         double minutes = duration.toMinutes() % 60;
                         rtLateUsed = rtLateUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                        rtLatecnt++;
                         String dayOfMonth = adtDataDto.getWorkDate().substring(8);
                         if (rtLateDay.isEmpty()) {
                             rtLateDay = adtDataDto.getWorkDate();
@@ -1002,8 +1029,11 @@ public class SalaryService {
 
             monthlyKeunTaeDto.setTransportation(rtTransportation);
             monthlyKeunTaeDto.setMeal(rtMeal);
+
             monthlyKeunTaeDto.setLateTime(rtLateUsed);
+            monthlyKeunTaeDto.setLatecnt(rtLatecnt);
             monthlyKeunTaeDto.setLateDay(rtLateDay);
+
             monthlyKeunTaeDto.setEarlyLeaveTime(rtEarlyLeaveUsed);
             monthlyKeunTaeDto.setEarlyLeaveDay(rtEarlyLeaveDay);
             monthlyKeunTaeDto.setOuterTime(rtOuterUsed);

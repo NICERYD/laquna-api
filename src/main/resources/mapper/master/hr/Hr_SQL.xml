@@ -1005,6 +1005,7 @@
         , early_leave_day
         , early_leave_time
         , late_day
+        , late_cnt
         , late_time
         , outer_day
         , outer_time
@@ -1037,6 +1038,7 @@
             , #{item.earlyLeaveDay}
             , #{item.earlyLeaveTime}
             , #{item.lateDay}
+            , #{item.latecnt}
             , #{item.lateTime}
             , #{item.outerDay}
             , #{item.outerTime}
