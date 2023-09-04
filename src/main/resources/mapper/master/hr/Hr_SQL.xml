@@ -993,7 +993,6 @@
         , annual_leave_used
         , annual_leave_used_day
         , overtime_daytime
-        , overtime_nighttime
         , night_daytime
         , night_nighttime
         , holiday_saturday
@@ -1012,7 +1011,9 @@
         , created_by
         , creation_date
         , last_updated_by
-         ,last_update_date
+        , last_update_date
+        , total_time
+        , absence
         )
         values
         <foreach item="item" index="index" collection="list" separator=", ">
@@ -1024,7 +1025,6 @@
             , #{item.annualLeaveUsed}
             , #{item.annualLeaveUsedDay}
             , #{item.overtimeDaytime}
-            , #{item.overtimeNighttime}
             , #{item.nightDaytime}
             , #{item.nightNighttime}
             , #{item.holidaySaturday}
@@ -1044,6 +1044,8 @@
             , now()
             , #{item.loginUserId}
             , now()
+            , #{item.totalTime}
+            , #{item.absence}
             )
         </foreach>
     </insert>

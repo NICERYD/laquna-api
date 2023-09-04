@@ -34,4 +34,6 @@ public class MonthlyKeunTaeDto {
     private String outerDay;
     private Double outerTime;
     private Integer loginUserId;
+    private Integer absence;
+    private Double totalTime;
 }

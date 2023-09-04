@@ -400,6 +400,7 @@ public class SalaryService {
         Double rtLateUsed;               // 지각시간
         String rtOuterDay;                // 외출일자
         Double rtOuterUsed;               // 외출시간
+        Integer rtAbsence;               // 결근
 
         Double rtTotalTime;             //총근무시간
 
@@ -491,6 +492,10 @@ public class SalaryService {
             rtOuterDay = "";                // 외출일자
             rtOuterUsed = 0.0;              // 외출시간
 
+            rtAbsence = 0;
+
+            rtTotalTime = 209.0;
+
             monthlyKeunTaeDto.setCompanyId(basicSalaryDto.getCompanyId());
             monthlyKeunTaeDto.setEmployeeId(basicSalaryDto.getEmployeeId());
             monthlyKeunTaeDto.setYyyymm(basicSalaryDto.getYyyymm());
@@ -561,6 +566,9 @@ public class SalaryService {
                         LocalDate workEndDate = LocalDate.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 //                        LocalTime workStartTime = LocalTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("HH:mm"));
                         LocalTime workEndTime = LocalTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        LocalDateTime workStartDateTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        LocalDateTime workEndDateTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
                         Period period = Period.between(workStartDate, workEndDate);
                         if (adtDataDto.getWorkStatus().equals("야간")) {
                             if (!workEndTime.isBefore(LocalTime.parse("08:30", DateTimeFormatter.ofPattern("HH:mm")))) {
@@ -568,6 +576,9 @@ public class SalaryService {
                             }
                         } else {
                             if (!workEndTime.isBefore(LocalTime.parse("20:30", DateTimeFormatter.ofPattern("HH:mm"))) || period.getDays() >= 1) {
+//                                Duration duration = null;
+//                                duration = Duration.between(workEndDateTime.with(LocalTime.of(20, 30)), workEndDateTime);
+//                                rtOverTimeUsed01 = (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
                                 overtimeAllowance01 = overtimeAllowance01.add(overtimeBaseAmount);
                             }
                         }
@@ -629,6 +640,10 @@ public class SalaryService {
                         } else {
                             rtAnnualLeaveUsedDay = rtAnnualLeaveUsedDay + ", " + dayOfMonth;
                         }
+                    }
+                    // 결근처리 count
+                    if (adtDataDto.getInStatus().equals("결근")) {
+                        rtAbsence++;
                     }
                 }
                 // 무급처리
@@ -912,6 +927,11 @@ public class SalaryService {
                             }
                         }
                     }
+
+                    // 결근처리 count
+                    if (adtDataDto.getInStatus().equals("결근")) {
+                        rtAbsence++;
+                    }
                 }
                 // 기본급 퇴직여부
                 // Y "000": 계약서 상의 시급 × 209H
@@ -971,6 +991,7 @@ public class SalaryService {
             monthlyKeunTaeDto.setAnnualLeaveUsedDay(rtAnnualLeaveUsedDay);
             monthlyKeunTaeDto.setHalfLeaveUsed(rtHalfLeaverUsed);
             monthlyKeunTaeDto.setHalfLeaveUsedDay(rtHalfLeaveUseDay);
+
             monthlyKeunTaeDto.setOvertimeDaytime(rtOverTimeUsed01);
 
             monthlyKeunTaeDto.setNightDaytime(rtNSDayTimeUsed);
@@ -987,6 +1008,9 @@ public class SalaryService {
             monthlyKeunTaeDto.setEarlyLeaveDay(rtEarlyLeaveDay);
             monthlyKeunTaeDto.setOuterTime(rtOuterUsed);
             monthlyKeunTaeDto.setOuterDay(rtOuterDay);
+            monthlyKeunTaeDto.setAbsence(rtAbsence);
+
+            monthlyKeunTaeDto.setTotalTime(rtTotalTime);
 
             if (!basicAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setBasicSalary(basicAmount.toString());

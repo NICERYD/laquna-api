@@ -31,7 +31,7 @@ public class BasicSalaryDto {
     private String earlyAmount;
     private String outerAmount;
     private String overtimeAllowance02;
-
+    private String nightAllowance01;
     private String nightAllowance01Day;
     private String nightAllowance01Night;
     private String nightAllowance02;
