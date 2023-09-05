@@ -13,10 +13,10 @@
 		      , 1 AS no_seq -- 순번
 		      , he.employee_number AS no_emp -- 사번
 		      , hdcs.basic_salary  AS am_pay01 -- 기본급
-		      , hdcs.attribute01 AS am_pay02
+		      , ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0) AS am_pay02
 		      , hdcs.attribute02 AS am_pay03
 		      , hdcs.attribute03 AS am_pay04
-		      , hdcs.attribute04 AS am_pay05
+		      , ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) AS am_pay05
 		      , hdcs.attribute05 AS am_pay06
 		      , hdcs.attribute06 AS am_pay07
 		      , hdcs.attribute07 AS am_pay08
@@ -53,10 +53,10 @@
         , he.hire_date
         , IF(he.retire_date != '9999-12-31', he.retire_date, null)
         , IFNULL(hdcs.basic_salary,0) AS basic_salary
-        , IFNULL(hdcs.attribute01,0) AS annual_allowance
+		, ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0) AS annual_allowance
         , IFNULL(hdcs.attribute02,0) AS overtime_allowance01
         , IFNULL(hdcs.attribute03,0) AS overtime_allowance02
-        , IFNULL(hdcs.attribute04,0) AS night_allowance01
+		, ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) AS night_allowance01
         , IFNULL(hdcs.attribute05,0) AS night_allowance02
         , IFNULL(hdcs.attribute06,0) AS holiday_allowance01
         , IFNULL(hdcs.attribute07,0) AS holiday_allowance02
@@ -66,8 +66,8 @@
         , IFNULL(hdcs.attribute11,0) AS transportation_expenses
         , IFNULL(hdcs.attribute12,0) AS meals_expenses
         , IFNULL(hb.bonus_amount,0) AS bonus_amount
-        , IFNULL(hdcs.basic_salary,0) + IFNULL(hdcs.attribute01,0) + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0) 
-		  + IFNULL(hdcs.attribute04,0) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0) 
+        , IFNULL(hdcs.basic_salary,0) + ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)  + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
+		  + ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0)
 		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
 		  + IFNULL(hdcs.attribute12,0) + IFNULL(hb.bonus_amount,0)	AS salary_sum
 		, IFNULL(hdt.AM_DEDUCT01,0) AS national_pension
@@ -129,10 +129,10 @@
 		SELECT fbe.est_name
 		, count(*) AS cnt
 		, sum(IFNULL(hdcs.basic_salary,0)) AS basic_salary
-		, sum(IFNULL(hdcs.attribute01,0)) AS annual_allowance
+		, sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) AS annual_allowance
 		, sum(IFNULL(hdcs.attribute02,0)) AS overtime_allowance01
 		, sum(IFNULL(hdcs.attribute03,0)) AS overtime_allowance02
-		, sum(IFNULL(hdcs.attribute04,0)) AS night_allowance01
+		, sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) AS night_allowance01
 		, sum(IFNULL(hdcs.attribute05,0)) AS night_allowance02
 		, sum(IFNULL(hdcs.attribute06,0)) AS holiday_allowance01
 		, sum(IFNULL(hdcs.attribute07,0)) AS holiday_allowance02
@@ -142,8 +142,8 @@
 		, sum(IFNULL(hdcs.attribute11,0)) AS transportation_expenses
 		, sum(IFNULL(hdcs.attribute12,0)) AS meals_expenses
 		, sum(IFNULL(hb.bonus_amount,0)) AS bonus_amount
-		, sum(IFNULL(hdcs.basic_salary,0)) + sum(IFNULL(hdcs.attribute01,0)) + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0))
-			+ sum(IFNULL(hdcs.attribute04,0)) + sum(IFNULL(hdcs.attribute05,0)) + sum(IFNULL(hdcs.attribute06,0)) + sum(IFNULL(hdcs.attribute07,0))
+		, sum(IFNULL(hdcs.basic_salary,0)) + sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0))
+			+ sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) + sum(IFNULL(hdcs.attribute05,0)) + sum(IFNULL(hdcs.attribute06,0)) + sum(IFNULL(hdcs.attribute07,0))
 			+ sum(IFNULL(hdcs.attribute08,0)) + sum(IFNULL(hdcs.attribute09,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0))
 			+ sum(IFNULL(hdcs.attribute12,0)) + sum(IFNULL(hb.bonus_amount,0)) AS salary_sum
 		, sum(IFNULL(hdt.AM_DEDUCT01,0)) AS national_pension
