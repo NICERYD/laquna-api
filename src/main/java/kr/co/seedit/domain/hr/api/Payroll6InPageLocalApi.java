@@ -55,15 +55,5 @@ public class Payroll6InPageLocalApi {
                 .body(payrollService.createPayroll6InPageLocalTest(in, response));
 //                .body(reportService.downloadFile(reportParamsDto));
     }
-//    public ResponseEntity<Resource> downloadERPIU(@RequestBody ReportParamsDto reportParamsDto, HttpServletResponse response) throws Exception {
-//    public ResponseEntity<Resource> payrollPayrolltest(@RequestBody Map<String, Object> in, HttpServletResponse response) throws Exception {
-//    	
-//        return ResponseEntity.ok()
-//                .header("Content-Transfer-Encoding", "binary")
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + URLEncoder.encode(in.get("yyyymm")+"Payroll6InPageLocalTest", "UTF-8")+".xlsx")
-//                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//                .body(payrollService.createPayroll6InPageLocalTest(in, response));
-////                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + URLEncoder.encode(reportParamsDto.getYyyymm()+reportParamsDto.getReportType(), "UTF-8")+".xlsx")
-//    }
 
 }
