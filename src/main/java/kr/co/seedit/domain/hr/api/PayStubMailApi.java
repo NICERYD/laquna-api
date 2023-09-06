@@ -26,7 +26,7 @@ public class PayStubMailApi {
 	private final PayStubMailService payStubMailService;
 	
 	@PostMapping(value = "/hr/testLocalMail", produces = "text/plain;charset=UTF-8")
-	public ResponseEntity<ResponseDto> sendEmail(@RequestBody PayStubMailDto mailDto /*Map<String, Object> in*/) {
+	public String sendEmail(@RequestBody PayStubMailDto mailDto /*Map<String, Object> in*/) {
 //		MailDto mailDto = new MailDto();
 //		mailDto.setAddress(in.get("address"));
 //		mailDto.setCcAddress(in.get("ccaddress"));
@@ -37,9 +37,7 @@ public class PayStubMailApi {
 		
 		payStubMailService.sendMail(mailDto);
 		
-        return new ResponseEntity<>(ResponseDto
-                .builder()
-                .code("200").build(), HttpStatus.OK);
+		return "DONE";
 
 	}
 
