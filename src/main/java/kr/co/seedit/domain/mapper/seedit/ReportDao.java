@@ -31,6 +31,8 @@ public interface ReportDao {
 	
 	List<PersonalPayrollParamsDto> findEmployees(ReportParamsDto reportParamsDto);
 	
+	ReportPayrollDto findPayStubForMail(ReportParamsDto reportParamsDto);
+	
 //	List<ReportMonthlyKeunTaeDto> findPayroll(MonthlyKeunTaeDto monthlyKeunTaeDto);
 	
 	

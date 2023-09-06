@@ -1,5 +1,7 @@
 package kr.co.seedit.domain.hr.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +17,11 @@ public class ReportParamsDto {
 	private Integer estId;
     private String yyyymm;
     private Integer employeeId;
+    private String employeeNumber;
     private Integer employeeType;
     
     private String reportType;
     private String sort;
+    
+    private List<String> employeeNumberList;
 }

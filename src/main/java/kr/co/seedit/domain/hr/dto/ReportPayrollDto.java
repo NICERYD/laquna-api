@@ -59,4 +59,5 @@ public class ReportPayrollDto {
     private int taxSum;
     private String dtPay;
     private int cnt;
+    private String emailAddress;
 }

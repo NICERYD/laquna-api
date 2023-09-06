@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -23,6 +24,9 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import kr.co.seedit.domain.hr.dto.PayStubMailDto;
+import kr.co.seedit.domain.hr.dto.ReportParamsDto;
+import kr.co.seedit.domain.hr.dto.ReportPayrollDto;
+import kr.co.seedit.domain.mapper.seedit.ReportDao;
 import kr.co.seedit.global.error.exception.CustomException;
 import kr.co.seedit.global.utils.Aes256;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +39,24 @@ public class PayStubMailService {
 	
 	private final byte[] iv = "0123456789abcdef".getBytes();
 	
-	public void sendMail(PayStubMailDto mailDto) {
+	private final ReportDao reportDao;
+	
+	public ReportPayrollDto getPayStubData (ReportParamsDto reportParamsDto) throws Exception {
+		ReportPayrollDto data = reportDao.findPayStubForMail(reportParamsDto);
+		log.info(data.toString());
+		return data;
+	}
+	
+	public void sendMail(PayStubMailDto mailDto, ReportParamsDto reportParamsDto) {
+		List<String> employeeNumberList = reportParamsDto.getEmployeeNumberList();
+		for(String employeeNumber : employeeNumberList) {
+			reportParamsDto.setEmployeeNumber(employeeNumber);
+			try {
+				getPayStubData(reportParamsDto);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 
 		JavaMailSenderImpl emailSender = new JavaMailSenderImpl();
 		
@@ -138,7 +159,7 @@ public class PayStubMailService {
 			e.printStackTrace();
 			throw new CustomException("default setting fail");
 		}
-
+		
 		try {
 			String key = "750122";
 			StringBuilder body = new StringBuilder();
@@ -147,7 +168,9 @@ public class PayStubMailService {
 				.append("<table width=\"740px\">\r\n")
 				.append("	<tbody>\r\n")
 				.append("		<tr align=\"center\">\r\n")
-				.append("			<td style=\"font-size: 16px;font-family: 돋음, dotum;color: #444444;padding:10px;\"> <b> 2023년 8월 급여 명세서</b>\r\n")
+				.append("			<td style=\"font-size: 16px;font-family: 돋음, dotum;color: #444444;padding:10px;\"> <b> ")
+				.append("2023년 8월")	//yyyymm
+				.append("급여 명세서</b>\r\n")
 				.append("			</td>\r\n")
 				.append("		</tr>\r\n")
 				.append("	</tbody>\r\n")
@@ -160,10 +183,13 @@ public class PayStubMailService {
 				.append("	<tbody>\r\n")
 				.append("		<tr>\r\n")
 				.append("			<td class=\"txtlft\">\r\n")
-				.append("				<p> <em> 회사명</em> 디에이치(주) </p>\r\n")
+				.append("				<p> <em> 회사명</em> 디에이치(주) ")
+				.append("")	//estName
+				.append("</p>\r\n")
 				.append("			</td>\r\n")
 				.append("			<td class=\"txtrgt\">\r\n")
-				.append("				<p> <em> 지급일</em> 2023.09.15 </p>\r\n")
+				.append("				<p> <em> 지급일</em> ")
+				.append("2023.09.15 </p>\r\n")	//dt_pay
 				.append("			</td>\r\n")
 				.append("		</tr>\r\n")
 				.append("	</tbody>\r\n")
@@ -180,11 +206,11 @@ public class PayStubMailService {
 				.append("	<tbody>\r\n")
 				.append("		<tr>\r\n")
 				.append("			<th> <span> 사원코드</span> </th>\r\n")
-				.append("			<td> 22020</td>\r\n")
+				.append("			<td> 22020</td>\r\n")	//employeeNumber
 				.append("			<th> <span> 사원명</span> </th>\r\n")
-				.append("			<td> 하의진</td>\r\n")
+				.append("			<td> 하의진</td>\r\n")	//koreanName
 				.append("			<th> <span> 생년월일</span> </th>\r\n")
-				.append("			<td> 1989년11월27일</td>\r\n")
+				.append("			<td> 1989년11월27일</td>\r\n")	//birth
 				.append("		</tr>\r\n")
 				.append("		<tr>\r\n")
 				.append("			<th> <span> 부서</span> </th>\r\n")
