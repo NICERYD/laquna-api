@@ -41,22 +41,24 @@ public class PayStubMailService {
 	
 	private final ReportDao reportDao;
 	
-	public ReportPayrollDto getPayStubData (ReportParamsDto reportParamsDto) throws Exception {
+	public ReportPayrollDto getPayStubData () throws Exception {
+		ReportParamsDto reportParamsDto = new ReportParamsDto();
+		reportParamsDto.setCompanyId(5);
+		reportParamsDto.setEstId(999);
+		reportParamsDto.setYyyymm("202306");
+		reportParamsDto.setEmployeeNumber("D00001");
 		ReportPayrollDto data = reportDao.findPayStubForMail(reportParamsDto);
 		log.info(data.toString());
 		return data;
 	}
 	
-	public void sendMail(PayStubMailDto mailDto, ReportParamsDto reportParamsDto) {
-		List<String> employeeNumberList = reportParamsDto.getEmployeeNumberList();
-		for(String employeeNumber : employeeNumberList) {
-			reportParamsDto.setEmployeeNumber(employeeNumber);
+	public void sendMail(PayStubMailDto mailDto) {
+
 			try {
-				getPayStubData(reportParamsDto);
+				getPayStubData();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
 
 		JavaMailSenderImpl emailSender = new JavaMailSenderImpl();
 		
