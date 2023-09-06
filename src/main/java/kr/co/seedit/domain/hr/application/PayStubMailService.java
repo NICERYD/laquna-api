@@ -48,14 +48,14 @@ public class PayStubMailService {
 		reportParamsDto.setYyyymm("202306");
 		reportParamsDto.setEmployeeNumber("D00001");
 		ReportPayrollDto data = reportDao.findPayStubForMail(reportParamsDto);
-		log.info(data.toString());
 		return data;
 	}
 	
 	public void sendMail(PayStubMailDto mailDto) {
-
+		ReportPayrollDto payStubData = new ReportPayrollDto();
 			try {
-				getPayStubData();
+				payStubData = getPayStubData();
+				log.info("payStubData>>>>>>>>>"+payStubData.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -208,17 +208,17 @@ public class PayStubMailService {
 				.append("	<tbody>\r\n")
 				.append("		<tr>\r\n")
 				.append("			<th> <span> 사원코드</span> </th>\r\n")
-				.append("			<td> 22020</td>\r\n")	//employeeNumber
+				.append("			<td> "+payStubData.getEmployeeNumber()+"</td>\r\n")
 				.append("			<th> <span> 사원명</span> </th>\r\n")
-				.append("			<td> 하의진</td>\r\n")	//koreanName
+				.append("			<td> "+payStubData.getKoreanName()+"</td>\r\n")	//koreanName
 				.append("			<th> <span> 생년월일</span> </th>\r\n")
 				.append("			<td> 1989년11월27일</td>\r\n")	//birth
 				.append("		</tr>\r\n")
 				.append("		<tr>\r\n")
 				.append("			<th> <span> 부서</span> </th>\r\n")
-				.append("			<td> 경영지원</td>\r\n")
+				.append("			<td> "+payStubData.getDepartmentName()+"</td>\r\n")
 				.append("			<th> <span> 직급</span> </th>\r\n")
-				.append("			<td> </td>\r\n")
+				.append("			<td> "+payStubData.getDefinedName()+"</td>\r\n")
 				.append("			<th> <span> 호봉</span> </th>\r\n")
 				.append("			<td> </td>\r\n")
 				.append("		</tr>\r\n")
