@@ -418,6 +418,8 @@
         , creation_date
         , last_updated_by
         , last_update_date
+        , resident_registration_number
+        , email_address
         )
         values
         <foreach item="item" index="index" collection="list" separator=", ">
@@ -444,6 +446,8 @@
             , now()
             , #{item.loginUserId}
             , now()
+            , #{item.noRes}
+            , #{item.noEmail}
             )
         </foreach>
     </insert>

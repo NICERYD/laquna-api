@@ -40,6 +40,8 @@
              , CD_DEPT AS department_code
              , TP_EMP as employee_type
              , cd_bizarea AS est_id
+             , no_email as no_email
+             , substring(no_res, 1, 6) as no_res
              , #{yyyymm} as yyyymm
              , #{companyId} as company_id
              , #{loginUserId} AS loginUserId
