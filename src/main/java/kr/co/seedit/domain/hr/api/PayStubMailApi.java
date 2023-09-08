@@ -1,7 +1,5 @@
 package kr.co.seedit.domain.hr.api;
 
-import java.util.Map;
-
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
@@ -13,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kr.co.seedit.domain.hr.application.PayStubMailService;
 import kr.co.seedit.domain.hr.dto.PayStubMailDto;
+import kr.co.seedit.domain.hr.dto.ReportParamsDto;
 import kr.co.seedit.global.common.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 
@@ -35,10 +34,18 @@ public class PayStubMailApi {
 //		mailDto.setFrom(in.get("from").toString());
 //		mailDto.setTo(in.get("to").toString());
 		
-		payStubMailService.sendMail(mailDto);
+//		payStubMailService.runEemailSender(mailDto);
+//		payStubMailService.sendMailLocalTest(mailDto);
 		
 		return "DONE";
-
 	}
 
+    @PostMapping("/hr/sendPayStubMailDH")
+    public ResponseEntity<ResponseDto> downloadERPIU(@RequestBody ReportParamsDto reportParamsDto, HttpServletResponse response) throws Exception {
+
+    	ResponseDto responseDto = ResponseDto.builder().build();
+    	responseDto = payStubMailService.sendPayStubMailDH(reportParamsDto);
+    	
+    	return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 }

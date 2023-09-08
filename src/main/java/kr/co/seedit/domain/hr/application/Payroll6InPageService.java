@@ -314,7 +314,25 @@ public class Payroll6InPageService {
 		}
 		//합 계
 		if (null != data.getSalaryAmt()) {
-			sheet.getRow(curRow+22).getCell(curCol+3).setCellValue(data.getSalaryAmt());
+			sheet.getRow(curRow+22).getCell(curCol+3).setCellValue(
+					data.getBasicAmount()
+					+data.getOvertimeAllowance01()
+					+data.getOvertimeAllowance02()
+					+data.getNtDayAllowance01()
+					+data.getNtNightAllowance01()
+					+data.getNtNightAllowance02()
+					+data.getHolidaySatAllowance01()
+					+data.getHolidaySunAllowance01()
+					+data.getHolidayAllowance02()
+					+data.getAttribute01()
+					+data.getAttribute15()
+					+data.getAttribute13()
+					+data.getAttribute14()
+					+data.getAttribute17()
+					+data.getAttribute16()
+					+data.getAttribute11()
+					+data.getAttribute12()
+					);
 		}
 		
 		// data setting - end
