@@ -78,8 +78,7 @@
 		, IFNULL(hdt.AM_DEDUCT05,0) AS advance
 		, IFNULL(hdt.AM_DEDUCT06,0) AS other_tax
 		, IFNULL(hdt.AM_DEDUCT07,0) AS gyeongjobi
-		, IFNULL(hdt.AM_DEDUCT08,0) AS yearend_incomtax
-		, IFNULL(hdt.AM_DEDUCT09,0) AS yearend_residtax
+		, IFNULL(hdt.AM_DEDUCT08,0) + IFNULL(hdt.AM_DEDUCT09,0) AS yearend
 		, IFNULL(hdt.AM_DEDUCT10,0) AS health_insurance_settlement
 		, IFNULL(hdt.AM_DEDUCT11,0) AS care_insurance_settlement
 		, IFNULL(hdt.AM_DEDUCT12,0) AS holiday_tax
@@ -154,8 +153,7 @@
 		, sum(IFNULL(hdt.AM_DEDUCT05,0)) AS advance
 		, sum(IFNULL(hdt.AM_DEDUCT06,0)) AS other_tax
 		, sum(IFNULL(hdt.AM_DEDUCT07,0)) AS gyeongjobi
-		, sum(IFNULL(hdt.AM_DEDUCT08,0)) AS yearend_incomtax
-		, sum(IFNULL(hdt.AM_DEDUCT09,0)) AS yearend_residtax
+		, sum(IFNULL(hdt.AM_DEDUCT08,0)) + sum(IFNULL(hdt.AM_DEDUCT09,0)) AS yearend
 		, sum(IFNULL(hdt.AM_DEDUCT10,0)) AS health_insurance_settlement
 		, sum(IFNULL(hdt.AM_DEDUCT11,0)) AS care_insurance_settlement
 		, sum(IFNULL(hdt.AM_DEDUCT12,0)) AS holiday_tax
@@ -359,8 +357,7 @@
 		, IFNULL(hdt.AM_DEDUCT05,0) AS advance
 		, IFNULL(hdt.AM_DEDUCT06,0) AS other_tax
 		, IFNULL(hdt.AM_DEDUCT07,0) AS gyeongjobi
-		, IFNULL(hdt.AM_DEDUCT08,0) AS yearend_incomtax
-		, IFNULL(hdt.AM_DEDUCT09,0) AS yearend_residtax
+		, IFNULL(hdt.AM_DEDUCT08,0) + IFNULL(hdt.AM_DEDUCT09,0) AS yearend
 		, IFNULL(hdt.AM_DEDUCT10,0) AS health_insurance_settlement
 		, IFNULL(hdt.AM_DEDUCT11,0) AS care_insurance_settlement
 		, IFNULL(hdt.AM_DEDUCT12,0) AS holiday_tax
