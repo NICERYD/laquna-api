@@ -51,6 +51,7 @@ public class ReportPayrollDto {
     private int gyeongjobi;
     private int yearendIncomtax;
     private int yearendResidtax;
+    private int yearend;
     private int healthInsuranceSettlement;
     private int careInsuranceSettlement;
     private int holidayTax;

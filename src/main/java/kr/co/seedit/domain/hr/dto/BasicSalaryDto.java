@@ -17,6 +17,8 @@ public class BasicSalaryDto {
     private String yyyymm;
     private String employeeNumber;
     private String koreanName;
+    private String emailAddress;
+    private String residentRegistrationNumber;
     private String estName;
     private String departmentName;
     private String positionCode;

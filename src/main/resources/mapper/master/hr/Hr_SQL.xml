@@ -95,6 +95,8 @@
         /*SalaryDao.getCalcSalaryList*/
         SELECT he.employee_number
         , hdcs.salary_id
+        , he.email_address
+        , he.resident_registration_number
         , he.korean_name
         , fbe.est_name
         , hd.department_name
@@ -153,6 +155,8 @@
         union all
         SELECT "합계" as employee_number
         , 0000 as salary_id
+        , "" as email_address
+        , "" as resident_registration_number
         , "" as korean_name
         , "" as est_name
         , "" as department_name
@@ -418,6 +422,8 @@
         , creation_date
         , last_updated_by
         , last_update_date
+        , resident_registration_number
+        , email_address
         )
         values
         <foreach item="item" index="index" collection="list" separator=", ">
@@ -444,6 +450,8 @@
             , now()
             , #{item.loginUserId}
             , now()
+            , #{item.noRes}
+            , #{item.noEmail}
             )
         </foreach>
     </insert>

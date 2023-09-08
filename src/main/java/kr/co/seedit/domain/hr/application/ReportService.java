@@ -520,7 +520,7 @@ public class ReportService {
 				cell.setCellType(CellType.NUMERIC);
 	
 				cell = row.createCell(cellindex++);
-				cell.setCellValue(m.getYearendIncomtax());
+				cell.setCellValue(m.getYearend());
 				cell.setCellStyle(ThinBorderStyle);
 				cell.setCellType(CellType.NUMERIC);
 	
@@ -1123,7 +1123,7 @@ public class ReportService {
 				cell.setCellType(CellType.NUMERIC);
 
 				cell = row.createCell(cellindex++);
-				cell.setCellValue(m.getYearendIncomtax());
+				cell.setCellValue(m.getYearend());
 				cell.setCellStyle(ThinBorderStyle);
 				cell.setCellType(CellType.NUMERIC);
 
@@ -1747,7 +1747,7 @@ public class ReportService {
 			cell.setCellType(CellType.NUMERIC);
 
 			cell = row.createCell(5);
-             cell.setCellValue(m.getYearendIncomtax());
+             cell.setCellValue(m.getYearend());
 			cell.setCellStyle(NumberBodyStyle);
 			cell.setCellType(CellType.NUMERIC);
 

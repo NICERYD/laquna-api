@@ -55,6 +55,8 @@ public class ErpIUDto {
         private String departmentCode;
         private String yyyymm;
         private Integer loginUserId;
+        private String noEmail;
+        private String noRes;
     }
     @AllArgsConstructor
     @Data
