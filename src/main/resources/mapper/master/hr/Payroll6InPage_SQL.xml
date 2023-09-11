@@ -136,6 +136,9 @@
       AND hdcs.company_id = hd.company_id
       WHERE hdcs.company_id = #{companyId}
       AND   hdcs.yyyymm = #{yyyymm}
+      <if test="estId !=999 and estId != null">
+      	AND   he.est_id = #{estId}
+      </if>
       ORDER BY he.employee_type
       , IFNULL(fcd06.defined_cd, '99999') -- 직군
       , he.department_id -- 부서 아이디
