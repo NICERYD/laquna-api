@@ -139,12 +139,23 @@ public class SalaryService {
                         	otherAllowanceDto.setEmployeeNumber(cell.getStringCellValue());
                             break;
                         case 2:
+                        	otherAllowanceDto.setAnnualLeaveCalc(cell.getNumericCellValue());
+                            break;
+                        case 3:
+                        	otherAllowanceDto.setAnnualLeaveAllowance(cell.getNumericCellValue());
+                            break;
+                        case 4:
+                        	otherAllowanceDto.setOther02Used(cell.getNumericCellValue());
+                            break;
+                        case 5:
                         	otherAllowanceDto.setOtherAllowance02(cell.getNumericCellValue());
                             break;
                     }
-                    if (cellindex == 2) break;
+                    if (cellindex == 5) break;
                 }
-                listOtherAllowance.add(otherAllowanceDto);
+                if(otherAllowanceDto.getEmployeeNumber() != null && !"".equals(otherAllowanceDto.getEmployeeNumber())) {
+                	listOtherAllowance.add(otherAllowanceDto);
+                }
             }
             opcPackage.close();
             workbook.close();
