@@ -269,7 +269,7 @@ public class Payroll6InPageService {
 		if (null != data.getHalfLeaveUsedDay()) {
 			sheet.getRow(curRow+14).getCell(curCol+1).setCellValue(data.getHalfLeaveUsedDay());
 		}
-		if (null != data.getHalfLeaveUsed()) {
+		if (0 != data.getHalfLeaveUsed()) {
 			sheet.getRow(curRow+14).getCell(curCol+2).setCellValue(data.getHalfLeaveUsed());
 		}
 		if (null != data.getAttribute15()) {
@@ -279,7 +279,7 @@ public class Payroll6InPageService {
 		if (null != data.getEarlyLeaveDay()) {
 			sheet.getRow(curRow+15).getCell(curCol+1).setCellValue(data.getEarlyLeaveDay());
 		}
-		if (null != data.getEarlyLeaveTime()) {
+		if (0 != data.getEarlyLeaveTime()) {
 			sheet.getRow(curRow+15).getCell(curCol+2).setCellValue(data.getEarlyLeaveTime());
 		}
 		if (null != data.getAttribute13()) {
@@ -289,7 +289,7 @@ public class Payroll6InPageService {
 		if (null != data.getLateDay()) {
 			sheet.getRow(curRow+16).getCell(curCol+1).setCellValue(data.getLateDay());
 		}
-		if (null != data.getLateTime()) {
+		if (0 != data.getLateTime()) {
 			sheet.getRow(curRow+16).getCell(curCol+2).setCellValue(data.getLateTime());
 		}
 		if (null != data.getAttribute14()) {
@@ -299,7 +299,7 @@ public class Payroll6InPageService {
 		if (null != data.getOuterDay()) {
 			sheet.getRow(curRow+17).getCell(curCol+1).setCellValue(data.getOuterDay());
 		}
-		if (null != data.getOuterTime()) {
+		if (0 != data.getOuterTime()) {
 			sheet.getRow(curRow+17).getCell(curCol+2).setCellValue(data.getOuterTime());
 		}
 		if (null != data.getAttribute17()) {

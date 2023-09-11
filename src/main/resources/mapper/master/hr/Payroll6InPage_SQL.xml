@@ -82,22 +82,18 @@
          , IFNULL(hdcs.attribute24,0) as attribute24 -- 연차정산금액
          -- 반차
          , IFNULL(hdmkt.half_leave_used_day,'') as half_leave_used_day -- 반차사용일자 
-         , CASE hdmkt.half_leave_used WHEN NULL THEN '' WHEN 0 THEN ''
-           ELSE CONCAT(hdmkt.half_leave_used, '회')
-           END as half_leave_used -- 반차사용
+         , IFNULL(hdmkt.half_leave_used,0) as half_leave_used -- 반차사용
          , IFNULL(hdcs.attribute15,0) as attribute15 -- 반차수당
          -- 조퇴
          , IFNULL(hdmkt.early_leave_day,'') as early_leave_day -- 조퇴사용일자 
-         , CASE hdmkt.early_leave_time WHEN NULL THEN '' WHEN 0 THEN ''
-           ELSE CONCAT(hdmkt.early_leave_time, '회')
-           END as early_leave_time -- 조퇴사용
+         , IFNULL(hdmkt.early_leave_time,0) as early_leave_time -- 조퇴사용
          , IFNULL(hdcs.attribute13,0) as attribute13 -- 조퇴수당
          -- 지각
          , IFNULL(hdmkt.late_day,'') as late_day -- 지각일자 
          , IFNULL(hdmkt.late_time,0) as late_time -- 지각시간
-         , CASE hdmkt.late_time WHEN NULL THEN '' WHEN 0 THEN ''
-           ELSE CONCAT(hdmkt.late_time, '회')
-           END as late_time -- 사용
+         , CASE hdmkt.late_cnt WHEN NULL THEN '' WHEN 0 THEN ''
+           ELSE CONCAT(hdmkt.late_cnt, '회')
+           END as late_cnt -- 지각횟수
          , IFNULL(hdcs.attribute14,0) as attribute14 -- 지각수당
          -- 외출
          , IFNULL(hdmkt.outer_day,'') as outer_day  -- 외출일자 
