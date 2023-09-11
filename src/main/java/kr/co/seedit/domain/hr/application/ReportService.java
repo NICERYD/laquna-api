@@ -1868,9 +1868,48 @@ public class ReportService {
 
 		return workbook;
 	}
-
+	
 	@Transactional
 	public XSSFWorkbook createPersonalPayroll(ReportParamsDto reportParamsDto) throws Exception {
+		// Get Employee List
+		List<PersonalPayrollParamsDto> employees = new ArrayList<>();
+		employees = reportDao.findEmployees(reportParamsDto);
+		
+		// Open Sample Excel
+		Resource resource = resourceLoader.getResource("classpath:hr/personalPayrollSample.xlsx");
+		InputStream fis = resource.getInputStream();
+	
+		XSSFWorkbook workbook = new XSSFWorkbook(fis);
+		
+		for (PersonalPayrollParamsDto e : employees) {
+			// Get ADT Data
+			reportParamsDto.setEmployeeId(e.getEmployeeId());
+			List<EmployeeInformationDto> personalAdtList = new ArrayList<>();
+			personalAdtList = reportDao.findPersonalPayroll(reportParamsDto);
+
+			int rowindex = 0;
+			int cellindex = 0;
+			XSSFRow row = null;
+			XSSFCell cell = null;
+			XSSFSheet sheet = null;
+			
+			String employeeType = e.getEmployeeType();
+			if ("100".equals(employeeType)) {
+				sheet = workbook.cloneSheet(0,e.getKoreanName());
+			}else if("200".equals(employeeType)) {
+				sheet = workbook.cloneSheet(1,e.getKoreanName());
+			}
+			
+			row = sheet.getRow(1);
+			
+			
+		}
+		
+		return workbook;
+	}
+
+	@Transactional
+	public XSSFWorkbook createPersonalPayrollOrigin(ReportParamsDto reportParamsDto) throws Exception {
 		// Get Employee List
 		List<PersonalPayrollParamsDto> employees = new ArrayList<>();
 		employees = reportDao.findEmployees(reportParamsDto);
