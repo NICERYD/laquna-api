@@ -226,11 +226,14 @@
 			<if test="overtimeAllowance02 != null">
 				attribute03 = #{overtimeAllowance02},
 			</if>
+			<if test="nightAllowance01 != null">
+				attribute04 = #{nightAllowance01},
+			</if>
 			<if test="nightAllowance02 != null">
 				attribute05 = #{nightAllowance02},
 			</if>
 			<if test="holidayAllowance01 != null">
-				attribute06 = #{holidayAllowance01},
+				attribute21 = #{holidayAllowance01},
 			</if>
 			<if test="holidayAllowance02 != null">
 				attribute07 = #{holidayAllowance02},
@@ -239,7 +242,7 @@
 				attribute08 = #{positionAllowance},
 			</if>
 			<if test="otherAllowance01 != null">
-				attribute09 = #{otherAllowance01},
+				attribute13 = #{otherAllowance01},
 			</if>
 			<if test="otherAllowance02 != null">
 				attribute16 = #{otherAllowance02},
