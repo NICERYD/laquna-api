@@ -58,6 +58,8 @@ public class Payroll6InPageDto implements Serializable {
 	private Double annualLeaveUsed; // 연차사용
 	private Double attribute01; // 연차수당
 	// 연차정산
+	private String annualLeaveCalc; //연차정산횟수 
+	private Double attribute24; //연차정산금액
 	// 연차정산2
 
 	// 반차
@@ -78,9 +80,12 @@ public class Payroll6InPageDto implements Serializable {
 	// 외출
 	private String outerDay; // 외출일자
 	private Double outerTime; // 외출시간
+//	@Builder.Default
+//	private Double attribute17 = 0d; // 외출수당
 	private Double attribute17; // 외출수당
 
 	// 초과상여/수당
+	private Double other02Used; // 초과상여 사용
 	private Double attribute16; // 초과상여/수당
 
 	// 보조금(교통비, 식대)

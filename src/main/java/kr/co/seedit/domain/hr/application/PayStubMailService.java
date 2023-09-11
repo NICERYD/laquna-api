@@ -30,76 +30,31 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class PayStubMailService {
-	
+
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	
+
 	private final byte[] iv = "0123456789abcdef".getBytes();
-	
+
+//	@Value("${spring.maildh.host}")
+//	private String dh_host;
+//	@Value("${spring.maildh.port}")
+//	private Integer dh_port;
+//	@Value("${spring.maildh.username}")
+//	private String dh_username;
+//	@Value("${spring.maildh.password}")
+//	private String dh_password;
+//	@Value("${spring.maildh.protocol}")
+//	private String dh_protocol;
+//	@Value("${spring.maildh.properties.starttls}")
+//	private String dh_starttls;
+//	@Value("${spring.maildh.properties.debug}")
+//	private String dh_debug;
+//	@Value("${spring.maildh.properties.auth}")
+//	private String dh_auth;
+//	@Value("${spring.maildh.properties.ssl}")
+//	private String dh_ssl;
+
 	private final ReportDao reportDao;
-	
-//	private static JavaMailSenderImpl emailSenderDH = new JavaMailSenderImpl();
-//	private static JavaMailSenderImpl emailSenderGmail = new JavaMailSenderImpl();
-//	private static Properties propertiesDH;
-//	private static String usernameDH = "lhkyu1@gmail.com";
-//	private static String passwordDH = "minreyqgmyazgfeh";
-//	private static Properties propertiesGmail;
-//	static {
-//		propertiesDH = System.getProperties();
-//		propertiesDH.setProperty("mail.transport.protocol", "smtp");
-//		propertiesDH.setProperty("mail.smtp.starttls.enable", "false");
-//		propertiesDH.setProperty("mail.smtp.debug", "true");
-//		propertiesDH.setProperty("mail.smtp.auth", "true");
-//		propertiesDH.setProperty("mail.smtp.ssl.enable", "false");	        
-//		propertiesDH.setProperty("mail.smtp.host", "smtp.mailplug.co.kr");
-//		propertiesDH.setProperty("mail.smtp.port", "465");
-//
-//		
-//
-//		propertiesGmail = System.getProperties();
-//		propertiesGmail.setProperty("mail.transport.protocol", "smtp");
-//		propertiesGmail.setProperty("mail.smtp.starttls.enable", "true");
-//		propertiesGmail.setProperty("mail.smtp.debug", "true");
-//		propertiesGmail.setProperty("mail.smtp.auth", "true");
-//		propertiesGmail.setProperty("mail.smtp.ssl.enable", "true");	        
-//		propertiesGmail.setProperty("mail.smtp.host", "smtp.gmail.com");
-//		propertiesGmail.setProperty("mail.smtp.port", "587");
-//
-////		emailSender.setHost(mailDto.getHost());
-////		emailSenderDH.setUsername(mailDto.getUsername());
-////		emailSenderDH.setPassword(mailDto.getPassword());
-////		emailSenderDH.setPort(Integer.valueOf(mailDto.getPort()));
-////		emailSenderDH.setJavaMailProperties(properties);
-////		emailSenderDH.setDefaultEncoding(encString);
-////		emailSenderGmail.setDefaultEncoding(encString);
-////
-////		emailSender.setJavaMailProperties(properties);
-////		emailSender.setSession(Session.getDefaultInstance(properties));
-//	}
-//	// 임시 테스트용 SMTP 설정
-//	private static Properties propertiesGmail;
-//	static {
-//	    // "host": "smtp.mailplug.co.kr",
-//	    // "port":"465",
-//	    // "username":"euijin.ha@dhpic.co.kr",
-//	    // "password":"dhpic11!",
-//		propertiesGmail.setProperty("mail.transport.protocol", "smtp");
-//		propertiesGmail.setProperty("mail.smtp.starttls.enable", mailDto.getStarttls());
-//		propertiesGmail.setProperty("mail.smtp.debug", mailDto.getDebug());
-//		propertiesGmail.setProperty("mail.smtp.auth", mailDto.getAuth());
-//		propertiesGmail.setProperty("mail.smtp.ssl.enable", mailDto.getSsl());	        
-//		propertiesGmail.setProperty("mail.smtp.host", "smtp.gmail.com");
-//		propertiesGmail.setProperty("mail.smtp.port", "465");
-//
-////		emailSender.setHost(mailDto.getHost());
-//		emailSender.setUsername("lhkyu1@gmail.com");
-//		emailSender.setPassword("minreyqgmyazgfeh");
-//		emailSender.setPort(Integer.valueOf("587");
-//		emailSender.setJavaMailProperties(properties);
-//		emailSender.setDefaultEncoding(encString);
-//
-//		emailSender.setJavaMailProperties(properties);
-//		emailSender.setSession(Session.getDefaultInstance(properties));
-//	}
 
 	public ResponseDto sendPayStubMailDH(ReportParamsDto reportParamsDto) {
 
@@ -108,32 +63,28 @@ public class PayStubMailService {
 		Properties properties = System.getProperties();
 		String encString = "UTF-8";
 
-		try {
-			// smtp setting
-//			properties.setProperty("mail.transport.protocol", "smtp");
-//			properties.setProperty("mail.smtp.starttls.enable", "false");
-//			properties.setProperty("mail.smtp.debug", "true");
-//			properties.setProperty("mail.smtp.auth", "true");
-//			properties.setProperty("mail.smtp.ssl.enable", "false");	        
-//	
-//			emailSender.setJavaMailProperties(properties);
-//			emailSender.setHost("smtp.mailplug.co.kr");
-//			emailSender.setUsername("euijin.ha@dhpic.co.kr");
-//			emailSender.setPassword("dhpic11!");
-//			emailSender.setPort(465);
-			
-			properties.setProperty("mail.transport.protocol", "smtp");
-			properties.setProperty("mail.smtp.starttls.enable", "true");
-			properties.setProperty("mail.smtp.debug", "true");
-			properties.setProperty("mail.smtp.auth", "true");
-			properties.setProperty("mail.smtp.ssl.enable", "false");	        
-			emailSender.setJavaMailProperties(properties);
-			emailSender.setHost("smtp.gmail.com");
-			emailSender.setUsername("lhkyu1@gmail.com");
-			emailSender.setPassword("minreyqgmyazgfeh");
-			emailSender.setPort(587);
+		String dh_host = "smtp.gmail.com";
+		Integer dh_port = 587;
+		String dh_username = "lhkyu1@gmail.com";
+		String dh_password = "minreyqgmyazgfeh";
+		String dh_protocol = "smtp";
+		String dh_starttls = "true";
+		String dh_debug = "false";
+		String dh_auth = "true";
+		String dh_ssl = "false";
 
-			
+		try {
+			properties.setProperty("mail.transport.protocol", dh_protocol);
+			properties.setProperty("mail.smtp.starttls.enable", dh_starttls);
+			properties.setProperty("mail.smtp.debug", dh_debug);
+			properties.setProperty("mail.smtp.auth", dh_auth);
+			properties.setProperty("mail.smtp.ssl.enable", dh_ssl);
+			emailSender.setJavaMailProperties(properties);
+			emailSender.setHost(dh_host);
+			emailSender.setUsername(dh_username);
+			emailSender.setPassword(dh_password);
+			emailSender.setPort(dh_port);
+
 			emailSender.setDefaultEncoding(encString);
 			emailSender.setSession(Session.getDefaultInstance(properties));
 		} catch (SecurityException e) {
@@ -152,13 +103,8 @@ public class PayStubMailService {
 			throw new CustomException("선택된 사용자가 없습니다");
 		}
 		for (String employeeNumber : reportParamsDto.getEmployeeNumberList()) {
-			
+
 			try {
-//				ReportParamsDto reportParamsDto = new ReportParamsDto();
-//				reportParamsDto.setCompanyId(5);
-//				reportParamsDto.setEstId(999);
-//				reportParamsDto.setYyyymm("202306");
-//				reportParamsDto.setEmployeeNumber("D00001");
 				reportParamsDto.setEmployeeNumber(employeeNumber);
 				// getData
 				ReportPayrollDto data = reportDao.findPayStubForMail(reportParamsDto);
@@ -166,13 +112,13 @@ public class PayStubMailService {
 					failCount++;
 					continue;
 				}
-				
+
 				// setting for mailsend
 				PayStubMailDto mailDto = new PayStubMailDto();
 				List<String> address = new ArrayList<>();
 				List<String> ccAddress = null; //new ArrayList<>();
-				
-				String from = "euijin.ha@dhpic.co.kr";
+
+//				String from = dh_username;
 //				address.add(data.getEmailAddress());
 				String subject = reportParamsDto.getYyyymm().substring(0, 4)+"년 "+reportParamsDto.getYyyymm().substring(5, 6)+"월 급여 명세서 입니다.";
 				String content = "<br>"
@@ -184,15 +130,15 @@ public class PayStubMailService {
 
 				// test logic - start
 				address.add("lhkyu@naver.com");
-				from = "lhkyu1@gmail.com";
+//				from = dh_username;//"lhkyu1@gmail.com";
 				content = data.getKoreanName()+"<br>"
 						+ "* 본 보안 메일은 개인정보 보호를 위하여 암호화있습니다.<br>"
 						+ "* 암호화된 첨부파일은 인터넷이 연결된 환경에서 확인이 가능합니다.<br>"
 						+ "* 다운로드한 첨부파일에 비밀번호 (생년월일 6자리)를 입력하시면 내용을 확인하실 수 있습니다.";
 				// test logic - end
-				
+
 				this.runJavaMailSender(mailDto, emailSender, encString,
-						from,
+						dh_username,
 						address,
 						ccAddress,
 						subject,
@@ -206,8 +152,11 @@ public class PayStubMailService {
 				throw new CustomException("EmployeeNumber " + employeeNumber + " Information retrieval failed.");
 			}
 		}
-		
-		responseDto.setMessage("데이터 없음: "+failCount+"건");
+
+		if (0 < failCount) {
+			responseDto.setCode("9998");
+			responseDto.setMessage("성공 "+reportParamsDto.getEmployeeNumberList()+"건, 실패 " + failCount +"건");
+		}
 
 		return responseDto;
 	}
@@ -227,7 +176,7 @@ public class PayStubMailService {
 			String attachmentName,
 			String attachmentBody
 			) {
-		
+
 		MimeMessage message = null;
         MimeMessageHelper helper = null;
 		try {
@@ -292,9 +241,9 @@ public class PayStubMailService {
 			e.printStackTrace();
 			throw new CustomException("content setting fail");
 		}
-		
+
 //		for (int i = 0; i < mailDto.getAttachmentName().length && i < mailDto.getAttachment().length;i++) {
-//			
+//
 //			try {
 //				helper.addAttachment(mailDto.getAttachmentName()[i], mailDto.getAttachment()[i]);
 //			} catch (SecurityException e) {
@@ -336,7 +285,7 @@ public class PayStubMailService {
 
 	        //메일 보내기
 	        emailSender.send(message);
-	        
+
 	        log.debug("Send mail done. " + mailDto.toString());
 		} catch (MailAuthenticationException e) {
 			//log.error("Email authentication fail. MessagingException: "+e.getMessage());
@@ -352,17 +301,17 @@ public class PayStubMailService {
 			throw new CustomException("Email send() error");
 		}
 	}
-	
-	public ReportPayrollDto getPayStubData () throws Exception {
-		ReportParamsDto reportParamsDto = new ReportParamsDto();
-		reportParamsDto.setCompanyId(5);
-		reportParamsDto.setEstId(999);
-		reportParamsDto.setYyyymm("202306");
-		reportParamsDto.setEmployeeNumber("D00001");
-		ReportPayrollDto data = reportDao.findPayStubForMail(reportParamsDto);
-		return data;
-	}
-	
+
+//	public ReportPayrollDto getPayStubData () throws Exception {
+//		ReportParamsDto reportParamsDto = new ReportParamsDto();
+//		reportParamsDto.setCompanyId(5);
+//		reportParamsDto.setEstId(999);
+//		reportParamsDto.setYyyymm("202306");
+//		reportParamsDto.setEmployeeNumber("D00001");
+//		ReportPayrollDto data = reportDao.findPayStubForMail(reportParamsDto);
+//		return data;
+//	}
+
 	private String getAttachmentBodyDH(ReportPayrollDto data) {
 
 			String key = "750122";
@@ -678,7 +627,7 @@ public class PayStubMailService {
 				.append("		</tr>\r\n")
 				.append("	</tbody>\r\n")
 				.append("</div>");
-			
+
 
 			Aes256 aes256 = new Aes256();
 String enc= aes256.encrypt(key, iv, body.toString());
@@ -696,14 +645,14 @@ System.out.println("aes256.encrypt(body) [" + enc + "]");
 			.append("<script type = \"text/javascript\">var input = document.getElementById(\"infor\");input.addEventListener(\"keyup\", function (event) { if (event.keyCode === 13) { if (document.getElementById(\"infor\").value != '') { event.preventDefault();viewdetail();}}});function viewdetail() { let input = document.getElementById(\"infor\").value;if (input == '' || input.length != 6) { alert(\"생년월일 6자리를 입력해주세요.\");document.getElementById(\"infor\").focus();return false;}var key=input.padEnd(16, \" \");var Iv = \"0123456789abcdef\";var data = '")
 			.append(aes256.encrypt(key, iv, body.toString()))
 			.append("';const cipher = CryptoJS.AES.decrypt(data, CryptoJS.enc.Utf8.parse(key), { iv: CryptoJS.enc.Utf8.parse(Iv), padding: CryptoJS.pad.Pkcs7, mode: CryptoJS.mode.CBC }); var html = cipher.toString(CryptoJS.enc.Utf8); document.getElementById('detail').innerHTML = html; if (null != document.getElementById('dec')) { document.getElementById(\"precheck\").remove(); document.getElementById(\"dec\").style.visibility = 'visible'; } else { alert(\"비밀번호가 일치하지 않습니다\"); } } </script></html>");
-		
+
 		return attachStr.toString();
 	}
-	
+
 //	public void sendMailLocalTest(PayStubMailDto mailDto) {
 //
 //		JavaMailSenderImpl emailSender = new JavaMailSenderImpl();
-//		
+//
 //		Properties properties = null;
 //		try {
 //		    if (mailDto.getEncoding().isEmpty()) throw new CustomException("empty input. encoding");
@@ -722,10 +671,10 @@ System.out.println("aes256.encrypt(body) [" + enc + "]");
 //			properties.setProperty("mail.smtp.debug", mailDto.getDebug());
 //	        properties.setProperty("mail.transport.protocol", mailDto.getProtocol());
 //	        properties.setProperty("mail.smtp.auth", mailDto.getAuth());
-//	        properties.setProperty("mail.smtp.ssl.enable", mailDto.getSsl());	        
+//	        properties.setProperty("mail.smtp.ssl.enable", mailDto.getSsl());
 ////			properties.setProperty("mail.smtp.host", mailDto.getHost());
 ////			properties.setProperty("mail.smtp.port", mailDto.getPort());
-//	
+//
 //			emailSender.setHost(mailDto.getHost());
 //			emailSender.setUsername(mailDto.getUsername());
 //			emailSender.setPassword(mailDto.getPassword());
@@ -744,7 +693,7 @@ System.out.println("aes256.encrypt(body) [" + enc + "]");
 //			e.printStackTrace();
 //			throw new CustomException("mail setting fail");
 //		}
-//		
+//
 //
 //		MimeMessage message = null;
 //        MimeMessageHelper helper = null;
@@ -1112,7 +1061,7 @@ System.out.println("aes256.encrypt(body) [" + enc + "]");
 //				.append("		</tr>\r\n")
 //				.append("	</tbody>\r\n")
 //				.append("</div>");
-//			
+//
 //
 //			Aes256 aes256 = new Aes256();
 //String enc= aes256.encrypt(key, iv, body.toString());
@@ -1150,7 +1099,7 @@ System.out.println("aes256.encrypt(body) [" + enc + "]");
 //
 //	        //메일 보내기
 //	        emailSender.send(message);
-//	        
+//
 //	        log.debug("Send mail done. " + mailDto.toString());
 //		} catch (MailAuthenticationException e) {
 //			//log.error("Email authentication fail. MessagingException: "+e.getMessage());

@@ -41,7 +41,16 @@ public class PayStubMailApi {
 	}
 
     @PostMapping("/hr/sendPayStubMailDH")
-    public ResponseEntity<ResponseDto> downloadERPIU(@RequestBody ReportParamsDto reportParamsDto, HttpServletResponse response) throws Exception {
+    public ResponseEntity<ResponseDto> sendPayStubMailDH(@RequestBody ReportParamsDto reportParamsDto, HttpServletResponse response) throws Exception {
+
+    	ResponseDto responseDto = ResponseDto.builder().build();
+//    	responseDto = payStubMailService.sendPayStubMailDH(reportParamsDto);
+    	
+    	return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+    
+    @PostMapping("/hr/sendPayStubMailApiDH")
+    public ResponseEntity<ResponseDto> sendPayStubMailApiDH(@RequestBody ReportParamsDto reportParamsDto, HttpServletResponse response) throws Exception {
 
     	ResponseDto responseDto = ResponseDto.builder().build();
     	responseDto = payStubMailService.sendPayStubMailDH(reportParamsDto);

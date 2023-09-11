@@ -64,7 +64,7 @@ public class Payroll6InPageService {
 		}
 
 		// get full-time user data
-		reportParamsDto.setEmployeeType(100);
+//		reportParamsDto.setEmployeeType(100);
 		List<Payroll6InPageDto> listFulltime = payroll6InPageDao.getPayroll6InPageList(reportParamsDto);
 		
 		try {
@@ -258,6 +258,12 @@ public class Payroll6InPageService {
 			sheet.getRow(curRow+12).getCell(curCol+3).setCellValue(data.getAttribute01());
 		}
 		//연차정산
+		if (null != data.getAnnualLeaveCalc()) {
+			sheet.getRow(curRow+13).getCell(curCol+2).setCellValue(data.getAnnualLeaveCalc());
+		}
+		if (0 != data.getAttribute24()) {
+			sheet.getRow(curRow+13).getCell(curCol+3).setCellValue(data.getAttribute24());
+		}
 		//연봉/시급
 		//반차
 		if (null != data.getHalfLeaveUsedDay()) {
@@ -300,6 +306,9 @@ public class Payroll6InPageService {
 			sheet.getRow(curRow+17).getCell(curCol+3).setCellValue(data.getAttribute17());
 		}
 		//초과수당
+		if (0 != data.getOther02Used()) {
+			sheet.getRow(curRow+18).getCell(curCol+2).setCellValue(data.getOther02Used());
+		}
 		if (null != data.getAttribute16()) {
 			sheet.getRow(curRow+18).getCell(curCol+3).setCellValue(data.getAttribute16());
 		}
