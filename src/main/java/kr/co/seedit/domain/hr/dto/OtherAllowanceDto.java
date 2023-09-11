@@ -10,9 +10,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 public class OtherAllowanceDto {
-	private Integer companyId;
 	private Integer loginUserId;
-	private Double otherAllowance02;
+	private Integer companyId;
 	private String employeeNumber;
 	private String yyyymm;
+	
+	private Double annualLeaveCalc;
+	private Double annualLeaveAllowance;
+	private Double other02Used;
+	private Double otherAllowance02;
 }

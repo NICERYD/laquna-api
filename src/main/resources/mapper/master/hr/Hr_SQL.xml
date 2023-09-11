@@ -226,11 +226,14 @@
 			<if test="overtimeAllowance02 != null">
 				attribute03 = #{overtimeAllowance02},
 			</if>
+			<if test="nightAllowance01 != null">
+				attribute04 = #{nightAllowance01},
+			</if>
 			<if test="nightAllowance02 != null">
 				attribute05 = #{nightAllowance02},
 			</if>
 			<if test="holidayAllowance01 != null">
-				attribute06 = #{holidayAllowance01},
+				attribute21 = #{holidayAllowance01},
 			</if>
 			<if test="holidayAllowance02 != null">
 				attribute07 = #{holidayAllowance02},
@@ -239,7 +242,7 @@
 				attribute08 = #{positionAllowance},
 			</if>
 			<if test="otherAllowance01 != null">
-				attribute09 = #{otherAllowance01},
+				attribute13 = #{otherAllowance01},
 			</if>
 			<if test="otherAllowance02 != null">
 				attribute16 = #{otherAllowance02},
@@ -266,7 +269,14 @@
 			ON hdcs.company_id  = he.company_id
 			AND hdcs.employee_id  = he.employee_id
 			AND hdcs.yyyymm  = he.attribute1
-		SET	hdcs.attribute16 = (IFNULL(hdcs.attribute16,0) + #{otherAllowance02})
+		INNER JOIN hr_dh_monthly_keun_tae hdmkt
+			ON hdcs.company_id = hdmkt.company_id
+			AND hdcs.employee_id  = hdmkt.employee_id
+			AND hdcs.yyyymm  = hdmkt.yyyymm
+		SET	hdmkt.annual_leave_calc = (IFNULL(hdmkt.annual_leave_calc,0) + #{annualLeaveCalc})
+			,hdcs.attribute23 = (IFNULL(hdcs.attribute23,0) + #{annualLeaveAllowance})
+			,hdmkt.other02_used = (IFNULL(hdmkt.other02_used,0) + #{other02Used})
+			,hdcs.attribute16 = (IFNULL(hdcs.attribute16,0) + #{otherAllowance02})
 			,hdcs.last_updated_by = #{loginUserId}
 			,hdcs.last_update_date = now()
 		WHERE	he.employee_number = #{employeeNumber}
