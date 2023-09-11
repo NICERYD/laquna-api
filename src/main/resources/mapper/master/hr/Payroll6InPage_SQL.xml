@@ -11,32 +11,36 @@
          , CASE WHEN he.employee_type = '100' THEN fcd02.defined_name  -- 직급
                 WHEN he.employee_type = '200' THEN fcd06.defined_name
            END AS defined_name
-
          , IFNULL(he.korean_name,'') as korean_name -- 이름
          , IFNULL(he.employee_type,'') as employee_type -- 100 연봉제
          , CASE WHEN he.employee_type = '100' THEN (IFNULL(hdcs.basic_salary,0) -- as basic_amount -- 기본금
                                                    + IFNULL(hdcs.attribute03,0) -- as overtime_allowance02 -- 연장2 수당(년봉제 전용)
                                                    + IFNULL(hdcs.attribute05,0) -- as night_allowance02 -- 야간2 수당(년봉제 전용)
                                                    + IFNULL(hdcs.attribute07,0))  -- as holiday_allowance02 -- 휴일2(년봉제 전용)
-                WHEN he.employee_type = '200' THEN IFNULL(hdcs.attribute20,0) 
+                WHEN he.employee_type = '200' THEN IFNULL(hdcs.attribute20,0)
+                ELSE 0
            END AS salary_amt -- 월급/시급
          , CASE WHEN he.employee_type = '100' THEN (IFNULL(hdcs.basic_salary,0) -- as basic_amount -- 기본금
                                                    + IFNULL(hdcs.attribute03,0) -- as overtime_allowance02 -- 연장2 수당(년봉제 전용)
                                                    + IFNULL(hdcs.attribute05,0) -- as night_allowance02 -- 야간2 수당(년봉제 전용)
                                                    + IFNULL(hdcs.attribute07,0))*13 -- as holiday_allowance02 -- 휴일2(년봉제 전용)
                 WHEN he.employee_type = '200' THEN round(IFNULL(hdcs.attribute20,0)/8,0)
+                ELSE 0
            END AS salary_amt2 -- 연봉(월급*13)/시급(1hour)
          , IFNULL(hdmkt.total_time,0) as total_time 
-         , CASE WHEN he.employee_type = '100' THEN hdcs.basic_salary  -- 직급
+         , CASE WHEN he.employee_type = '100' THEN IFNULL(hdcs.basic_salary,0)  -- 직급
                 WHEN he.employee_type = '200' THEN round(hdmkt.total_time * IFNULL(hdcs.attribute20,0)/8,0)
+                ELSE 0
            END as basic_amount -- 기본금액       
          -- 연장수당  
-         , CASE WHEN he.employee_type = '100' THEN hdmkt.overtime_daytime
-                WHEN he.employee_type = '200' THEN hdmkt.overtime_daytime
+         , CASE WHEN he.employee_type = '100' THEN IFNULL(hdmkt.overtime_daytime,0)
+                WHEN he.employee_type = '200' THEN IFNULL(hdmkt.overtime_daytime,0)
+                ELSE 0
            END as overtime_daytime01 -- 연장시간01                     
-         , hdcs.attribute02  AS  overtime_allowance01     -- 연장수당01
+         , IFNULL(hdcs.attribute02,0)  AS  overtime_allowance01     -- 연장수당01
          , CASE WHEN he.employee_type = '100' THEN 52
                 WHEN he.employee_type = '200' THEN 0
+                ELSE 0
            END as overtime_daytime02 -- 연장시간02
          , IFNULL(hdcs.attribute03,0)  AS  overtime_allowance02    -- 연장수당02      
          -- 야간수당
@@ -46,9 +50,11 @@
          , IFNULL(hdcs.attribute18,0) as nt_night_allowance01   -- 야간수당01 : 야간(연봉/시급) 수당
          , CASE WHEN he.employee_type = '100' THEN 24
                 WHEN he.employee_type = '200' THEN 0
+                ELSE 0
            END as nt_nighttime02 -- 야간수당02 시간
-         , CASE WHEN he.employee_type = '100' THEN hdcs.attribute05
+         , CASE WHEN he.employee_type = '100' THEN IFNULL(hdcs.attribute05,0)
                 WHEN he.employee_type = '200' THEN 0
+                ELSE 0
            END as nt_night_allowance02 -- 야간수당02 수당
          -- 휴일수당
          , IFNULL(hdmkt.holiday_saturday,0)  AS holiday_sat_time01  -- 휴일수당01 : 토요일 시간
@@ -57,13 +63,17 @@
          , IFNULL(hdcs.attribute22,0) as holiday_sun_allowance01    -- 휴일수당01 : 토요일 수당     
          , CASE WHEN he.employee_type = '100' THEN 0
                 WHEN he.employee_type = '200' THEN 0
+                ELSE 0
            END as holiday_time02 -- 휴일수당02 시간
          , CASE WHEN he.employee_type = '100' THEN IFNULL(hdcs.attribute07,0)
                 WHEN he.employee_type = '200' THEN 0
+                ELSE 0
            END as holiday_allowance02 -- 휴일수당02 수당     
          -- 연차수당
          , IFNULL(hdmkt.annual_leave_used_day,'') as annual_leave_used_day -- 연차사용일자
-         , IFNULL(hdmkt.annual_leave_used,0) as annual_leave_used -- 연차사용
+         , CASE hdmkt.annual_leave_used WHEN NULL THEN '' WHEN 0 THEN ''
+           ELSE CONCAT(hdmkt.annual_leave_used, '회')
+           END as annual_leave_used -- 연차사용
          , IFNULL(hdcs.attribute01,0) as attribute01 -- 연차수당
          -- , 0 -- 연차정산
          , CASE hdmkt.annual_leave_calc WHEN NULL THEN '' WHEN 0 THEN ''
@@ -72,15 +82,22 @@
          , IFNULL(hdcs.attribute24,0) as attribute24 -- 연차정산금액
          -- 반차
          , IFNULL(hdmkt.half_leave_used_day,'') as half_leave_used_day -- 반차사용일자 
-         , IFNULL(hdmkt.half_leave_used,0) as half_leave_used -- 반차사용
+         , CASE hdmkt.half_leave_used WHEN NULL THEN '' WHEN 0 THEN ''
+           ELSE CONCAT(hdmkt.half_leave_used, '회')
+           END as half_leave_used -- 반차사용
          , IFNULL(hdcs.attribute15,0) as attribute15 -- 반차수당
          -- 조퇴
-         , IFNULL(hdmkt.early_leave_day,'') as early_leave_day -- 반차사용일자 
-         , IFNULL(hdmkt.early_leave_time,0) as early_leave_time -- 반차사용
-         , IFNULL(hdcs.attribute13,0) as attribute13 -- 반차수당
+         , IFNULL(hdmkt.early_leave_day,'') as early_leave_day -- 조퇴사용일자 
+         , CASE hdmkt.early_leave_time WHEN NULL THEN '' WHEN 0 THEN ''
+           ELSE CONCAT(hdmkt.early_leave_time, '회')
+           END as early_leave_time -- 조퇴사용
+         , IFNULL(hdcs.attribute13,0) as attribute13 -- 조퇴수당
          -- 지각
          , IFNULL(hdmkt.late_day,'') as late_day -- 지각일자 
          , IFNULL(hdmkt.late_time,0) as late_time -- 지각시간
+         , CASE hdmkt.late_time WHEN NULL THEN '' WHEN 0 THEN ''
+           ELSE CONCAT(hdmkt.late_time, '회')
+           END as late_time -- 사용
          , IFNULL(hdcs.attribute14,0) as attribute14 -- 지각수당
          -- 외출
          , IFNULL(hdmkt.outer_day,'') as outer_day  -- 외출일자 

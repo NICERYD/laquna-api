@@ -55,7 +55,7 @@ public class Payroll6InPageDto implements Serializable {
 
 	// 연차수당
 	private String annualLeaveUsedDay; // 연차사용일자
-	private Double annualLeaveUsed; // 연차사용
+	private String annualLeaveUsed; // 연차사용
 	private Double attribute01; // 연차수당
 	// 연차정산
 	private String annualLeaveCalc; //연차정산횟수 
@@ -64,17 +64,17 @@ public class Payroll6InPageDto implements Serializable {
 
 	// 반차
 	private String halfLeaveUsedDay; // 반차사용일자
-	private Double halfLeaveUsed; // 반차사용
+	private String halfLeaveUsed; // 반차사용
 	private Double attribute15; // 반차수당
 
 	// 조퇴
-	private String earlyLeaveDay; // 반차사용일자
-	private Double earlyLeaveTime; // 반차사용
-	private Double attribute13; // 반차수당
+	private String earlyLeaveDay; // 조퇴사용일자
+	private String earlyLeaveTime; // 조퇴사용
+	private Double attribute13; // 조퇴수당
 
 	// 지각
 	private String lateDay; // 지각일자
-	private Double lateTime; // 지각시간
+	private String lateTime; // 지각시간횟수
 	private Double attribute14; // 지각수당
 
 	// 외출
