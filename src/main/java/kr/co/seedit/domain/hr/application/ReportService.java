@@ -1881,29 +1881,127 @@ public class ReportService {
 	
 		XSSFWorkbook workbook = new XSSFWorkbook(fis);
 		
-		for (PersonalPayrollParamsDto e : employees) {
-			// Get ADT Data
-			reportParamsDto.setEmployeeId(e.getEmployeeId());
-			List<EmployeeInformationDto> personalAdtList = new ArrayList<>();
-			personalAdtList = reportDao.findPersonalPayroll(reportParamsDto);
+		// Style Setting
+		Font font = workbook.createFont();
+		font.setFontName("맑은 고딕");
+		font.setFontHeightInPoints((short) 11);
+		
+		CellStyle YellowStyle = workbook.createCellStyle();
+		YellowStyle.setBorderTop(BorderStyle.THIN);
+		YellowStyle.setBorderBottom(BorderStyle.THIN);
+		YellowStyle.setBorderLeft(BorderStyle.THIN);
+		YellowStyle.setBorderRight(BorderStyle.THIN);
+		YellowStyle.setFont(font);
+		YellowStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		YellowStyle.setAlignment(HorizontalAlignment.CENTER);
+		YellowStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+		YellowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-			int rowindex = 0;
-			int cellindex = 0;
+		CellStyle GreenStyle = workbook.createCellStyle();
+		GreenStyle.setBorderTop(BorderStyle.THIN);
+		GreenStyle.setBorderBottom(BorderStyle.THIN);
+		GreenStyle.setBorderLeft(BorderStyle.THIN);
+		GreenStyle.setBorderRight(BorderStyle.THIN);
+		GreenStyle.setFont(font);
+		GreenStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		GreenStyle.setAlignment(HorizontalAlignment.CENTER);
+		GreenStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
+		GreenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		
+		for (PersonalPayrollParamsDto e : employees) {
+			
+			int rowindex = 1;
+			int cellindex = 13;
 			XSSFRow row = null;
 			XSSFCell cell = null;
 			XSSFSheet sheet = null;
 			
 			String employeeType = e.getEmployeeType();
-			if ("100".equals(employeeType)) {
+			if ("100".equals(employeeType)) {	//연봉제
 				sheet = workbook.cloneSheet(0,e.getKoreanName());
-			}else if("200".equals(employeeType)) {
+				row = sheet.getRow(rowindex++);
+				cell = row.getCell(cellindex);
+				cell.setCellValue(false);
+
+			}else if("200".equals(employeeType)) {	//시급제
 				sheet = workbook.cloneSheet(1,e.getKoreanName());
 			}
 			
-			row = sheet.getRow(1);
+			row = sheet.getRow(0);
+			cell = row.getCell(13);
+			cell.setCellValue(e.getKoreanName());
 			
+			// Get ADT Data
+			reportParamsDto.setEmployeeId(e.getEmployeeId());
+			List<EmployeeInformationDto> personalAdtList = new ArrayList<>();
+			personalAdtList = reportDao.findPersonalPayroll(reportParamsDto);
+			
+			rowindex = 1;
+			for (EmployeeInformationDto p : personalAdtList) {
+				row = sheet.getRow(rowindex++);
+				cellindex = 0;
+				cell = row.getCell(cellindex++);
+				cell.setCellValue(p.getWorkDate());
+
+				cell = row.getCell(cellindex++);
+				cell.setCellValue(p.getWorkStatus());
+				switch (p.getWorkStatus()) {
+				case "연차":
+				case "오후반차":
+				case "오전반차_정상":
+				case "오전반차_생산":
+				case "휴가":
+					cell.setCellStyle(GreenStyle);
+					break;
+				case "야간":
+					cell.setCellStyle(YellowStyle);
+					break;
+				}
+
+				cell = row.getCell(cellindex++);
+				cell.setCellValue(p.getWorkStartDate());
+
+				cell = row.getCell(cellindex++);
+				cell.setCellValue(p.getWorkEndDate());
+
+				cell = row.getCell(cellindex++);
+				cell.setCellValue(p.getInStatus());
+				if ("지각".equals(p.getInStatus())) {
+					cell.setCellStyle(YellowStyle);
+				}
+
+				cell = row.getCell(cellindex++);
+				cell.setCellValue(p.getOutStatus());
+				if ("조퇴".equals(p.getOutStatus())) {
+					cell.setCellStyle(YellowStyle);
+				}
+
+				cell = row.getCell(cellindex++);
+				cell.setCellValue(p.getLateTime());
+
+				cell = row.getCell(cellindex++);
+				cell.setCellValue(p.getOverTime());
+
+				cell = row.getCell(cellindex++);
+				cell.setCellValue(p.getNightTime());
+
+				cell = row.getCell(cellindex++);
+				cell.setCellValue(p.getHolidayTime());
+
+				cell = row.getCell(cellindex++);
+				cell.setCellValue(p.getDefaultTime());
+
+				cell = row.getCell(cellindex++);
+				cell.setCellValue(p.getRealWorkTime());
+			}
+
+			sheet.setAutoFilter(new CellRangeAddress(0, personalAdtList.size() + 1, 0, 11));
 			
 		}
+		
+		//sample양식 sheet 삭제
+		workbook.removeSheetAt(0);
+		workbook.removeSheetAt(1);
 		
 		return workbook;
 	}
