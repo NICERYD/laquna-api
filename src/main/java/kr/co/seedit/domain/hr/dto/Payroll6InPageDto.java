@@ -92,4 +92,28 @@ public class Payroll6InPageDto implements Serializable {
 	// 보조금(교통비, 식대)
 	private Double attribute11; // 교통비
 	private Double attribute12; // 식대
+	
+	/**
+	 * DTO for PersonalPayroll
+	 */
+	private Double ppAnnualLeaveUsed;	//연차횟수
+	private Double ppHalfLeaveUsed;		//반차횟수
+	private Double ppLateTime;		//지각시간 (0:00)
+	private Double ppLateCnt;		//지각횟수
+	private Double ppAbsence;		//결근횟수
+	
+	
+	//시급제
+	private Double ppOverTime;		//연장시간 (0:00)
+	private Double ppHolidayNightCnt;	//공휴야간횟수
+	private Double ppNightTime;		//야간근무시간 (0:00)
+	private Double ppNightCnt;		//야간일수
+	private Double ppNight;			//야간 (0.0시간)
+	
+	private Double ppHolidaySatTime;	//토요출근시간 (0:00)
+	private Double ppHolidaySunTime;	//휴일출근시간 (0:00)
+	
+	private Double ppEarlyLeaveUsed;	//조퇴횟수
+
+	
 }

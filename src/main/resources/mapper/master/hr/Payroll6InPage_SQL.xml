@@ -75,6 +75,7 @@
            ELSE CONCAT(hdmkt.annual_leave_used, '회')
            END as annual_leave_used -- 연차사용
          , IFNULL(hdcs.attribute01,0) as attribute01 -- 연차수당
+         , IFNULL(hdmkt.annual_leave_used, 0) as ppAnnualLeaveUsed	-- 연차횟수(개인급여)
          -- , 0 -- 연차정산
          , CASE hdmkt.annual_leave_calc WHEN NULL THEN '' WHEN 0 THEN ''
            ELSE CONCAT(hdmkt.annual_leave_calc, '회')
@@ -84,6 +85,7 @@
          , IFNULL(hdmkt.half_leave_used_day,'') as half_leave_used_day -- 반차사용일자 
          , IFNULL(hdmkt.half_leave_used,0) as half_leave_used -- 반차사용
          , IFNULL(hdcs.attribute15,0) as attribute15 -- 반차수당
+         , IFNULL(hdmkt.half_leave_used,0) as ppHalfLeaveUsed -- 반차횟수(개인급여)
          -- 조퇴
          , IFNULL(hdmkt.early_leave_day,'') as early_leave_day -- 조퇴사용일자 
          , IFNULL(hdmkt.early_leave_time,0) as early_leave_time -- 조퇴사용
@@ -95,6 +97,7 @@
            ELSE CONCAT(hdmkt.late_cnt, '회')
            END as late_cnt -- 지각횟수
          , IFNULL(hdcs.attribute14,0) as attribute14 -- 지각수당
+         , IFNULL(hdmkt.late_cnt, 0) as ppLateCnt	-- 지각횟수(개인급여)
          -- 외출
          , IFNULL(hdmkt.outer_day,'') as outer_day  -- 외출일자 
          , IFNULL(hdmkt.outer_time,0) as outer_time -- 외출시간
@@ -105,6 +108,8 @@
          -- 보조금(교통비, 식대)
          , IFNULL(hdcs.attribute11,0) as attribute11 -- 교통비
          , IFNULL(hdcs.attribute12,0) as attribute12 -- 식대
+         -- 결근
+         , IFNULL(hdmkt.absence, 0) as ppAbsence	-- 결근횟수(개인급여)
       FROM  hr_dh_calc_salary hdcs
       INNER JOIN hr_dh_monthly_keun_tae hdmkt
       ON hdcs.company_id = hdmkt.company_id 
