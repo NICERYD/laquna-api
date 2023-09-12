@@ -232,8 +232,8 @@ public class Payroll6InPageService {
 			sheet.getRow(curRow+8).getCell(curCol+3).setCellValue(data.getHolidaySatAllowance01());
 		}
 		//일요(연봉/시급)
-		if (null != data.getHolidaySumTime01()) {
-			sheet.getRow(curRow+9).getCell(curCol+2).setCellValue(data.getHolidaySumTime01());
+		if (null != data.getHolidaySunTime01()) {
+			sheet.getRow(curRow+9).getCell(curCol+2).setCellValue(data.getHolidaySunTime01());
 		}
 		if (null != data.getHolidaySunAllowance01()) {
 			sheet.getRow(curRow+9).getCell(curCol+3).setCellValue(data.getHolidaySunAllowance01());
