@@ -25,6 +25,7 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFPrintSetup;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -44,10 +45,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.seedit.domain.hr.dto.EmployeeInformationDto;
+import kr.co.seedit.domain.hr.dto.Payroll6InPageDto;
 import kr.co.seedit.domain.hr.dto.PersonalPayrollParamsDto;
 import kr.co.seedit.domain.hr.dto.ReportParamsDto;
 import kr.co.seedit.domain.hr.dto.ReportPayrollDto;
 import kr.co.seedit.domain.hr.dto.SalaryExcelDto;
+import kr.co.seedit.domain.mapper.seedit.Payroll6InPageDao;
 import kr.co.seedit.domain.mapper.seedit.ReportDao;
 import lombok.RequiredArgsConstructor;
 
@@ -58,6 +61,8 @@ public class ReportService {
 	private static final Logger logger = LoggerFactory.getLogger(ReportService.class);
 
 	private final ReportDao reportDao;
+	private final Payroll6InPageDao payroll6InPageDao;
+	private final Payroll6InPageService payroll6InPageService;
 	private final ResourceLoader resourceLoader;
 
 	@Autowired
@@ -117,6 +122,24 @@ public class ReportService {
 		String zeroCutFormula = "IF("+ formula + "=0,\"\" ,"+formula+")";	//수식 결과값이 0일 경우 빈칸으로 표시
 
 		return zeroCutFormula;
+	}
+	
+	//0.0 to 0:00 formatting
+	private static String determineTimeFormat(Double time) {
+		String result = "";
+		if(time != null) {
+			Double temp = Math.floor(time);
+			result = temp.intValue()+"";
+			if(time % 1 == 0.0) {
+				result += ":00";
+			}else {
+				result += ":30";
+			}
+		}else {
+			result = "0:00";
+		}
+		
+		return result;
 	}
 
 	public XSSFWorkbook createERPIU(ReportParamsDto reportParamsDto) throws Exception {
@@ -1869,11 +1892,14 @@ public class ReportService {
 		return workbook;
 	}
 	
+	@SuppressWarnings("static-access")
 	@Transactional
 	public XSSFWorkbook createPersonalPayroll(ReportParamsDto reportParamsDto) throws Exception {
 		// Get Employee List
-		List<PersonalPayrollParamsDto> employees = new ArrayList<>();
-		employees = reportDao.findEmployees(reportParamsDto);
+		List<Payroll6InPageDto> employees = new ArrayList<>();
+		employees = payroll6InPageDao.getPayroll6InPageList(reportParamsDto);
+//		List<PersonalPayrollParamsDto> employees = new ArrayList<>();
+//		employees = reportDao.findEmployees(reportParamsDto);
 		
 		// Open Sample Excel
 		Resource resource = resourceLoader.getResource("classpath:hr/personalPayrollSample.xlsx");
@@ -1908,31 +1934,119 @@ public class ReportService {
 		GreenStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
 		GreenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		
-		for (PersonalPayrollParamsDto e : employees) {
+		XSSFCellStyle styleLightGreen = workbook.createCellStyle();
+		styleLightGreen.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());  // 배경색
+		styleLightGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		styleLightGreen.setBorderTop(BorderStyle.THIN);
+		styleLightGreen.setBorderBottom(BorderStyle.THIN);
+		styleLightGreen.setBorderLeft(BorderStyle.THIN);
+		styleLightGreen.setBorderRight(BorderStyle.THIN);
+		styleLightGreen.setShrinkToFit(true);
+		
+		XSSFCellStyle styleLemonChiffon = workbook.createCellStyle();
+		styleLemonChiffon.setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex());  // 배경색
+		styleLemonChiffon.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		styleLemonChiffon.setBorderTop(BorderStyle.THIN);
+		styleLemonChiffon.setBorderBottom(BorderStyle.THIN);
+		styleLemonChiffon.setBorderLeft(BorderStyle.THIN);
+		styleLemonChiffon.setBorderRight(BorderStyle.THIN);
+		styleLemonChiffon.setShrinkToFit(true);
+		
+		for (Payroll6InPageDto e : employees) {
 			
-			int rowindex = 1;
-			int cellindex = 13;
+			int rowindex = 0;
+			int cellindex = 0;
 			XSSFRow row = null;
 			XSSFCell cell = null;
 			XSSFSheet sheet = null;
 			
-			String employeeType = e.getEmployeeType();
-			if ("100".equals(employeeType)) {	//연봉제
+			int cell01 = 13;
+			int cell02 = 16;
+			Double employeeType = e.getEmployeeType();
+			
+			if(employeeType == 100) {	//연봉제
 				sheet = workbook.cloneSheet(0,e.getKoreanName());
+				rowindex = 2;
 				row = sheet.getRow(rowindex++);
-				cell = row.getCell(cellindex);
-				cell.setCellValue(false);
+				row.getCell(cell01).setCellValue(e.getAnnualLeaveUsedCnt());
+//				row.getCell(cell02).setCellValue(e.getHalfLeaveUsedCnt());	//반차횟수
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(determineTimeFormat(e.getLateTime()));
+				row.getCell(cell02).setCellValue(e.getLateCntNum());
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(e.getAbsenceCnt());
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//평일연장2H
+				row.getCell(cell02).setCellValue(false);	//철야익일4.5H
+				
+				rowindex++;
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//토요4H
+				row.getCell(cell02).setCellValue(false);	//일요4H
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//토요8H
+				row.getCell(cell02).setCellValue(false);	//일요8H
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//토요 계
+				row.getCell(cell02).setCellValue(false);	//일요 계
 
-			}else if("200".equals(employeeType)) {	//시급제
+			}else if(employeeType == 200) {	//시급제
 				sheet = workbook.cloneSheet(1,e.getKoreanName());
+				rowindex = 1;
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(determineTimeFormat(e.getOvertimeDaytime01()));
+				row.getCell(cell02).setCellValue(false);	//공휴야간횟수
+				
+				row = sheet.getRow(rowindex++);
+//				row.getCell(cell01).setCellValue(determineTimeFormat(e.getNtDaytime01()));	//야간근무시간
+				row.getCell(cell02).setCellValue(false);  //야간일수
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//야간 (0.0시간)
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//토요출근 시간계수표1이면 8:00
+				row.getCell(cell02).setCellValue(false);	//토요 시간계수표
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//토요출근시간
+				row.getCell(cell02).setCellValue(false);	//토요 시간계수표
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//토요출근계
+				row.getCell(cell02).setCellValue(false);	//토요 시간계
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//휴일출근시간
+				row.getCell(cell02).setCellValue(false);	//휴일 시간계수표
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(e.getAnnualLeaveUsedCnt());
+//				row.getCell(cell02).setCellValue(e.getHalfLeaveUsedCnt());		//반차횟수
+				
+				row = sheet.getRow(rowindex++);
+//				row.getCell(cell01).setCellValue(e.getEarlyLeaveUsedCnt());		//조퇴횟수
+				row.getCell(cell02).setCellValue(determineTimeFormat(e.getLateTime()));
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(e.getAbsenceCnt());
+				
 			}
 			
 			row = sheet.getRow(0);
-			cell = row.getCell(13);
+			cell = row.getCell(cell01);
 			cell.setCellValue(e.getKoreanName());
 			
+			payroll6InPageService.setValuePayrollTableForm(sheet, e, -1, 11, 12, styleLightGreen, styleLemonChiffon);
+			
 			// Get ADT Data
-			reportParamsDto.setEmployeeId(e.getEmployeeId());
+			reportParamsDto.setEmployeeId(e.getEmployeeId().intValue());
 			List<EmployeeInformationDto> personalAdtList = new ArrayList<>();
 			personalAdtList = reportDao.findPersonalPayroll(reportParamsDto);
 			
@@ -2001,7 +2115,7 @@ public class ReportService {
 		
 		//sample양식 sheet 삭제
 		workbook.removeSheetAt(0);
-		workbook.removeSheetAt(1);
+		workbook.removeSheetAt(0);
 		
 		return workbook;
 	}
