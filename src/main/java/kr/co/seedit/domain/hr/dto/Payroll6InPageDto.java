@@ -97,9 +97,15 @@ public class Payroll6InPageDto implements Serializable {
 	 * DTO for PersonalPayroll
 	 */
 	private Double annualLeaveUsedCnt;	//연차횟수
-	private Double halfLeaveUsedCnt;		//반차횟수	-x
+	private Double halfLeaveCnt;		//반차횟수	
 	private Double lateCntNum;		//지각횟수
 	private Double absenceCnt;		//결근횟수
+	private Double overtimeDay2HCnt;	//평일연장2h
+	private Double overTimeDay4H3MCnt;	//철야익일4.5h
+	private Double holidaySaturdayDay4HCnt;	//토요4h
+	private Double holidaySaturdayDay8HCnt;	//토요8h
+	private Double holidaySundayDay4HCnt;	//일요4h
+	private Double holidaySundayDay8HCnt;	//일요8h
 	
 	//시급제
 	private Double holidayNightCnt;	//공휴야간횟수
