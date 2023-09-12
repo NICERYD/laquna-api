@@ -396,9 +396,6 @@
         AND he.employee_id = hdt.employee_id
         AND he.attribute1 = hdt.yyyymm
         WHERE  he.company_id = #{companyId}
-        <if test="estId !=999 and estId != null">
-            AND   he.est_id = #{estId}
-        </if>
         AND   he.attribute1  = #{yyyymm}
         AND	  he.employee_number = #{employeeNumber}
 	</select>
