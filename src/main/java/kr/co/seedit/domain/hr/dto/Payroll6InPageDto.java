@@ -48,7 +48,7 @@ public class Payroll6InPageDto implements Serializable {
 	// 휴일수당
 	private Double holidaySatTime01; // 휴일수당01 : 토요일 시간
 	private Double holidaySatAllowance01; // 휴일수당01 : 토요일 수당
-	private Double holidaySumTime01; // 휴일수당01 : 토요일 시간
+	private Double holidaySunTime01; // 휴일수당01 : 토요일 시간
 	private Double holidaySunAllowance01; // 휴일수당01 : 토요일 수당
 	private Double holidayTime02; // 휴일수당02 시간
 	private Double holidayAllowance02; // 휴일수당02 수당
