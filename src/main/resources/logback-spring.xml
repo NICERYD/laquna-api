@@ -30,7 +30,7 @@ jdbc.connection : Logs connection open and close events
   <!-- connection open close 로깅 여부 -->
   <logger name="jdbc.connection" level="OFF"/>
 
-  <root level="INFO">
+  <root level="DEBUG">
     <appender-ref ref="STDOUT" />
   </root>
 

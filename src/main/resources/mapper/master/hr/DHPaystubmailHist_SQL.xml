@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.seedit.domain.mapper.seedit.DHPaystubmailHistDao">
+	
+	<select id="selectDHPaystubmailHist" parameterType="map" resultType="kr.co.seedit.domain.hr.dto.PayStubMailHistDto">
+		SELECT base_yyyymm
+			, company_id
+			, employee_number
+			, last_request_email_id
+			, last_status
+			, last_updated_date
+			, last_success_date
+		FROM hr_dh_paystubmail
+		WHERE company_id = #{companyId}
+		<if test="baseYyyymm         !=null and baseYyyymm         !=''">AND base_yyyymm           = #{baseYyyymm}        </if>
+		<if test="employeeNumber     !=null and employeeNumber     !=''">AND employee_number       = #{employeeNumber}    </if>
+		<if test="lastRequestEmailId !=null and lastRequestEmailId !=''">AND last_request_email_id = #{lastRequestEmailId}</if>
+		<if test="lastStatus         !=null and lastStatus         !=''">AND last_status           = #{lastStatus}        </if>
+		ORDER BY base_yyyymm, companyId, employeeNumber DESC
+	</select>
+
+	<insert id="insertDHPaystubmailHist" parameterType="map">
+		INSERT INTO hr_dh_paystubmail (base_yyyymm, company_id, employee_number
+			<if test="lastRequestEmailId !=null and lastRequestEmailId !=''"> , last_request_email_id </if>
+			<if test="lastSuccessDate    !=null and lastSuccessDate    !=''"> , last_success_date     </if>
+		) VALUES( #{baseYyyymm}, #{companyId}, #{employeeNumber}
+			<if test="lastRequestEmailId !=null and lastRequestEmailId !=''"> , #{lastRequestEmailId} </if>
+			<if test="lastSuccessDate    !=null and lastSuccessDate    !=''"> , #{lastSuccessDate}    </if>
+		) ON DUPLICATE KEY UPDATE
+			<trim prefixOverrides=",">
+			<if test="lastRequestEmailId !=null and lastRequestEmailId !=''"> , last_request_email_id = #{lastRequestEmailId} </if>
+			<if test="lastStatus         !=null and lastStatus         !=''"> , last_status           = #{lastStatus}         </if>
+			<if test="lastUpdatedDate    !=null and lastUpdatedDate    !=''"> , last_updated_date     = #{lastUpdatedDate}    </if>
+			</trim>
+	</insert>
+
+	<update id="updateDHPaystubmailHist" parameterType="map">
+		INSERT INTO hr_dh_paystubmail (base_yyyymm, company_id, employee_number
+			<if test="lastRequestEmailId !=null and lastRequestEmailId !=''"> , last_request_email_id </if>
+			<if test="lastSuccessDate    !=null and lastSuccessDate    !=''"> , last_success_date     </if>
+		) VALUES( #{baseYyyymm}, #{companyId}, #{employeeNumber}
+			<if test="lastRequestEmailId !=null and lastRequestEmailId !=''"> , #{lastRequestEmailId} </if>
+			<if test="lastSuccessDate    !=null and lastSuccessDate    !=''"> , #{lastSuccessDate}    </if>
+		) ON DUPLICATE KEY UPDATE
+			<trim prefixOverrides=",">
+			<if test="lastRequestEmailId !=null and lastRequestEmailId !=''"> , last_request_email_id = #{lastRequestEmailId} </if>
+			<if test="lastStatus         !=null and lastStatus         !=''"> , last_status           = #{lastStatus}         </if>
+			<if test="lastUpdatedDate    !=null and lastUpdatedDate    !=''"> , last_updated_date     = #{lastUpdatedDate}    </if>
+			<if test="lastSuccessDate    !=null and lastSuccessDate    !=''"> , last_success_date     = #{lastSuccessDate}    </if>
+			</trim>
+	</update>
+
+	<delete id="deleteDHPaystubmailHist" parameterType="map">
+		DELETE FROM hr_dh_paystubmail
+		WHERE base_yyyymm = #{baseYyyymm}
+		AND company_id = #{companyId}      
+		AND employee_number = #{employeeNumber} 
+	</delete>
+
+</mapper>

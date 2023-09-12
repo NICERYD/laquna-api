@@ -19,3 +19,14 @@ spring:
       - datasource
       - mybatis
 
+  maildh:
+    host: smtp.mailplug.co.kr
+    port: 465
+    username: euijin.ha@dhpic.co.kr
+    password: dhpic11!
+    protocol: smtp
+    properties:
+      starttls: true
+      debug: false
+      auth: true
+      ssl: true

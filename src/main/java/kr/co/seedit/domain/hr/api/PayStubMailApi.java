@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.co.seedit.domain.hr.application.PayStubMailService;
-import kr.co.seedit.domain.hr.dto.PayStubMailDto;
 import kr.co.seedit.domain.hr.dto.ReportParamsDto;
 import kr.co.seedit.global.common.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,7 @@ public class PayStubMailApi {
 	private final PayStubMailService payStubMailService;
 	
 	@PostMapping(value = "/hr/testLocalMail", produces = "text/plain;charset=UTF-8")
-	public String sendEmail(@RequestBody PayStubMailDto mailDto /*Map<String, Object> in*/) {
+	public String sendEmail(@RequestBody ReportParamsDto reportParamsDto /*Map<String, Object> in*/) {
 //		MailDto mailDto = new MailDto();
 //		mailDto.setAddress(in.get("address"));
 //		mailDto.setCcAddress(in.get("ccaddress"));
@@ -37,15 +36,16 @@ public class PayStubMailApi {
 //		payStubMailService.runEemailSender(mailDto);
 //		payStubMailService.sendMailLocalTest(mailDto);
 		
-		return "DONE";
+		return "do nothing";
 	}
 
     @PostMapping("/hr/sendPayStubMailDH")
     public ResponseEntity<ResponseDto> sendPayStubMailDH(@RequestBody ReportParamsDto reportParamsDto, HttpServletResponse response) throws Exception {
 
     	ResponseDto responseDto = ResponseDto.builder().build();
-//    	responseDto = payStubMailService.sendPayStubMailDH(reportParamsDto);
     	
+    	responseDto = payStubMailService.callPayStubMailSendDH(reportParamsDto);
+
     	return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
     
