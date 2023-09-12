@@ -96,24 +96,19 @@ public class Payroll6InPageDto implements Serializable {
 	/**
 	 * DTO for PersonalPayroll
 	 */
-	private Double ppAnnualLeaveUsed;	//연차횟수
-	private Double ppHalfLeaveUsed;		//반차횟수
-	private Double ppLateTime;		//지각시간 (0:00)
-	private Double ppLateCnt;		//지각횟수
-	private Double ppAbsence;		//결근횟수
-	
+	private Double annualLeaveUsedCnt;	//연차횟수
+	private Double halfLeaveUsedCnt;		//반차횟수	-x
+	private Double lateCntNum;		//지각횟수
+	private Double absenceCnt;		//결근횟수
 	
 	//시급제
-	private Double ppOverTime;		//연장시간 (0:00)
-	private Double ppHolidayNightCnt;	//공휴야간횟수
-	private Double ppNightTime;		//야간근무시간 (0:00)
-	private Double ppNightCnt;		//야간일수
-	private Double ppNight;			//야간 (0.0시간)
+	private Double holidayNightCnt;	//공휴야간횟수
+	private Double nightCnt;		//야간일수
 	
-	private Double ppHolidaySatTime;	//토요출근시간 (0:00)
-	private Double ppHolidaySunTime;	//휴일출근시간 (0:00)
+	private Double holidaySatTime;	//토요출근시간 (0:00)
+	private Double holidaySunTime;	//휴일출근시간 (0:00)
 	
-	private Double ppEarlyLeaveUsed;	//조퇴횟수
+	private Double earlyLeaveUsedCnt;	//조퇴횟수
 
 	
 }

@@ -124,15 +124,16 @@ public class ReportService {
 		return zeroCutFormula;
 	}
 	
+	//0.0 to 0:00 formatting
 	private static String determineTimeFormat(Double time) {
 		String result = "";
 		if(time != null) {
-			result = Math.round(time)+"";
-//			result += String.format("%d:", time);
-			if(time % 1 != 0.0) {
-				result += ":30";
-			}else {
+			Double temp = Math.floor(time);
+			result = temp.intValue()+"";
+			if(time % 1 == 0.0) {
 				result += ":00";
+			}else {
+				result += ":30";
 			}
 		}else {
 			result = "0:00";
@@ -1953,51 +1954,93 @@ public class ReportService {
 		
 		for (Payroll6InPageDto e : employees) {
 			
-			int rowindex = 2;
-			int cellindex = 13;
+			int rowindex = 0;
+			int cellindex = 0;
 			XSSFRow row = null;
 			XSSFCell cell = null;
 			XSSFSheet sheet = null;
 			
+			int cell01 = 13;
+			int cell02 = 16;
 			Double employeeType = e.getEmployeeType();
 			
 			if(employeeType == 100) {	//연봉제
 				sheet = workbook.cloneSheet(0,e.getKoreanName());
+				rowindex = 2;
 				row = sheet.getRow(rowindex++);
-				row.getCell(13).setCellValue(e.getPpAnnualLeaveUsed());
-				row.getCell(16).setCellValue(e.getPpHalfLeaveUsed());
+				row.getCell(cell01).setCellValue(e.getAnnualLeaveUsedCnt());
+//				row.getCell(cell02).setCellValue(e.getHalfLeaveUsedCnt());	//반차횟수
 				
 				row = sheet.getRow(rowindex++);
-				row.getCell(13).setCellValue(determineTimeFormat(e.getPpLateTime()));
-				row.getCell(16).setCellValue(e.getPpLateCnt());
+				row.getCell(cell01).setCellValue(determineTimeFormat(e.getLateTime()));
+				row.getCell(cell02).setCellValue(e.getLateCntNum());
 				
 				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(e.getAbsenceCnt());
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//평일연장2H
+				row.getCell(cell02).setCellValue(false);	//철야익일4.5H
+				
+				rowindex++;
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//토요4H
+				row.getCell(cell02).setCellValue(false);	//일요4H
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//토요8H
+				row.getCell(cell02).setCellValue(false);	//일요8H
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//토요 계
+				row.getCell(cell02).setCellValue(false);	//일요 계
 
 			}else if(employeeType == 200) {	//시급제
 				sheet = workbook.cloneSheet(1,e.getKoreanName());
 				rowindex = 1;
 				row = sheet.getRow(rowindex++);
-				row.getCell(13).setCellValue(determineTimeFormat(e.getOvertimeDaytime01()));
+				row.getCell(cell01).setCellValue(determineTimeFormat(e.getOvertimeDaytime01()));
+				row.getCell(cell02).setCellValue(false);	//공휴야간횟수
 				
 				row = sheet.getRow(rowindex++);
-//				row.getCell(13).setCellValue(determineTimeFormat(e.getNtDaytime01()));
-				
-				rowindex = 8;
-				row = sheet.getRow(rowindex++);
-				row.getCell(13).setCellValue(e.getPpAnnualLeaveUsed());
-				row.getCell(16).setCellValue(e.getPpHalfLeaveUsed());
+//				row.getCell(cell01).setCellValue(determineTimeFormat(e.getNtDaytime01()));	//야간근무시간
+				row.getCell(cell02).setCellValue(false);  //야간일수
 				
 				row = sheet.getRow(rowindex++);
-//				row.getCell(13).setCellValue(e.getPpEarlyLeaveUsed());
-				row.getCell(16).setCellValue(determineTimeFormat(e.getPpLateTime()));
+				row.getCell(cell01).setCellValue(false);	//야간 (0.0시간)
 				
 				row = sheet.getRow(rowindex++);
-				row.getCell(13).setCellValue(e.getPpAbsence());
+				row.getCell(cell01).setCellValue(false);	//토요출근 시간계수표1이면 8:00
+				row.getCell(cell02).setCellValue(false);	//토요 시간계수표
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//토요출근시간
+				row.getCell(cell02).setCellValue(false);	//토요 시간계수표
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//토요출근계
+				row.getCell(cell02).setCellValue(false);	//토요 시간계
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(false);	//휴일출근시간
+				row.getCell(cell02).setCellValue(false);	//휴일 시간계수표
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(e.getAnnualLeaveUsedCnt());
+//				row.getCell(cell02).setCellValue(e.getHalfLeaveUsedCnt());		//반차횟수
+				
+				row = sheet.getRow(rowindex++);
+//				row.getCell(cell01).setCellValue(e.getEarlyLeaveUsedCnt());		//조퇴횟수
+				row.getCell(cell02).setCellValue(determineTimeFormat(e.getLateTime()));
+				
+				row = sheet.getRow(rowindex++);
+				row.getCell(cell01).setCellValue(e.getAbsenceCnt());
 				
 			}
 			
 			row = sheet.getRow(0);
-			cell = row.getCell(13);
+			cell = row.getCell(cell01);
 			cell.setCellValue(e.getKoreanName());
 			
 			payroll6InPageService.setValuePayrollTableForm(sheet, e, -1, 11, 12, styleLightGreen, styleLemonChiffon);
