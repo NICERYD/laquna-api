@@ -5,20 +5,26 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.ApplicationPidFileWriter;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
+@EnableAsync
+//@EnableScheduling
 @SpringBootApplication
 public class SeeditApiApplication extends SpringBootServletInitializer {
 
-    public static void main(String[] args) {
+	public static void main(String[] args) {
 
-        SpringApplication utilityApplication = new SpringApplication(SeeditApiApplication.class);
-        utilityApplication.addListeners(new ApplicationPidFileWriter());
-        utilityApplication.run(args);
-    }
+		SpringApplication utilityApplication = new SpringApplication(SeeditApiApplication.class);
+		utilityApplication.addListeners(new ApplicationPidFileWriter());
+		utilityApplication.run(args);
+	}
 
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(SeeditApiApplication.class);
-    }
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return application.sources(SeeditApiApplication.class);
+	}
+
 
 }

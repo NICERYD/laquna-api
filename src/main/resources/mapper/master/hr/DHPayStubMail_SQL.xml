@@ -2,7 +2,7 @@
 <!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.seedit.domain.mapper.seedit.DHPaystubmailHistDao">
 	
-	<select id="selectDHPaystubmailHist" parameterType="map" resultType="kr.co.seedit.domain.hr.dto.PayStubMailHistDto">
+	<select id="selectDHPaystubmailHistList" parameterType="map" resultType="kr.co.seedit.domain.hr.dto.PayStubMailHistDto">
 		SELECT base_yyyymm
 			, company_id
 			, employee_number
@@ -16,7 +16,7 @@
 		<if test="employeeNumber     !=null and employeeNumber     !=''">AND employee_number       = #{employeeNumber}    </if>
 		<if test="lastRequestEmailId !=null and lastRequestEmailId !=''">AND last_request_email_id = #{lastRequestEmailId}</if>
 		<if test="lastStatus         !=null and lastStatus         !=''">AND last_status           = #{lastStatus}        </if>
-		ORDER BY base_yyyymm, companyId, employeeNumber DESC
+		ORDER BY base_yyyymm, company_id, employee_number DESC
 	</select>
 
 	<insert id="insertDHPaystubmailHist" parameterType="map">

@@ -44,7 +44,7 @@ public class PayStubMailApi {
 
     	ResponseDto responseDto = ResponseDto.builder().build();
     	
-    	responseDto = payStubMailService.callPayStubMailSendDH(reportParamsDto);
+    	responseDto = payStubMailService.saveRequestPayStubMailSendDH(reportParamsDto);
 
     	return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }

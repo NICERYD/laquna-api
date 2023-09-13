@@ -11,7 +11,7 @@ import kr.co.seedit.domain.hr.dto.ReportParamsDto;
 
 @Aspect
 @Component
-public class PayStubMailEventConfig {
+public class PayStubMailSendBatch {
 	
 	@Autowired
 	PayStubMailService payStubMailService;
@@ -22,7 +22,7 @@ public class PayStubMailEventConfig {
 	@AfterReturning(pointcut = "callPayStubMailSendDHServiceExcution()", returning = "result")
 	public void runPayStubMailSendDH(JoinPoint joinPoint, Object result) {
 
-		payStubMailService.sendPayStubMailDH((ReportParamsDto)joinPoint.getArgs()[0]);
+		payStubMailService.sendAsyncPayStubMailDH((ReportParamsDto)joinPoint.getArgs()[0]);
 	}
 
 }
