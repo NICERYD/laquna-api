@@ -61,4 +61,5 @@ public class ReportPayrollDto {
     private String dtPay;
     private int cnt;
     private String emailAddress;
+    private String residentRegistrationNumber;
 }

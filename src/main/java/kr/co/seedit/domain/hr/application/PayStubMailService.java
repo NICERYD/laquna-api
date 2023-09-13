@@ -97,6 +97,7 @@ public class PayStubMailService {
 	private final String DH_MAIL_STATUS_FAIL = "전송실패";
 	private final String DH_MAIL_STATUS_NODATA = "정보없음";
 	private final String DH_MAIL_STATUS_SELFAIL = "조회실패";
+	private final String DH_MAIL_STATUS_NOEMAIL = "이메일없음";
 
 
 	/**
@@ -147,134 +148,134 @@ System.out.println("callPayStubMailSend() end");
 		return responseDto;
 	}
 
-	/**
-	 * batch - paystub send mail from DB list
-	 * @throws InterruptedException
-	 */
-//	@Scheduled(fixedDelay = 10000)
-//	@Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds}")
-	public void DHPayStubMailBatch() throws InterruptedException {
-		
-		// 요청 목록 조회
-		List<PayStubMailHistDto> reqList = new ArrayList<PayStubMailHistDto>();
-		PayStubMailHistDto where = new PayStubMailHistDto();
-		PayStubMailHistDto save = new PayStubMailHistDto();
-		where.setCompanyId(5);
-		where.setLastStatus(DH_MAIL_STATUS_REQUEST);
-		try {
-			reqList = paystubmailHistDao.selectDHPaystubmailHistList(where);
-		} catch (SQLException | DataAccessException e) {
-			log.error("DB request list select error occurred");
-e.printStackTrace();
-			return;
-		}
-
-		int totalCount = reqList.size();
-		int failCount = 0;
-		for(int i=0; i< totalCount;i++) {
-
-			ReportParamsDto reportParamsDto = new ReportParamsDto();
-			ReportPayrollDto data = null;
-			boolean isFail = false;
-			try {
-				save.setBaseYyyymm(reportParamsDto.getYyyymm());
-				save.setCompanyId(reportParamsDto.getCompanyId());
-				save.setEmployeeNumber(reportParamsDto.getEmployeeNumber());
-
-				// 메일전송 첨부파일 내용 조회
-				reportParamsDto.setYyyymm(reqList.get(i).getBaseYyyymm());
-				reportParamsDto.setCompanyId(reqList.get(i).getCompanyId());
-				reportParamsDto.setEmployeeNumber(reqList.get(i).getEmployeeNumber());
-				data = reportDao.findPayStubForMail(reportParamsDto);
-				if (null == data) {
-					failCount++;
-					log.info("No data. companyId=" + reqList.get(i).getCompanyId()
-							+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
-							+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
-					isFail = true;
-					save.setLastStatus(DH_MAIL_STATUS_NODATA);
-				}
-				if (null == data.getYyyymm()) data.setYyyymm(reportParamsDto.getYyyymm());
-
-			} catch (DataAccessException e) {
-				log.error("User information select error occurred. companyId=" + reqList.get(i).getCompanyId()
-						+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
-						+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
-				failCount++;
-				isFail = true;
-				save.setLastStatus(DH_MAIL_STATUS_SELFAIL);
-e.printStackTrace();
-			}
-
-			if (false == isFail) {
-				// setting mail details
-				List<String> address = new ArrayList<>();
-				List<String> ccAddress = null; //new ArrayList<>();
-	
-	//			address.add(data.getEmailAddress());
-				String subject = reportParamsDto.getYyyymm().substring(0, 4)+"년 "+reportParamsDto.getYyyymm().substring(5, 6)+"월 급여 명세서 입니다.";
-				String content = "<br>"
-					+ "* 본 보안 메일은 개인정보 보호를 위하여 암호화있습니다.<br>"
-					+ "* 암호화된 첨부파일은 인터넷이 연결된 환경에서 확인이 가능합니다.<br>"
-					+ "* 다운로드한 첨부파일에 비밀번호 (생년월일 6자리)를 입력하시면 내용을 확인하실 수 있습니다.";
-				String attachmentName = "securityMail.html";
-				String attachmentBody = getAttachmentBodyDH(data);
-	
-				// test logic - start //////////////////////////////////////////////////
-				address.add("lhkyu@naver.com");
-				content = data.getKoreanName()+"<br>"
-						+ "* 본 보안 메일은 개인정보 보호를 위하여 암호화있습니다.<br>"
-						+ "* 암호화된 첨부파일은 인터넷이 연결된 환경에서 확인이 가능합니다.<br>"
-						+ "* 다운로드한 첨부파일에 비밀번호 (생년월일 6자리)를 입력하시면 내용을 확인하실 수 있습니다.";
-				// test logic - end //////////////////////////////////////////////////
-	
-				// 메일전송
-				String errMsg = this.runJavaMailSender(
-						address,
-						ccAddress,
-						subject,
-						content,
-						attachmentName,
-						attachmentBody
-						);
-	
-				if ("".equals(errMsg)) {
-					save.setLastStatus(DH_MAIL_STATUS_SUCCESS);
-					Date today = new Date();
-					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-					save.setLastSuccessDate(dateFormat.format(today));
-				} else {
-					isFail = true;
-					save.setLastStatus(DH_MAIL_STATUS_FAIL);
-					log.info("runJavaMailSender() fail. " +  errMsg
-							+ " companyId=" + reqList.get(i).getCompanyId()
-							+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
-							+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
-					failCount++;
-				}
-			}
-
-			try {
-				// 메일전송 결과를 이력테이블에 저장
-				int ret = paystubmailHistDao.updateDHPaystubmailHist(reqList.get(i));
-				if (0 == ret) {
-					failCount++;
-System.out.println("paystubmail history insert fail. "+reqList.get(i).toString());
-					log.error("Success result DB insert fail. return=" + ret
-							+ " companyId=" + reqList.get(i).getCompanyId()
-							+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
-							+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
-				}
-			} catch (SQLException | DataAccessException e) {
-				log.error("Success result DB insert error occurred. companyId=" + reqList.get(i).getCompanyId()
-						+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
-						+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
-e.printStackTrace();
-			}
-		}
-
-		log.info("Run result (Succes/Total) : " + failCount + "/" + totalCount +")");
-	}
+//	/**
+//	 * batch - paystub send mail from DB list
+//	 * @throws InterruptedException
+//	 */
+////	@Scheduled(fixedDelay = 10000)
+////	@Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds}")
+//	public void DHPayStubMailBatch() throws InterruptedException {
+//		
+//		// 요청 목록 조회
+//		List<PayStubMailHistDto> reqList = new ArrayList<PayStubMailHistDto>();
+//		PayStubMailHistDto where = new PayStubMailHistDto();
+//		PayStubMailHistDto save = new PayStubMailHistDto();
+//		where.setCompanyId(5);
+//		where.setLastStatus(DH_MAIL_STATUS_REQUEST);
+//		try {
+//			reqList = paystubmailHistDao.selectDHPaystubmailHistList(where);
+//		} catch (SQLException | DataAccessException e) {
+//			log.error("DB request list select error occurred");
+//e.printStackTrace();
+//			return;
+//		}
+//
+//		int totalCount = reqList.size();
+//		int failCount = 0;
+//		for(int i=0; i< totalCount;i++) {
+//
+//			ReportParamsDto reportParamsDto = new ReportParamsDto();
+//			ReportPayrollDto data = null;
+//			boolean isFail = false;
+//			try {
+//				save.setBaseYyyymm(reportParamsDto.getYyyymm());
+//				save.setCompanyId(reportParamsDto.getCompanyId());
+//				save.setEmployeeNumber(reportParamsDto.getEmployeeNumber());
+//
+//				// 메일전송 첨부파일 내용 조회
+//				reportParamsDto.setYyyymm(reqList.get(i).getBaseYyyymm());
+//				reportParamsDto.setCompanyId(reqList.get(i).getCompanyId());
+//				reportParamsDto.setEmployeeNumber(reqList.get(i).getEmployeeNumber());
+//				data = reportDao.findPayStubForMail(reportParamsDto);
+//				if (null == data) {
+//					failCount++;
+//					log.info("No data. companyId=" + reqList.get(i).getCompanyId()
+//							+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
+//							+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
+//					isFail = true;
+//					save.setLastStatus(DH_MAIL_STATUS_NODATA);
+//				}
+//				if (null == data.getYyyymm()) data.setYyyymm(reportParamsDto.getYyyymm());
+//
+//			} catch (DataAccessException e) {
+//				log.error("User information select error occurred. companyId=" + reqList.get(i).getCompanyId()
+//						+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
+//						+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
+//				failCount++;
+//				isFail = true;
+//				save.setLastStatus(DH_MAIL_STATUS_SELFAIL);
+//e.printStackTrace();
+//			}
+//
+//			if (false == isFail) {
+//				// setting mail details
+//				List<String> address = new ArrayList<>();
+//				List<String> ccAddress = null; //new ArrayList<>();
+//	
+//	//			address.add(data.getEmailAddress());
+//				String subject = reportParamsDto.getYyyymm().substring(0, 4)+"년 "+reportParamsDto.getYyyymm().substring(5, 6)+"월 급여 명세서 입니다.";
+//				String content = "<br>"
+//					+ "* 본 보안 메일은 개인정보 보호를 위하여 암호화있습니다.<br>"
+//					+ "* 암호화된 첨부파일은 인터넷이 연결된 환경에서 확인이 가능합니다.<br>"
+//					+ "* 다운로드한 첨부파일에 비밀번호 (생년월일 6자리)를 입력하시면 내용을 확인하실 수 있습니다.";
+//				String attachmentName = "securityMail.html";
+//				String attachmentBody = getAttachmentBodyDH(data);
+//	
+//				// test logic - start //////////////////////////////////////////////////
+//				address.add("lhkyu@naver.com");
+//				content = data.getKoreanName()+"<br>"
+//						+ "* 본 보안 메일은 개인정보 보호를 위하여 암호화있습니다.<br>"
+//						+ "* 암호화된 첨부파일은 인터넷이 연결된 환경에서 확인이 가능합니다.<br>"
+//						+ "* 다운로드한 첨부파일에 비밀번호 (생년월일 6자리)를 입력하시면 내용을 확인하실 수 있습니다.";
+//				// test logic - end //////////////////////////////////////////////////
+//	
+//				// 메일전송
+//				String errMsg = this.runJavaMailSender(
+//						address,
+//						ccAddress,
+//						subject,
+//						content,
+//						attachmentName,
+//						attachmentBody
+//						);
+//	
+//				if ("".equals(errMsg)) {
+//					save.setLastStatus(DH_MAIL_STATUS_SUCCESS);
+//					Date today = new Date();
+//					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//					save.setLastSuccessDate(dateFormat.format(today));
+//				} else {
+//					isFail = true;
+//					save.setLastStatus(DH_MAIL_STATUS_FAIL);
+//					log.info("runJavaMailSender() fail. " +  errMsg
+//							+ " companyId=" + reqList.get(i).getCompanyId()
+//							+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
+//							+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
+//					failCount++;
+//				}
+//			}
+//
+//			try {
+//				// 메일전송 결과를 이력테이블에 저장
+//				int ret = paystubmailHistDao.updateDHPaystubmailHist(reqList.get(i));
+//				if (0 == ret) {
+//					failCount++;
+//System.out.println("paystubmail history insert fail. "+reqList.get(i).toString());
+//					log.error("Success result DB insert fail. return=" + ret
+//							+ " companyId=" + reqList.get(i).getCompanyId()
+//							+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
+//							+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
+//				}
+//			} catch (SQLException | DataAccessException e) {
+//				log.error("Success result DB insert error occurred. companyId=" + reqList.get(i).getCompanyId()
+//						+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
+//						+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
+//e.printStackTrace();
+//			}
+//		}
+//
+//		log.info("Run result (Succes/Total) : " + failCount + "/" + totalCount +")");
+//	}
 
 
 //	/**
@@ -370,6 +371,22 @@ System.out.println("======== sendPayStubMailDH start ===========");
 				// getData
 				data = reportDao.findPayStubForMail(reportParamsDto);
 				if (null == data) {
+					failCount++;
+					log.info("No data. companyId=" + reportParamsDto.getCompanyId()
+							+ ", employeeNumber=" + employeeNumber
+							+ ", yyyymm=" + reportParamsDto.getYyyymm());
+					isFail = true;
+					paystubmailHistDto.setLastStatus(DH_MAIL_STATUS_NODATA);
+				}
+				else if (null == data.getEmailAddress() || "".equals(data.getEmailAddress())) {
+					failCount++;
+					log.info("No data. companyId=" + reportParamsDto.getCompanyId()
+							+ ", employeeNumber=" + employeeNumber
+							+ ", yyyymm=" + reportParamsDto.getYyyymm());
+					isFail = true;
+					paystubmailHistDto.setLastStatus(DH_MAIL_STATUS_NOEMAIL);
+				}
+				else if (null == data.getResidentRegistrationNumber() || "".equals(data.getResidentRegistrationNumber())) {
 					failCount++;
 					log.info("No data. companyId=" + reportParamsDto.getCompanyId()
 							+ ", employeeNumber=" + employeeNumber
@@ -650,7 +667,13 @@ System.out.println("Send mail done.");
 	 */
 	private String getAttachmentBodyDH(ReportPayrollDto data) {
 
-			String key = "750122";
+			String key = data.getResidentRegistrationNumber();	//생년월일
+			String birth = "19"+key.substring(0,4)+"년"+key.substring(4,6)+"월"+key.substring(6,8)+"일";
+			String dtPay = data.getDtPay();
+			dtPay = dtPay.substring(0,4)+"."+dtPay.substring(4,6)+"."+dtPay.substring(6,8)+"";
+			if("디에이치(주)".equals(data.getEstName())) {
+				data.setEstName("");
+			}
 			StringBuilder body = new StringBuilder();
 			body.append("<div id=\"dec\">")
 				.append("<!--제목--->\r\n")
@@ -673,12 +696,12 @@ System.out.println("Send mail done.");
 				.append("		<tr>\r\n")
 				.append("			<td class=\"txtlft\">\r\n")
 				.append("				<p> <em> 회사명</em> 디에이치(주) ")
-				.append("")	//estName
+				.append(data.getEstName())	//사업장명
 				.append("</p>\r\n")
 				.append("			</td>\r\n")
 				.append("			<td class=\"txtrgt\">\r\n")
 				.append("				<p> <em> 지급일</em> ")
-				.append("2023.09.15 </p>\r\n")	//dt_pay
+				.append(dtPay+" </p>\r\n")	//지급일
 				.append("			</td>\r\n")
 				.append("		</tr>\r\n")
 				.append("	</tbody>\r\n")
@@ -699,7 +722,7 @@ System.out.println("Send mail done.");
 				.append("			<th> <span> 사원명</span> </th>\r\n")
 				.append("			<td> "+data.getKoreanName()+"</td>\r\n")	//koreanName
 				.append("			<th> <span> 생년월일</span> </th>\r\n")
-				.append("			<td> 1989년11월27일</td>\r\n")	//birth
+				.append("			<td> "+birth+"</td>\r\n")	//birth
 				.append("		</tr>\r\n")
 				.append("		<tr>\r\n")
 				.append("			<th> <span> 부서</span> </th>\r\n")
@@ -745,42 +768,42 @@ System.out.println("Send mail done.");
 				.append("								style=\"font-weight: bold; font-size: 12px;font-family: 돋음, dotum; color: #333355;border-right:1px solid #b1c5db;\">\r\n")
 				.append("								지급내역</td>\r\n")
 				.append("							<th width=\"14%\"> 기본급</th>\r\n")
+				.append("							<th width=\"14%\"> 연차수당</th>\r\n")
 				.append("							<th width=\"14%\"> 연장수당1</th>\r\n")
 				.append("							<th width=\"14%\"> 연장수당2</th>\r\n")
+				.append("							<th width=\"14%\"> 야간수당1</th>\r\n")
 				.append("							<th width=\"14%\"> 야간수당2</th>\r\n")
-				.append("							<th width=\"14%\"> </th>\r\n")
-				.append("							<th width=\"14%\"> </th>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> 2,000,000</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> 20,000</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> 500,000</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> 500,000</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">" + data.getBasicSalary() + "</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">" + data.getAnnualAllowance() + "</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOvertimeAllowance01() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOvertimeAllowance02() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getNightAllowance01() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getNightAllowance02() +"</td>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
+				.append("							<th width=\"14%\"> 휴일수당1</th>\r\n")
+				.append("							<th width=\"14%\"> 휴일수당2</th>\r\n")
+				.append("							<th width=\"14%\"> 직책수당</th>\r\n")
+				.append("							<th width=\"14%\"> 기타수당</th>\r\n")
+				.append("							<th width=\"14%\"> 보조금</th>\r\n")
+				.append("							<th width=\"14%\"> 식대</th>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHolidayAllowance01() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHolidayAllowance02() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getPositionAllowance() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOtherAllowances() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getSubsidies() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getMealsExpenses() +"</td>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
-				.append("							<th> </th>\r\n")
+				.append("							<th width=\"14%\"> 교통비</th>\r\n")
 				.append("							<th> </th>\r\n")
 				.append("							<th> </th>\r\n")
 				.append("							<th> </th>\r\n")
@@ -788,7 +811,7 @@ System.out.println("Send mail done.");
 				.append("							<th> </th>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\" style=\"font-size: 12px;color: #000000;\">\r\n")
-				.append("							<td> </td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getTransportationExpenses() +"</td>\r\n")
 				.append("							<td> </td>\r\n")
 				.append("							<td> </td>\r\n")
 				.append("							<td> </td>\r\n")
@@ -829,33 +852,33 @@ System.out.println("Send mail done.");
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> 131,220</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> 103,390</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> 27,180</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> 13,240</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> 76,060</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> 7,600</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getNationalPension() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHealthInsurance() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getEmploymentInsurance() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getCareInsurance() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getIncomtax() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getResidtax() +"</td>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
+				.append("							<th width=\"14%\"> 가불금</th>\r\n")
+				.append("							<th width=\"14%\"> 기타공제</th>\r\n")
+				.append("							<th width=\"14%\"> 경조비</th>\r\n")
+				.append("							<th width=\"14%\"> 연말정산</th>\r\n")
+				.append("							<th width=\"14%\"> 건강보험정산</th>\r\n")
+				.append("							<th width=\"14%\"> 장기요양보험정산</th>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\"> </td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getAdvance() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOtherTax() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getGyeongjobi() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getYearend() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHealthInsuranceSettlement() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getCareInsuranceSettlement() +"</td>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\" style=\"font-size: 12px;color: #666677;\">\r\n")
-				.append("							<th> </th>\r\n")
+				.append("							<th width=\"14%\"> 연차수당</th>\r\n")
 				.append("							<th> </th>\r\n")
 				.append("							<th> </th>\r\n")
 				.append("							<th> </th>\r\n")
@@ -864,7 +887,7 @@ System.out.println("Send mail done.");
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHolidayTax() +"</td>\r\n")
 				.append("							<td width=\"14%\"> </td>\r\n")
 				.append("							<td width=\"14%\"> </td>\r\n")
 				.append("							<td width=\"14%\"> </td>\r\n")
@@ -916,10 +939,10 @@ System.out.println("Send mail done.");
 				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
 				.append("							<td width=\"14%\"> </td>\r\n")
 				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\"> 3,020,000</td>\r\n")
-				.append("							<td width=\"14%\"> 358,690</td>\r\n")
+				.append("							<td width=\"14%\">" + data.getSalarySum() + "</td>\r\n")
+				.append("							<td width=\"14%\">" + data.getTaxSum() + "</td>\r\n")
 				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\"> 2,661,310</td>\r\n")
+				.append("							<td width=\"14%\">" + (data.getSalarySum() - data.getTaxSum()) + "</td>\r\n")
 				.append("						</tr>\r\n")
 				.append("					</tbody>\r\n")
 				.append("				</table>\r\n")
@@ -973,7 +996,7 @@ System.out.println("aes256.encrypt(body) [" + enc + "]");
 
 		// 첨부파일
 		StringBuilder attachStr = new StringBuilder();
-		attachStr.append("<html><head> <title>:: 2023년 8월 급여 명세서 ::</title><meta http-equiv='Content-Type' content='text/html; charset=utf-8'><meta id='viewport' name='viewport' content='width=642'><style>@font-face {font-family: 'douzone';src: local('DOUZONEText10'),url('https://static.wehago.com/fonts/douzone/DOUZONEText10.woff2') format('woff2'),url('https://static.wehago.com/fonts/douzone/DOUZONEText10.woff') format('woff');font-weight: normal;font-display: fallback;}@font-face {font-family: 'douzone';src: local('DOUZONEText30'),url('https://static.wehago.com/fonts/douzone/DOUZONEText30.woff2') format('woff2'),url('https://static.wehago.com/fonts/douzone/DOUZONEText30.woff') format('woff');font-weight: bold;font-display: fallback;}@font-face {font-family: 'douzone';src: local('DOUZONEText50'),url('https://static.wehago.com/fonts/douzone/DOUZONEText50.woff2') format('woff2'),url('https://static.wehago.com/fonts/douzone/DOUZONEText50.woff') format('woff');font-weight: 900;font-display: fallback;}body,p,h1,h2,h3,h4,h5,h6,ul,ol,li,dl,dt,dd,table,th,td,form,fieldset,legend,input,textarea,img,button,select{margin:0;padding:0}body,h1,h2,h3,h4,h5,h6,ul,ol,li,dl,button{font-family:douzone,'Microsoft?YaHei','PingFang?SC','MS?PGothic','Hiragino?Kaku?Gothic?ProN','굴림',gulim,'Apple?SD?Gothic?Neo',sans-serif}body{min-width:642px;-webkit-text-size-adjust:none}img,fieldset{border:0;vertical-align:top}a{color:#1a1a1a}em,address{font-style:normal}ul,ol,li{list-style:none}label,button{cursor:pointer}input::-ms-clear{display:none}.blind{position:absolute !important;clip:rect(0 0 0 0) !important;width:1px !important;height:1px !important;margin:-1px !important;overflow:hidden !important}table{width:100%;table-layout: fixed;border-collapse:collapse;border-spacing: 0;width:100%}table thead.blind{position:static;font-size:0} /* 테이블 thead blind 버그해결 */.clearbx:after,.clearfix:after{content:'';clear:both;display:table}.dz_font,.dz_font *{font-family:douzone,'Microsoft?YaHei','PingFang?SC','MS?PGothic','Hiragino?Kaku?Gothic?ProN','굴림',gulim,'Apple?SD?Gothic?Neo',sans-serif}body{margin:70px auto;width:642px}.origin_tbl{border:1px solid #eaeaea;margin-top:10px}.origin_tbl + .origin_tbl{margin-top:5px}.head_title{font-size:15px;color:#191919;line-height:20px;text-align:center;font-weight:900;margin-bottom:20px}.topdate{font-size:11px;color:#4a4a4a;line-height:12px;letter-spacing: -.5px;font-weight:bold;text-align:right;margin-bottom:6px}.topdate > em {font-weight:900;}.txtlft {text-align:left !important}.txtrgt {text-align:right !important}.top_basictbl{border:0;table-layout: fixed;border-spacing: 0;margin-bottom:6px}.top_basictbl td{font-size: 11px;color: #4a4a4a;line-height: 12px;letter-spacing: -.5px;font-weight: bold}.top_basictbl td em{font-weight:900}.userinfo_tbl{border:2px solid #eee}.userinfo_tbl th{font-size:11px;color:#000;letter-spacing: -.5px;line-height:12px;font-weight:900;text-align:left;padding:6px 2px;vertical-align:top}.userinfo_tbl td{font-size:11px;color:#4a4a4a;letter-spacing: -.5px;line-height:12px;font-weight:bold;text-align:left;padding:6px 2px;vertical-align:top}.userinfo_tbl th > span{position:relative;display:block;padding-left:6px}.userinfo_tbl th > span:before{content:'';position:absolute;top:50%;left:0;width:2px;height:2px;border-radius:50%;background:#000;margin-top:-2px}.userinfo_tbl tr:first-of-type th,.userinfo_tbl tr:first-of-type td{padding-top:18px}.userinfo_tbl tr:last-of-type th,.userinfo_tbl tr:last-of-type td{padding-bottom:16px}.userinfo_tbl tr th:first-of-type{padding-left:24px}.userwork_tbl{border:1px solid #eaeaea;margin-top:10px}.userwork_tbl th{font-size:11px;color:#4a4a4a;line-height:12px;letter-spacing: -.5px;background:#f8f8f8;height:30px;border:1px solid #eaeaea}.userwork_tbl td{font-size:11px;color:#000;line-height:12px;letter-spacing: -.5px;background:#fff;height:30px;text-align:center;border:1px solid #eaeaea}.pay_details_tbl{margin-top:30px}.pay_details_tbl th{background:#f8f8f8;font-size:11px;font-weight:bold;letter-spacing: -.5px;color:#000;height:30px;border:1px solid #eaeaea;border-right:0;text-align:left;padding-left:12px}.pay_details_tbl td{background:#fff;font-size:11px;font-weight:bold;letter-spacing: -.5px;color:#000;text-align:right;height:30px;border:1px solid #eaeaea;border-left:0;padding-right:12px}.pay_details_tbl td.empty{border:0;background:#fff !important}.pay_details_tbl th.tit{background:#fff;border:0;font-size:12px;color:#000;font-weight:900;padding:0}.pay_details_tbl th.tit > span{position:relative;display:block;padding-left:6px}.pay_details_tbl th.tit > span:before{content:'';position:absolute;top:50%;left:0;width:2px;height:2px;border-radius:50%;background:#000;margin-top:-2px}.pay_details_tbl .total th,.pay_details_tbl .total td{border-color:#e6ebf2;background:#f2f6fa}.pay_details_tbl .total td{font-weight:900;font-size:12px}.realpay_dl {position:relative;border:1px solid #1c90fb;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.07);background:#f2f9ff;margin-top:16px;padding:16px 16px 14px;line-height:18px;clear:both;overflow:hidden}.realpay_dl dt{float:left;font-size:12px;color:#000;letter-spacing: -.55px;font-weight:bold}.realpay_dl dd{float:right;font-size:14px;color:#1c90fb;letter-spacing: -.7px;font-weight:900}.calcrule_tbl {margin-top:32px}.calcrule_tbl caption{position:relative;font-size:12px;color:#000;letter-spacing: -.33px;line-height:14px;text-align:left;font-weight:900;padding-left:6px;margin-bottom:10px}.calcrule_tbl caption:before{content:'';position:absolute;top:50%;left:0;width:2px;height:2px;border-radius:50%;background:#000;margin-top:-2px}.calcrule_tbl th,.calcrule_tbl td {font-size:11px;letter-spacing: -.5px;font-weight:bold;height:30px;border:1px solid #eaeaea;text-align:center}.calcrule_tbl th {color:#4a4a4a;background:#f8f8f8}.calcrule_tbl td {color:#000}.thx_text{font-size:12px;color:#000;font-weight:bold;line-height:14px;text-align:center;margin-top:24px}</style></head><body leftmargin='0' topmargin='0' style='font-face:맑은고딕,Malgun Gothic, 돋음, dotum;' align='center'>")
+		attachStr.append("<html><head> <title>:: "+ data.getYyyymm().substring(0,4)+"년 "+data.getYyyymm().substring(5,6) +"월 급여 명세서 ::</title><meta http-equiv='Content-Type' content='text/html; charset=utf-8'><meta id='viewport' name='viewport' content='width=642'><style>@font-face {font-family: 'douzone';src: local('DOUZONEText10'),url('https://static.wehago.com/fonts/douzone/DOUZONEText10.woff2') format('woff2'),url('https://static.wehago.com/fonts/douzone/DOUZONEText10.woff') format('woff');font-weight: normal;font-display: fallback;}@font-face {font-family: 'douzone';src: local('DOUZONEText30'),url('https://static.wehago.com/fonts/douzone/DOUZONEText30.woff2') format('woff2'),url('https://static.wehago.com/fonts/douzone/DOUZONEText30.woff') format('woff');font-weight: bold;font-display: fallback;}@font-face {font-family: 'douzone';src: local('DOUZONEText50'),url('https://static.wehago.com/fonts/douzone/DOUZONEText50.woff2') format('woff2'),url('https://static.wehago.com/fonts/douzone/DOUZONEText50.woff') format('woff');font-weight: 900;font-display: fallback;}body,p,h1,h2,h3,h4,h5,h6,ul,ol,li,dl,dt,dd,table,th,td,form,fieldset,legend,input,textarea,img,button,select{margin:0;padding:0}body,h1,h2,h3,h4,h5,h6,ul,ol,li,dl,button{font-family:douzone,'Microsoft?YaHei','PingFang?SC','MS?PGothic','Hiragino?Kaku?Gothic?ProN','굴림',gulim,'Apple?SD?Gothic?Neo',sans-serif}body{min-width:642px;-webkit-text-size-adjust:none}img,fieldset{border:0;vertical-align:top}a{color:#1a1a1a}em,address{font-style:normal}ul,ol,li{list-style:none}label,button{cursor:pointer}input::-ms-clear{display:none}.blind{position:absolute !important;clip:rect(0 0 0 0) !important;width:1px !important;height:1px !important;margin:-1px !important;overflow:hidden !important}table{width:100%;table-layout: fixed;border-collapse:collapse;border-spacing: 0;width:100%}table thead.blind{position:static;font-size:0} /* 테이블 thead blind 버그해결 */.clearbx:after,.clearfix:after{content:'';clear:both;display:table}.dz_font,.dz_font *{font-family:douzone,'Microsoft?YaHei','PingFang?SC','MS?PGothic','Hiragino?Kaku?Gothic?ProN','굴림',gulim,'Apple?SD?Gothic?Neo',sans-serif}body{margin:70px auto;width:642px}.origin_tbl{border:1px solid #eaeaea;margin-top:10px}.origin_tbl + .origin_tbl{margin-top:5px}.head_title{font-size:15px;color:#191919;line-height:20px;text-align:center;font-weight:900;margin-bottom:20px}.topdate{font-size:11px;color:#4a4a4a;line-height:12px;letter-spacing: -.5px;font-weight:bold;text-align:right;margin-bottom:6px}.topdate > em {font-weight:900;}.txtlft {text-align:left !important}.txtrgt {text-align:right !important}.top_basictbl{border:0;table-layout: fixed;border-spacing: 0;margin-bottom:6px}.top_basictbl td{font-size: 11px;color: #4a4a4a;line-height: 12px;letter-spacing: -.5px;font-weight: bold}.top_basictbl td em{font-weight:900}.userinfo_tbl{border:2px solid #eee}.userinfo_tbl th{font-size:11px;color:#000;letter-spacing: -.5px;line-height:12px;font-weight:900;text-align:left;padding:6px 2px;vertical-align:top}.userinfo_tbl td{font-size:11px;color:#4a4a4a;letter-spacing: -.5px;line-height:12px;font-weight:bold;text-align:left;padding:6px 2px;vertical-align:top}.userinfo_tbl th > span{position:relative;display:block;padding-left:6px}.userinfo_tbl th > span:before{content:'';position:absolute;top:50%;left:0;width:2px;height:2px;border-radius:50%;background:#000;margin-top:-2px}.userinfo_tbl tr:first-of-type th,.userinfo_tbl tr:first-of-type td{padding-top:18px}.userinfo_tbl tr:last-of-type th,.userinfo_tbl tr:last-of-type td{padding-bottom:16px}.userinfo_tbl tr th:first-of-type{padding-left:24px}.userwork_tbl{border:1px solid #eaeaea;margin-top:10px}.userwork_tbl th{font-size:11px;color:#4a4a4a;line-height:12px;letter-spacing: -.5px;background:#f8f8f8;height:30px;border:1px solid #eaeaea}.userwork_tbl td{font-size:11px;color:#000;line-height:12px;letter-spacing: -.5px;background:#fff;height:30px;text-align:center;border:1px solid #eaeaea}.pay_details_tbl{margin-top:30px}.pay_details_tbl th{background:#f8f8f8;font-size:11px;font-weight:bold;letter-spacing: -.5px;color:#000;height:30px;border:1px solid #eaeaea;border-right:0;text-align:left;padding-left:12px}.pay_details_tbl td{background:#fff;font-size:11px;font-weight:bold;letter-spacing: -.5px;color:#000;text-align:right;height:30px;border:1px solid #eaeaea;border-left:0;padding-right:12px}.pay_details_tbl td.empty{border:0;background:#fff !important}.pay_details_tbl th.tit{background:#fff;border:0;font-size:12px;color:#000;font-weight:900;padding:0}.pay_details_tbl th.tit > span{position:relative;display:block;padding-left:6px}.pay_details_tbl th.tit > span:before{content:'';position:absolute;top:50%;left:0;width:2px;height:2px;border-radius:50%;background:#000;margin-top:-2px}.pay_details_tbl .total th,.pay_details_tbl .total td{border-color:#e6ebf2;background:#f2f6fa}.pay_details_tbl .total td{font-weight:900;font-size:12px}.realpay_dl {position:relative;border:1px solid #1c90fb;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.07);background:#f2f9ff;margin-top:16px;padding:16px 16px 14px;line-height:18px;clear:both;overflow:hidden}.realpay_dl dt{float:left;font-size:12px;color:#000;letter-spacing: -.55px;font-weight:bold}.realpay_dl dd{float:right;font-size:14px;color:#1c90fb;letter-spacing: -.7px;font-weight:900}.calcrule_tbl {margin-top:32px}.calcrule_tbl caption{position:relative;font-size:12px;color:#000;letter-spacing: -.33px;line-height:14px;text-align:left;font-weight:900;padding-left:6px;margin-bottom:10px}.calcrule_tbl caption:before{content:'';position:absolute;top:50%;left:0;width:2px;height:2px;border-radius:50%;background:#000;margin-top:-2px}.calcrule_tbl th,.calcrule_tbl td {font-size:11px;letter-spacing: -.5px;font-weight:bold;height:30px;border:1px solid #eaeaea;text-align:center}.calcrule_tbl th {color:#4a4a4a;background:#f8f8f8}.calcrule_tbl td {color:#000}.thx_text{font-size:12px;color:#000;font-weight:bold;line-height:14px;text-align:center;margin-top:24px}</style></head><body leftmargin='0' topmargin='0' style='font-face:맑은고딕,Malgun Gothic, 돋음, dotum;' align='center'>")
 			.append("<div id='precheck' style='font-size: 16px;font-family: 돋음, dotum;color: #444444;padding:10px;'>")
 			.append("본 메일은 고객님의 정보보호를 위해 암호화된 보안메일입니다.</br></br>내용을 확인하시려면 생년월일 6자리를 입력 후 확인해 주시기 바랍니다.</br></br><input type=\"text\" id=\"infor\" class=\"inputButton\"/><button onclick=\"viewdetail()\">명세서 보기</button></div>")
 			.append("<div id=\"detail\" style=\"visibility: hidden;\"></div>")
