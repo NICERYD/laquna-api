@@ -1969,7 +1969,7 @@ public class ReportService {
 				rowindex = 2;
 				row = sheet.getRow(rowindex++);
 				row.getCell(cell01).setCellValue(e.getAnnualLeaveUsedCnt());
-//				row.getCell(cell02).setCellValue(e.getHalfLeaveUsedCnt());	//반차횟수
+				row.getCell(cell02).setCellValue(e.getHalfLeaveCnt());	//반차횟수
 				
 				row = sheet.getRow(rowindex++);
 				row.getCell(cell01).setCellValue(determineTimeFormat(e.getLateTime()));
@@ -1979,22 +1979,22 @@ public class ReportService {
 				row.getCell(cell01).setCellValue(e.getAbsenceCnt());
 				
 				row = sheet.getRow(rowindex++);
-				row.getCell(cell01).setCellValue(false);	//평일연장2H
-				row.getCell(cell02).setCellValue(false);	//철야익일4.5H
+				row.getCell(cell01).setCellValue(e.getOvertimeDay2HCnt());	//평일연장2H
+				row.getCell(cell02).setCellValue(e.getOverTimeDay4H3MCnt());	//철야익일4.5H
 				
 				rowindex++;
 				
 				row = sheet.getRow(rowindex++);
-				row.getCell(cell01).setCellValue(false);	//토요4H
-				row.getCell(cell02).setCellValue(false);	//일요4H
+				row.getCell(cell01).setCellValue(e.getHolidaySaturdayDay4HCnt());	//토요4H
+				row.getCell(cell02).setCellValue(e.getHolidaySundayDay4HCnt());	//일요4H
 				
 				row = sheet.getRow(rowindex++);
-				row.getCell(cell01).setCellValue(false);	//토요8H
-				row.getCell(cell02).setCellValue(false);	//일요8H
+				row.getCell(cell01).setCellValue(e.getHolidaySaturdayDay8HCnt());	//토요8H
+				row.getCell(cell02).setCellValue(e.getHolidaySundayDay8HCnt());	//일요8H
 				
 				row = sheet.getRow(rowindex++);
-				row.getCell(cell01).setCellValue(false);	//토요 계
-				row.getCell(cell02).setCellValue(false);	//일요 계
+				row.getCell(cell01).setCellValue(e.getHolidaySaturdayDay4HCnt()*0.5 + e.getHolidaySaturdayDay8HCnt());	//토요 계
+				row.getCell(cell02).setCellValue(e.getHolidaySundayDay4HCnt()*0.5 + e.getHolidaySundayDay8HCnt());	//일요 계
 
 			}else if(employeeType == 200) {	//시급제
 				sheet = workbook.cloneSheet(1,e.getKoreanName());

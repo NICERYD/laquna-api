@@ -85,6 +85,7 @@
          , IFNULL(hdmkt.half_leave_used_day,'') as half_leave_used_day -- 반차사용일자 
          , IFNULL(hdmkt.half_leave_used,0) as half_leave_used -- 반차사용
          , IFNULL(hdcs.attribute15,0) as attribute15 -- 반차수당
+         , IFNULL(hdmkt.half_leave_cnt,0) as half_leave_cnt -- 반차횟수(개인급여)
          -- 조퇴
          , IFNULL(hdmkt.early_leave_day,'') as early_leave_day -- 조퇴사용일자 
          , IFNULL(hdmkt.early_leave_time,0) as early_leave_time -- 조퇴사용
@@ -109,6 +110,13 @@
          , IFNULL(hdcs.attribute12,0) as attribute12 -- 식대
          -- 결근
          , IFNULL(hdmkt.absence, 0) as absenceCnt	-- 결근횟수(개인급여)
+         -- 시간별 연장 횟수(개인급여내역)
+         , IFNULL(hdmkt.overtime_day2H_cnt, 0) as overtime_day2H_cnt	-- 평일연장2H
+         , IFNULL(hdmkt.overTime_day4H3M_cnt, 0) as overTime_day4H3M_cnt	-- 철야익일 4.5H
+         , IFNULL(hdmkt.holiday_saturday_day4H_cnt, 0) as holiday_saturday_day4H_cnt	-- 토요4H
+         , IFNULL(hdmkt.holiday_saturday_day8H_cnt, 0) as holiday_saturday_day8H_cnt	-- 토요8H
+         , IFNULL(hdmkt.holiday_sunday_day4H_cnt, 0) as holiday_sunday_day4H_cnt	-- 일요4H
+         , IFNULL(hdmkt.holiday_sunday_day8H_cnt, 0) as holiday_sunday_day8H_cnt	-- 일요8H
       FROM  hr_dh_calc_salary hdcs
       INNER JOIN hr_dh_monthly_keun_tae hdmkt
       ON hdcs.company_id = hdmkt.company_id 
