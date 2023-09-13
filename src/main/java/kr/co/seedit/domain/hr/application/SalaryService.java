@@ -389,12 +389,23 @@ public class SalaryService {
         String rtAnnualLeaveUsedDay;     // 연차사용 일자
         Double rtHalfLeaverUsed;               // 반차시간
         String rtHalfLeaveUseDay;                // 반차일자
+        Integer rtHalfLeaveCnt;           // 반차사용횟수
+
         Double rtOverTimeUsed01;            // 연장1 일수
+        Integer rtOverTimeDay2HCnt;        //평일 연장2H
+        Integer rtOverTimeDay4H3MCnt;        //철야익일 4.5H
+
 //        Double rtOverDayTimeHours;        // 연장1 주간시간
 //        Double rtOverNightTimeHours;      // 연장1 야간시간
 //        Double rtNightShiftUsed01;      // 야간1 시간
         Double rtNSDayTimeUsed;        // 야간1 시간(주간조)
+
+
+        Integer rtHolidaySaturdayDay4HCnt; //토요 4H
+        Integer rtHolidaySaturdayDay8HCnt;//토요 8H
         Double rtNSNightTimeUsed;      // 야간1 시간(야간조)
+        Integer rtHolidaySunday4HCnt;   //일요 4H
+        Integer rtHolidaySunday8HCnt;   //일요 8H
 //        Double rtNightShift02;          // 야간2 일수
 
         Double rtHolidaySaturdayUsed;     // 휴일1 (토요일)
@@ -481,7 +492,10 @@ public class SalaryService {
             rtAnnualLeaveUsedDay = "";     // 연차 사용 일자
             rtHalfLeaverUsed = 0.0;        // 반차시간
             rtHalfLeaveUseDay = "";        // 반차일자
+            rtHalfLeaveCnt = 0;
             rtOverTimeUsed01 = 0.0;            // 연장1 시간
+            rtOverTimeDay2HCnt = 0;              //평일 연장2H
+            rtOverTimeDay4H3MCnt = 0;           //철야익일 4.5H
 //            rtOverDayTimeHours = 0.0;        // 연장1 주간시간
 //            rtOverNightTimeHours = 0.0;      // 연장1 야간시간
 
@@ -491,7 +505,11 @@ public class SalaryService {
 //            rtNightShift02 = 0.0;          // 야간2 일수
 
             rtHolidaySaturdayUsed = 0.0;     // 휴일1 (토요일)
+            rtHolidaySaturdayDay4HCnt = 0; //토요 4H
+            rtHolidaySaturdayDay8HCnt = 0; //토요 8H
             rtHolidaySundayUsed = 0.0;       // 휴일1 (일요일)
+            rtHolidaySunday4HCnt = 0; //일요 4H
+            rtHolidaySunday8HCnt = 0; //일요 8H
 
             rtTransportation = 0.0;        // 교통비
             rtMeal = 0.0;                  // 식대
@@ -586,6 +604,7 @@ public class SalaryService {
                         if (adtDataDto.getWorkStatus().equals("야간")) {
                             if (!workEndTime.isBefore(LocalTime.parse("08:30", DateTimeFormatter.ofPattern("HH:mm")))) {
                                 overtimeAllowance01 = overtimeAllowance01.add(overtimeBaseAmount);
+                                rtOverTimeDay4H3MCnt++;
                             }
                         } else {
                             if (!workEndTime.isBefore(LocalTime.parse("20:30", DateTimeFormatter.ofPattern("HH:mm"))) || period.getDays() >= 1) {
@@ -593,6 +612,7 @@ public class SalaryService {
 //                                duration = Duration.between(workEndDateTime.with(LocalTime.of(20, 30)), workEndDateTime);
 //                                rtOverTimeUsed01 = (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
                                 overtimeAllowance01 = overtimeAllowance01.add(overtimeBaseAmount);
+                                rtOverTimeDay2HCnt++;
                             }
                         }
                     }
@@ -623,18 +643,22 @@ public class SalaryService {
                             if (dataWeek.equals("6")) {
                                 rtHolidaySaturdayUsed = 8.0;
                                 holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
+                                rtHolidaySaturdayDay8HCnt++;
                             } else if (dataWeek.equals("7")) {
                                 rtHolidaySundayUsed = 8.0;
                                 holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
+                                rtHolidaySunday8HCnt++;
                             }
                         } else if ((startyn || endyn) && localTime.getHour() >= 4) {
                             holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount);
                             if (dataWeek.equals("6")) {
                                 rtHolidaySaturdayUsed = 4.0;
                                 holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount);
+                                rtHolidaySaturdayDay4HCnt++;
                             } else if (dataWeek.equals("7")) {
                                 rtHolidaySundayUsed = 4.0;
                                 holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount);
+                                rtHolidaySunday4HCnt++;
                             }
                         }
                     }
@@ -653,6 +677,9 @@ public class SalaryService {
                         } else {
                             rtAnnualLeaveUsedDay = rtAnnualLeaveUsedDay + ", " + dayOfMonth;
                         }
+                    }
+                    if (Arrays.asList("오전반차", "오후반차").contains(adtDataDto.getWorkStatus())) {
+                        rtHalfLeaveCnt++;
                     }
                     // 결근처리 count
                     if (adtDataDto.getInStatus().equals("결근")) {
@@ -696,7 +723,7 @@ public class SalaryService {
                 // 야간조 근무일수
                 Integer nightCnt = 0;
                 hourlyPay = new BigDecimal(basicSalaryDto.getHourlyPay());
-                // 유급휴가 count 변수
+                // 주휴수당 count 변수
                 Integer paidHolidayindex = 0;
                 Integer paidHoliday = 0;
                 Integer paidLeaveDay = 0;
@@ -715,7 +742,7 @@ public class SalaryService {
 //                double outingTime = 0;
 
                 String yyyymm = LocalDate.parse(requestDto.getYyyymm() + "01", DateTimeFormatter.ofPattern("yyyyMMdd")).minusMonths(1).format(DateTimeFormatter.ofPattern("yyyyMM"));
-                // 유급휴가 지난달 index값 있으면 해당값으로 초기화
+                // 주휴수당 지난달 index값 있으면 해당값으로 초기화
                 paidLeaveDay = salaryDao.selectpaidHolidayindex(info.getCompanyId(), yyyymm, basicSalaryDto.getEmployeeNumber());
                 // 야간수당1 - 야간도(연장) 지난달 nightTeamDay 값이 있으면 가져와서 count
                 nightTeamDay = salaryDao.selectNightdayindex(info.getCompanyId(), yyyymm, basicSalaryDto.getEmployeeNumber());
@@ -734,8 +761,8 @@ public class SalaryService {
                         workStartDateTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         workEndDateTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                     }
-                    paidHolidayindex = Optional.ofNullable(paidLeaveDay).orElse(0);
-                    // 유급휴일 count
+                    paidHolidayindex = Optional.ofNullable(paidLeaveDay).orElse(paidHolidayindex);
+                    // 주휴수당 count
                     if (adtDataDto.getDateType().equals("1")) {
                         paidHolidayindex++;
                         workcnt++;
@@ -746,7 +773,7 @@ public class SalaryService {
                         paidHoliday++;
                         paidHolidayindex = 0;
                     }
-                    // 마지막근무일이면서 마지막주이면서 금요일이 아니면 다음달에 연속하여 유급휴일 count
+                    // 마지막근무일이면서 마지막주이면서 금요일이 아니면 다음달에 연속하여 주휴수당 count
                     if ((adtDataDto == adtDataDtos.get(adtDataDtos.size() - 1)) && salaryDao.selectLastWeek(adtDataDto.getWorkDate())
                             && !adtDataDto.getDateWeek().equals("5")) {
                         salaryDao.insertNonPayDay(paidHolidayindex, requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
@@ -772,6 +799,7 @@ public class SalaryService {
                             double minutes = duration.toMinutes() % 60;
                             rtHalfLeaverUsed = rtHalfLeaverUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                         }
+                        rtHalfLeaveCnt++;
                         String dayOfMonth = adtDataDto.getWorkDate().substring(8);
                         if (rtHalfLeaveUseDay.isEmpty()) {
                             rtHalfLeaveUseDay = adtDataDto.getWorkDate();
@@ -787,6 +815,7 @@ public class SalaryService {
                             double minutes = duration.toMinutes() % 60;
                             rtHalfLeaverUsed = rtHalfLeaverUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                         }
+                        rtHalfLeaveCnt++;
                         String dayOfMonth = adtDataDto.getWorkDate().substring(8);
                         if (rtHalfLeaveUseDay.isEmpty()) {
                             rtHalfLeaveUseDay = adtDataDto.getWorkDate();
@@ -973,7 +1002,7 @@ public class SalaryService {
                 }
                 // 기본급 퇴직여부
                 // Y "000": 계약서 상의 시급 × 209H
-                // N "001", "002": 일할 계산 시 "(실근무일+유급휴일)×8H" 로 계산
+                // N "001", "002": 일할 계산 시 "(실근무일+주휴수당)×8H" 로 계산
                 if (midStatus.equals("000")) {
                     basicAmount = basicAmount.add(hourlyPay.multiply(BigDecimal.valueOf(209)));
                 } else {
@@ -1029,14 +1058,21 @@ public class SalaryService {
             monthlyKeunTaeDto.setAnnualLeaveUsedDay(rtAnnualLeaveUsedDay);
             monthlyKeunTaeDto.setHalfLeaveUsed(rtHalfLeaverUsed);
             monthlyKeunTaeDto.setHalfLeaveUsedDay(rtHalfLeaveUseDay);
+            monthlyKeunTaeDto.setHalfLeaveCnt(rtHalfLeaveCnt);
 
             monthlyKeunTaeDto.setOvertimeDaytime(rtOverTimeUsed01);
+            monthlyKeunTaeDto.setOverTimeDay2HCnt(rtOverTimeDay2HCnt);
+            monthlyKeunTaeDto.setOverTimeDay4H3MCnt(rtOverTimeDay4H3MCnt);
 
             monthlyKeunTaeDto.setNightDaytime(rtNSDayTimeUsed);
             monthlyKeunTaeDto.setNightNighttime(rtNSNightTimeUsed);
 
             monthlyKeunTaeDto.setHolidaySaturday(rtHolidaySaturdayUsed);
+            monthlyKeunTaeDto.setHolidaySaturdayDay4HCnt(rtHolidaySaturdayDay4HCnt);
+            monthlyKeunTaeDto.setHolidaySaturdayDay8HCnt(rtHolidaySaturdayDay8HCnt);
             monthlyKeunTaeDto.setHolidaySunday(rtHolidaySundayUsed);
+            monthlyKeunTaeDto.setHolidaySundayDay4HCnt(rtHolidaySunday4HCnt);
+            monthlyKeunTaeDto.setHolidaySundayDay8HCnt(rtHolidaySunday8HCnt);
 
             monthlyKeunTaeDto.setTransportation(rtTransportation);
             monthlyKeunTaeDto.setMeal(rtMeal);

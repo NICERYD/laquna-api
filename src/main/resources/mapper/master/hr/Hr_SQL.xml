@@ -675,7 +675,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             'D23008'
+--             'D23009'
 --             )
 --           AND fbe.est_id = 2
         UNION ALL
@@ -1011,15 +1011,22 @@
         , annual_leave_used
         , annual_leave_used_day
         , overtime_daytime
+        , overtime_day2H_cnt
+        , overTime_day4H3M_cnt
         , night_daytime
         , night_nighttime
         , holiday_saturday
+        , holiday_saturday_day4H_cnt
+        , holiday_saturday_day8H_cnt
         , holiday_sunday
+        , holiday_sunday_day4H_cnt
+        , holiday_sunday_day8H_cnt
         , transportation
         , meal
         , other
         , half_leave_used
         , half_leave_used_day
+        , half_leave_cnt
         , early_leave_day
         , early_leave_time
         , late_day
@@ -1044,15 +1051,22 @@
             , #{item.annualLeaveUsed}
             , #{item.annualLeaveUsedDay}
             , #{item.overtimeDaytime}
+            , #{item.overTimeDay2HCnt}
+            , #{item.overTimeDay4H3MCnt}
             , #{item.nightDaytime}
             , #{item.nightNighttime}
             , #{item.holidaySaturday}
+            , #{item.holidaySaturdayDay4HCnt}
+            , #{item.holidaySaturdayDay8HCnt}
             , #{item.holidaySunday}
+            , #{item.holidaySundayDay4HCnt}
+            , #{item.holidaySundayDay8HCnt}
             , #{item.transportation}
             , #{item.meal}
             , #{item.other}
             , #{item.halfLeaveUsed}
             , #{item.halfLeaveUsedDay}
+            , #{item.halfLeaveCnt}
             , #{item.earlyLeaveDay}
             , #{item.earlyLeaveTime}
             , #{item.lateDay}
