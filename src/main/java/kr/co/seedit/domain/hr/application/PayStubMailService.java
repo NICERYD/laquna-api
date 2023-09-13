@@ -810,7 +810,7 @@ System.out.println("Send mail done.");
 				.append("							<th> </th>\r\n")
 				.append("							<th> </th>\r\n")
 				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\" style=\"font-size: 12px;color: #000000;\">\r\n")
+				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\" style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
 				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getTransportationExpenses() +"</td>\r\n")
 				.append("							<td> </td>\r\n")
 				.append("							<td> </td>\r\n")
