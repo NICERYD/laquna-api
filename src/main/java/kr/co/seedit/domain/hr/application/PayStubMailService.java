@@ -423,7 +423,7 @@ e.printStackTrace();
 				String attachmentBody = getAttachmentBodyDH(data);
 	
 				// test logic - start
-				address.add("lhkyu@naver.com");
+				address.add("aaa0742@gmail.com");
 				content = data.getKoreanName()+"<br>"
 						+ "* 본 보안 메일은 개인정보 보호를 위하여 암호화있습니다.<br>"
 						+ "* 암호화된 첨부파일은 인터넷이 연결된 환경에서 확인이 가능합니다.<br>"
@@ -668,7 +668,7 @@ System.out.println("Send mail done.");
 	private String getAttachmentBodyDH(ReportPayrollDto data) {
 
 			String key = data.getResidentRegistrationNumber();	//생년월일
-			String birth = "19"+key.substring(0,4)+"년"+key.substring(4,6)+"월"+key.substring(6,8)+"일";
+			String birth = "19"+key.substring(0,2)+"년"+key.substring(2,4)+"월"+key.substring(4,6)+"일";
 			String dtPay = data.getDtPay();
 			dtPay = dtPay.substring(0,4)+"."+dtPay.substring(4,6)+"."+dtPay.substring(6,8)+"";
 			if("디에이치(주)".equals(data.getEstName())) {
