@@ -13,6 +13,7 @@ import javax.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.dao.DataAccessException;
@@ -102,183 +103,6 @@ public class PayStubMailService {
 		return responseDto;
 	}
 
-//	/**
-//	 * batch - paystub send mail from DB list
-//	 * @throws InterruptedException
-//	 */
-////	@Scheduled(fixedDelay = 10000)
-////	@Scheduled(fixedDelayString = "${fixedDelay.in.milliseconds}")
-//	public void DHPayStubMailBatch() throws InterruptedException {
-//		
-//		// 요청 목록 조회
-//		List<PayStubMailHistDto> reqList = new ArrayList<PayStubMailHistDto>();
-//		PayStubMailHistDto where = new PayStubMailHistDto();
-//		PayStubMailHistDto save = new PayStubMailHistDto();
-//		where.setCompanyId(5);
-//		where.setLastStatus(DH_MAIL_STATUS_REQUEST);
-//		try {
-//			reqList = paystubmailHistDao.selectDHPaystubmailHistList(where);
-//		} catch (SQLException | DataAccessException e) {
-//			log.error("DB request list select error occurred");
-//e.printStackTrace();
-//			return;
-//		}
-//
-//		int totalCount = reqList.size();
-//		int failCount = 0;
-//		for(int i=0; i< totalCount;i++) {
-//
-//			ReportParamsDto reportParamsDto = new ReportParamsDto();
-//			ReportPayrollDto data = null;
-//			boolean isFail = false;
-//			try {
-//				save.setBaseYyyymm(reportParamsDto.getYyyymm());
-//				save.setCompanyId(reportParamsDto.getCompanyId());
-//				save.setEmployeeNumber(reportParamsDto.getEmployeeNumber());
-//
-//				// 메일전송 첨부파일 내용 조회
-//				reportParamsDto.setYyyymm(reqList.get(i).getBaseYyyymm());
-//				reportParamsDto.setCompanyId(reqList.get(i).getCompanyId());
-//				reportParamsDto.setEmployeeNumber(reqList.get(i).getEmployeeNumber());
-//				data = reportDao.findPayStubForMail(reportParamsDto);
-//				if (null == data) {
-//					failCount++;
-//					log.info("No data. companyId=" + reqList.get(i).getCompanyId()
-//							+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
-//							+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
-//					isFail = true;
-//					save.setLastStatus(DH_MAIL_STATUS_NODATA);
-//				}
-//				if (null == data.getYyyymm()) data.setYyyymm(reportParamsDto.getYyyymm());
-//
-//			} catch (DataAccessException e) {
-//				log.error("User information select error occurred. companyId=" + reqList.get(i).getCompanyId()
-//						+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
-//						+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
-//				failCount++;
-//				isFail = true;
-//				save.setLastStatus(DH_MAIL_STATUS_SELFAIL);
-//e.printStackTrace();
-//			}
-//
-//			if (false == isFail) {
-//				// setting mail details
-//				List<String> address = new ArrayList<>();
-//				List<String> ccAddress = null; //new ArrayList<>();
-//	
-//	//			address.add(data.getEmailAddress());
-//				String subject = reportParamsDto.getYyyymm().substring(0, 4)+"년 "+reportParamsDto.getYyyymm().substring(5, 6)+"월 급여 명세서 입니다.";
-//				String content = "<br>"
-//					+ "* 본 보안 메일은 개인정보 보호를 위하여 암호화있습니다.<br>"
-//					+ "* 암호화된 첨부파일은 인터넷이 연결된 환경에서 확인이 가능합니다.<br>"
-//					+ "* 다운로드한 첨부파일에 비밀번호 (생년월일 6자리)를 입력하시면 내용을 확인하실 수 있습니다.";
-//				String attachmentName = "securityMail.html";
-//				String attachmentBody = getAttachmentBodyDH(data);
-//	
-//				// test logic - start //////////////////////////////////////////////////
-//				address.add("lhkyu@naver.com");
-//				content = data.getKoreanName()+"<br>"
-//						+ "* 본 보안 메일은 개인정보 보호를 위하여 암호화있습니다.<br>"
-//						+ "* 암호화된 첨부파일은 인터넷이 연결된 환경에서 확인이 가능합니다.<br>"
-//						+ "* 다운로드한 첨부파일에 비밀번호 (생년월일 6자리)를 입력하시면 내용을 확인하실 수 있습니다.";
-//				// test logic - end //////////////////////////////////////////////////
-//	
-//				// 메일전송
-//				String errMsg = this.runJavaMailSender(
-//						address,
-//						ccAddress,
-//						subject,
-//						content,
-//						attachmentName,
-//						attachmentBody
-//						);
-//	
-//				if ("".equals(errMsg)) {
-//					save.setLastStatus(DH_MAIL_STATUS_SUCCESS);
-//					Date today = new Date();
-//					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//					save.setLastSuccessDate(dateFormat.format(today));
-//				} else {
-//					isFail = true;
-//					save.setLastStatus(DH_MAIL_STATUS_FAIL);
-//					log.info("runJavaMailSender() fail. " +  errMsg
-//							+ " companyId=" + reqList.get(i).getCompanyId()
-//							+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
-//							+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
-//					failCount++;
-//				}
-//			}
-//
-//			try {
-//				// 메일전송 결과를 이력테이블에 저장
-//				int ret = paystubmailHistDao.updateDHPaystubmailHist(reqList.get(i));
-//				if (0 == ret) {
-//					failCount++;
-//System.out.println("paystubmail history insert fail. "+reqList.get(i).toString());
-//					log.error("Success result DB insert fail. return=" + ret
-//							+ " companyId=" + reqList.get(i).getCompanyId()
-//							+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
-//							+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
-//				}
-//			} catch (SQLException | DataAccessException e) {
-//				log.error("Success result DB insert error occurred. companyId=" + reqList.get(i).getCompanyId()
-//						+ ", employeeNumber=" + reqList.get(i).getEmployeeNumber()
-//						+ ", yyyymm=" + reqList.get(i).getBaseYyyymm());
-//e.printStackTrace();
-//			}
-//		}
-//
-//		log.info("Run result (Succes/Total) : " + failCount + "/" + totalCount +")");
-//	}
-
-
-//	/**
-//	 * 급여명세서 메일전송 요청 DB 목록 전송 
-//	 * @param reportParamsDto
-//	 * @param result
-//	 * @return
-//	 */
-//	public ResponseDto runPayStubMailSend(ReportParamsDto reportParamsDto, ResponseDto result) {
-//		
-//		ResponseDto responseDto = ResponseDto.builder().build();
-//
-//		PayStubMailHistDto paystubmailHistDto = new PayStubMailHistDto();
-//		paystubmailHistDto.setBaseYyyymm(reportParamsDto.getYyyymm());
-//		paystubmailHistDto.setCompanyId(reportParamsDto.getCompanyId());
-////		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-////		paystubmailHistDto.setLastRequestEmailId(((UserDetails) principal).getUsername());
-//
-//		int failCount = 0;
-//		for (String employeeNumber : reportParamsDto.getEmployeeNumberList()) {
-//			paystubmailHistDto.setEmployeeNumber(employeeNumber);
-//			try {
-//				// 메일전송
-//				
-//				
-//				// 메일전송 결과를 이력테이블에 저장
-//				if (0 == paystubmailHistDao.updateDHPaystubmailHist(paystubmailHistDto)) {
-//					failCount++;
-//					System.out.println("paystubmail history insert fail. "+paystubmailHistDto.toString());
-//					log.error("paystubmail history insert fail. "+paystubmailHistDto.toString());
-//				}
-//			} catch (Exception e) {
-//				System.out.println("paystubmail history insert Exception:"+e.getLocalizedMessage());
-//				log.error("paystubmail history insert Exception:"+e.getLocalizedMessage());
-//			}
-//		}
-//		
-//		if (0 < failCount) {
-//			responseDto.setSuccess(false);
-//			responseDto.setMessage("요청중 "+failCount+"건에 대한 예외 상황이 발생했습니다. 잠시 후 결과를 확인해주세요.");
-//		} else {
-//			responseDto.setSuccess(true);
-//		}
-//
-//		System.out.println("runPayStubMailSend() end");
-//
-//		return responseDto;
-//	}
-
 	@Async
 	public ResponseDto sendAsyncPayStubMailDH(ReportParamsDto reportParamsDto) {
 		return sendPayStubMailDH(reportParamsDto);
@@ -309,8 +133,6 @@ public class PayStubMailService {
 		PayStubMailHistDto paystubmailHistDto = new PayStubMailHistDto();
 		paystubmailHistDto.setBaseYyyymm(reportParamsDto.getYyyymm());
 		paystubmailHistDto.setCompanyId(reportParamsDto.getCompanyId());
-//		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//		paystubmailHistDto.setLastRequestEmailId(((UserDetails) principal).getUsername());
 
 		for (String employeeNumber : reportParamsDto.getEmployeeNumberList()) {
 
@@ -374,10 +196,12 @@ public class PayStubMailService {
 
 				// TODO:: remove test code - start
 				if (0 < Arrays.binarySearch(environment.getActiveProfiles(), "local")) {
-					address.add("aaa0742@gmail.com");
+					address.add("lhkyu@naver.com");
 					content = content + "<br>" + data.getKoreanName() + "<br>" + data.getResidentRegistrationNumber();
 				} else
-					System.out.println(" ********  address.add(data.getEmailAddress());  ************************");
+					System.out.println(" ************************************************************************\n"
+							+" ********  address.add(data.getEmailAddress());  ************************\n"
+							+" ************************************************************************\n");
 				// TODO:: remove test code - end
 
 				// TODO:: add underline
@@ -435,6 +259,8 @@ public class PayStubMailService {
 		return responseDto;
 	}
 
+	@Value("${spring.mail.username}")
+	String from;
 	/**
 	 * 이메일 전송
 	 * @param address
@@ -459,6 +285,7 @@ public class PayStubMailService {
 		try {
 			message = emailSender.createMimeMessage();
 	        helper = new MimeMessageHelper(message, true, encString);
+	        helper.setFrom(from);
 		} catch (SecurityException e) {
 			log.error("Default setting fail. SecurityException: "+e.getMessage());
 			e.printStackTrace();

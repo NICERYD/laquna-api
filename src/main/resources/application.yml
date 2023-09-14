@@ -35,4 +35,4 @@ spring:
           debug:
               enable: false
           ssl:
-              enable: false
+              enable: true
