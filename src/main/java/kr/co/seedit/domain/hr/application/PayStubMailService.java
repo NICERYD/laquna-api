@@ -1,6 +1,8 @@
 package kr.co.seedit.domain.hr.application;
 
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -667,13 +669,16 @@ System.out.println("Send mail done.");
 	 */
 	private String getAttachmentBodyDH(ReportPayrollDto data) {
 
-			String key = data.getResidentRegistrationNumber();	//생년월일
-			String birth = "19"+key.substring(0,2)+"년"+key.substring(2,4)+"월"+key.substring(4,6)+"일";
-			String dtPay = data.getDtPay();
-			dtPay = dtPay.substring(0,4)+"."+dtPay.substring(4,6)+"."+dtPay.substring(6,8)+"";
+			String key = data.getResidentRegistrationNumber();	
+			String birth = "19"+key.substring(0,2)+"년"+key.substring(2,4)+"월"+key.substring(4,6)+"일";	//생년월일
+			String dtPay = data.getDtPay();	
+			dtPay = dtPay.substring(0,4)+"."+dtPay.substring(4,6)+"."+dtPay.substring(6,8)+"";	//지급일
 			if("디에이치(주)".equals(data.getEstName())) {
 				data.setEstName("");
 			}
+//			DecimalFormat payFormat = new DecimalFormat("###,###");
+			NumberFormat payFormat = NumberFormat.getInstance();
+			
 			StringBuilder body = new StringBuilder();
 			body.append("<div id=\"dec\">")
 				.append("<!--제목--->\r\n")
@@ -776,12 +781,12 @@ System.out.println("Send mail done.");
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">" + data.getBasicSalary() + "</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">" + data.getAnnualAllowance() + "</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOvertimeAllowance01() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOvertimeAllowance02() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getNightAllowance01() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getNightAllowance02() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">" + payFormat.format(data.getBasicSalary()) + "</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">" + payFormat.format(data.getAnnualAllowance()) + "</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getOvertimeAllowance01()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getOvertimeAllowance02()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getNightAllowance01()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getNightAllowance02()) +"</td>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
@@ -794,12 +799,12 @@ System.out.println("Send mail done.");
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHolidayAllowance01() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHolidayAllowance02() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getPositionAllowance() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOtherAllowances() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getSubsidies() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getMealsExpenses() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getHolidayAllowance01()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getHolidayAllowance02()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getPositionAllowance()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getOtherAllowances()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getSubsidies()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getMealsExpenses()) +"</td>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
@@ -811,7 +816,7 @@ System.out.println("Send mail done.");
 				.append("							<th> </th>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\" style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getTransportationExpenses() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getTransportationExpenses()) +"</td>\r\n")
 				.append("							<td> </td>\r\n")
 				.append("							<td> </td>\r\n")
 				.append("							<td> </td>\r\n")
@@ -852,12 +857,12 @@ System.out.println("Send mail done.");
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getNationalPension() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHealthInsurance() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getEmploymentInsurance() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getCareInsurance() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getIncomtax() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getResidtax() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getNationalPension()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getHealthInsurance()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getEmploymentInsurance()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getCareInsurance()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getIncomtax()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getResidtax()) +"</td>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
@@ -870,12 +875,12 @@ System.out.println("Send mail done.");
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getAdvance() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOtherTax() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getGyeongjobi() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getYearend() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHealthInsuranceSettlement() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getCareInsuranceSettlement() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getAdvance()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getOtherTax()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getGyeongjobi()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getYearend()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getHealthInsuranceSettlement()) +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getCareInsuranceSettlement()) +"</td>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\" style=\"font-size: 12px;color: #666677;\">\r\n")
 				.append("							<th width=\"14%\"> 연차수당</th>\r\n")
@@ -887,7 +892,7 @@ System.out.println("Send mail done.");
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHolidayTax() +"</td>\r\n")
+				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getHolidayTax()) +"</td>\r\n")
 				.append("							<td width=\"14%\"> </td>\r\n")
 				.append("							<td width=\"14%\"> </td>\r\n")
 				.append("							<td width=\"14%\"> </td>\r\n")
@@ -939,10 +944,10 @@ System.out.println("Send mail done.");
 				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
 				.append("							<td width=\"14%\"> </td>\r\n")
 				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\">" + data.getSalarySum() + "</td>\r\n")
-				.append("							<td width=\"14%\">" + data.getTaxSum() + "</td>\r\n")
+				.append("							<td width=\"14%\">" + payFormat.format(data.getSalarySum()) + "</td>\r\n")
+				.append("							<td width=\"14%\">" + payFormat.format(data.getTaxSum()) + "</td>\r\n")
 				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\">" + (data.getSalarySum() - data.getTaxSum()) + "</td>\r\n")
+				.append("							<td width=\"14%\">" + payFormat.format(data.getSalarySum() - data.getTaxSum()) + "</td>\r\n")
 				.append("						</tr>\r\n")
 				.append("					</tbody>\r\n")
 				.append("				</table>\r\n")
