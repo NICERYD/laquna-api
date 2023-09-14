@@ -1,27 +1,26 @@
 package kr.co.seedit.domain.hr.application;
 
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import javax.mail.MessagingException;
-import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSendException;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -44,51 +43,9 @@ public class PayStubMailService {
 
 	private final byte[] iv = "0123456789abcdef".getBytes();
 
-	// TODO:: 환경변수로 변경
-//	@Value("${spring.maildh.host}")
-//	private String dh_host;
-//	@Value("${spring.maildh.port}")
-//	private Integer dh_port;
-//	@Value("${spring.maildh.username}")
-//	private String dh_username;
-//	@Value("${spring.maildh.password}")
-//	private String dh_password;
-//	@Value("${spring.maildh.protocol}")
-//	private String dh_protocol;
-//	@Value("${spring.maildh.properties.starttls}")
-//	private String dh_starttls;
-//	@Value("${spring.maildh.properties.debug}")
-//	private String dh_debug;
-//	@Value("${spring.maildh.properties.auth}")
-//	private String dh_auth;
-//	@Value("${spring.maildh.properties.ssl}")
-//	private String dh_ssl;
 	private final String encString = "UTF-8";
-	private final String dh_host = "smtp.gmail.com"; //smtp.mailplug.co.kr
-	private final Integer dh_port = 587; //465
-	private final String dh_username = "lhkyu1@gmail.com";//euijin.ha@dhpic.co.kr
-	private final String dh_password = "minreyqgmyazgfeh";//dhpic11!
-	private final String dh_protocol = "smtp";
-	private final String dh_starttls = "true";//false??
-	private final String dh_debug = "false";
-	private final String dh_auth = "true";
-	private final String dh_ssl = "false";
-
-	private JavaMailSenderImpl emailSender = new JavaMailSenderImpl();
-	private Properties properties = System.getProperties();
-	{
-		properties.setProperty("mail.transport.protocol", dh_protocol);
-		properties.setProperty("mail.smtp.starttls.enable", dh_starttls);
-		properties.setProperty("mail.smtp.debug", dh_debug);
-		properties.setProperty("mail.smtp.auth", dh_auth);
-		properties.setProperty("mail.smtp.ssl.enable", dh_ssl);
-		emailSender.setJavaMailProperties(properties);
-		emailSender.setHost(dh_host);
-		emailSender.setUsername(dh_username);
-		emailSender.setPassword(dh_password);
-		emailSender.setPort(dh_port);
-		emailSender.setDefaultEncoding(encString);
-	}
+	
+	private final JavaMailSender emailSender;
 
 	private final ReportDao reportDao;
 	private final DHPaystubmailHistDao paystubmailHistDao;
@@ -107,8 +64,6 @@ public class PayStubMailService {
 	 */
 	public ResponseDto saveRequestPayStubMailSendDH(ReportParamsDto reportParamsDto) {
 		ResponseDto responseDto = ResponseDto.builder().build();
-		
-System.out.println("callPayStubMailSend() start");
 
 		PayStubMailHistDto paystubmailHistDto = new PayStubMailHistDto();
 		paystubmailHistDto.setBaseYyyymm(reportParamsDto.getYyyymm());
@@ -143,8 +98,6 @@ System.out.println("callPayStubMailSend() start");
 			responseDto.setSuccess(true);
 		}
 		
-System.out.println("callPayStubMailSend() end");
-
 		return responseDto;
 	}
 
@@ -330,6 +283,11 @@ System.out.println("callPayStubMailSend() end");
 		return sendPayStubMailDH(reportParamsDto);
 	}
 
+	// TODO:: remove test code - start
+	@Autowired
+    private Environment environment;
+	// TODO:: remove test code - end
+	
 	/**
 	 * 실시간 급여명세서 메일전송 요청 목록 일괄전송
 	 * @param reportParamsDto
@@ -337,14 +295,6 @@ System.out.println("callPayStubMailSend() end");
 	 */
 	public ResponseDto sendPayStubMailDH(ReportParamsDto reportParamsDto) {
 
-//System.out.println("======== sendPayStubMailDH pre wait ===========");
-//try {
-//	Thread.sleep(10000);
-//} catch (InterruptedException e) {
-//	// TODO Auto-generated catch block
-//	e.printStackTrace();
-//}
-System.out.println("======== sendPayStubMailDH start ===========");
 		if (null == reportParamsDto.getEmployeeNumberList()
 				|| 0 == reportParamsDto.getEmployeeNumberList().size()) {
 			throw new CustomException("선택된 사용자가 없습니다");
@@ -405,15 +355,14 @@ System.out.println("======== sendPayStubMailDH start ===========");
 				failCount++;
 				isFail = true;
 				paystubmailHistDto.setLastStatus(DH_MAIL_STATUS_SELFAIL);
-e.printStackTrace();
+				e.printStackTrace();
 			}
 
 			if (false == isFail) {
 				// setting mail details
 				List<String> address = new ArrayList<>();
 				List<String> ccAddress = null; //new ArrayList<>();
-	
-	//			address.add(data.getEmailAddress());
+
 				String subject = reportParamsDto.getYyyymm().substring(0, 4)+"년 "+reportParamsDto.getYyyymm().substring(5, 6)+"월 급여 명세서 입니다.";
 				String content = "<br>"
 					+ "* 본 보안 메일은 개인정보 보호를 위하여 암호화있습니다.<br>"
@@ -421,16 +370,17 @@ e.printStackTrace();
 					+ "* 다운로드한 첨부파일에 비밀번호 (생년월일 6자리)를 입력하시면 내용을 확인하실 수 있습니다.";
 				String attachmentName = "securityMail.html";
 				String attachmentBody = getAttachmentBodyDH(data);
-	
-				// test logic - start
-				address.add("aaa0742@gmail.com");
-				content = data.getKoreanName()+"<br>"
-						+ "* 본 보안 메일은 개인정보 보호를 위하여 암호화있습니다.<br>"
-						+ "* 암호화된 첨부파일은 인터넷이 연결된 환경에서 확인이 가능합니다.<br>"
-						+ "* 다운로드한 첨부파일에 비밀번호 (생년월일 6자리)를 입력하시면 내용을 확인하실 수 있습니다.";
-				// test logic - end
-	
-	System.out.println("======== sendPayStubMailDH mail send ===========");
+
+				// TODO:: remove test code - start
+				if (0 < Arrays.binarySearch(environment.getActiveProfiles(), "local")) {
+					address.add("aaa0742@gmail.com");
+					content = content + "<br>" + data.getKoreanName() + "<br>" + data.getResidentRegistrationNumber();
+				} else
+					System.out.println(" ********  address.add(data.getEmailAddress());  ************************");
+				// TODO:: remove test code - end
+				// TODO:: add underline
+				//address.add(data.getEmailAddress());
+
 				// 메일전송
 				String errMsg = this.runJavaMailSender(
 						address,
@@ -478,7 +428,8 @@ e.printStackTrace();
 			responseDto.setMessage("성공 "+reportParamsDto.getEmployeeNumberList()+"건, 실패 " + failCount +"건");
 		}
 
-System.out.println("======== sendPayStubMailDH end ===========");
+		log.info("MailSend "+reportParamsDto.getEmployeeNumberList()
+				+ (0 < failCount ? " 실패 " + failCount +"건":""));
 		return responseDto;
 	}
 
@@ -500,35 +451,6 @@ System.out.println("======== sendPayStubMailDH end ===========");
 			String attachmentName,
 			String attachmentBody
 			) {
-
-//		JavaMailSenderImpl emailSender = new JavaMailSenderImpl();
-//		Properties properties = System.getProperties();
-
-		try {
-//			properties.setProperty("mail.transport.protocol", dh_protocol);
-//			properties.setProperty("mail.smtp.starttls.enable", dh_starttls);
-//			properties.setProperty("mail.smtp.debug", dh_debug);
-//			properties.setProperty("mail.smtp.auth", dh_auth);
-//			properties.setProperty("mail.smtp.ssl.enable", dh_ssl);
-//			emailSender.setJavaMailProperties(properties);
-//			emailSender.setHost(dh_host);
-//			emailSender.setUsername(dh_username);
-//			emailSender.setPassword(dh_password);
-//			emailSender.setPort(dh_port);
-//			emailSender.setDefaultEncoding(encString);
-			
-			emailSender.setSession(Session.getDefaultInstance(properties));
-		} catch (SecurityException e) {
-			log.error("mail setting fail. SecurityException: "+e.getMessage());
-			e.printStackTrace();
-			return "mail smtp setting fail";
-			//throw new CustomException("mail smtp setting fail");
-		} catch (NumberFormatException e) {
-			log.error("mail setting fail. NumberFormatException: "+e.getMessage());
-			e.printStackTrace();
-			return "mail setting fail";
-			//throw new CustomException("mail setting fail");
-		}
 
 		MimeMessage message = null;
         MimeMessageHelper helper = null;
@@ -617,31 +539,28 @@ System.out.println("======== sendPayStubMailDH end ===========");
 			return "Attachment fail. File State check";
 			//throw new CustomException("Attachment fail. File State check");
 		} catch (MessagingException e) {
-			// log.error("Attachment fail. MessagingException: "+e.getMessage());
+			log.error("Attachment fail. MessagingException: "+e.getMessage());
 			e.printStackTrace();
 			return "Attachment fail";
 			//throw new CustomException("Attachment fail");
 		}
 
 		try {
-System.out.println("Send mail start.");
-
 	        //메일 보내기
 	        emailSender.send(message);
 
-System.out.println("Send mail done.");
 		} catch (MailAuthenticationException e) {
 			log.error("Email authentication fail. MessagingException: "+e.getMessage());
 			e.printStackTrace();
 			return "Email authentication fail";
 			//throw new CustomException("Email authentication fail");
 		} catch (MailSendException e) {
-			//log.error("Email send fail. MessagingException: "+e.getMessage());
+			log.error("Email send fail. MessagingException: "+e.getMessage());
 			e.printStackTrace();
 			return "Email send fail";
 			//throw new CustomException("Email send fail");
 		} catch (MailException e) {
-			//log.error("Email send() error. MessagingException: "+e.getMessage());
+			log.error("Email send() error. MessagingException: "+e.getMessage());
 			e.printStackTrace();
 			return "Email send() error";
 			//throw new CustomException("Email send() error");
@@ -667,334 +586,329 @@ System.out.println("Send mail done.");
 	 */
 	private String getAttachmentBodyDH(ReportPayrollDto data) {
 
-			String key = data.getResidentRegistrationNumber();	//생년월일
-			String birth = "19"+key.substring(0,2)+"년"+key.substring(2,4)+"월"+key.substring(4,6)+"일";
-			String dtPay = data.getDtPay();
-			dtPay = dtPay.substring(0,4)+"."+dtPay.substring(4,6)+"."+dtPay.substring(6,8)+"";
-			if("디에이치(주)".equals(data.getEstName())) {
-				data.setEstName("");
-			}
-			StringBuilder body = new StringBuilder();
-			body.append("<div id=\"dec\">")
-				.append("<!--제목--->\r\n")
-				.append("<table width=\"740px\">\r\n")
-				.append("	<tbody>\r\n")
-				.append("		<tr align=\"center\">\r\n")
-				.append("			<td style=\"font-size: 16px;font-family: 돋음, dotum;color: #444444;padding:10px;\"> <b> ")
-				.append(data.getYyyymm().substring(0,4)+"년 "+data.getYyyymm().substring(5,6))//yyyymm
-				.append("월 급여 명세서</b>\r\n")
-				.append("			</td>\r\n")
-				.append("		</tr>\r\n")
-				.append("	</tbody>\r\n")
-				.append("</table>\r\n")
-				.append("<table class=\"top_basictbl\">\r\n")
-				.append("	<colgroup>\r\n")
-				.append("		<col style=\"width:50%\">\r\n")
-				.append("		<col>\r\n")
-				.append("	</colgroup>\r\n")
-				.append("	<tbody>\r\n")
-				.append("		<tr>\r\n")
-				.append("			<td class=\"txtlft\">\r\n")
-				.append("				<p> <em> 회사명</em> 디에이치(주) ")
-				.append(data.getEstName())	//사업장명
-				.append("</p>\r\n")
-				.append("			</td>\r\n")
-				.append("			<td class=\"txtrgt\">\r\n")
-				.append("				<p> <em> 지급일</em> ")
-				.append(dtPay+" </p>\r\n")	//지급일
-				.append("			</td>\r\n")
-				.append("		</tr>\r\n")
-				.append("	</tbody>\r\n")
-				.append("</table> <!--사원정보 테이블-->\r\n")
-				.append("<table class=\"userinfo_tbl\">\r\n")
-				.append("	<colgroup>\r\n")
-				.append("		<col style=\"width:80px\">\r\n")
-				.append("		<col>\r\n")
-				.append("		<col style=\"width:60px\">\r\n")
-				.append("		<col style=\"width:18%\">\r\n")
-				.append("		<col style=\"width:60px\">\r\n")
-				.append("		<col style=\"width:18%\">\r\n")
-				.append("	</colgroup>\r\n")
-				.append("	<tbody>\r\n")
-				.append("		<tr>\r\n")
-				.append("			<th> <span> 사원코드</span> </th>\r\n")
-				.append("			<td> "+data.getEmployeeNumber()+"</td>\r\n")
-				.append("			<th> <span> 사원명</span> </th>\r\n")
-				.append("			<td> "+data.getKoreanName()+"</td>\r\n")	//koreanName
-				.append("			<th> <span> 생년월일</span> </th>\r\n")
-				.append("			<td> "+birth+"</td>\r\n")	//birth
-				.append("		</tr>\r\n")
-				.append("		<tr>\r\n")
-				.append("			<th> <span> 부서</span> </th>\r\n")
-				.append("			<td> "+data.getDepartmentName()+"</td>\r\n")
-				.append("			<th> <span> 직급</span> </th>\r\n")
-				.append("			<td> "+data.getDefinedName()+"</td>\r\n")
-				.append("			<th> <span> 입사일</span> </th>\r\n")
-				.append("			<td> "+data.getHireDate()+"</td>\r\n")
-				.append("		</tr>\r\n")
-				.append("	</tbody>\r\n")
-				.append("</table> <!--근로일수 및 시간 -->\r\n")
-				.append("<table class=\"userwork_tbl\">\r\n")
-				.append("	<colgroup>\r\n")
-				.append("		<col style=\"width:20%\" span=\"5\">\r\n")
-				.append("	</colgroup>\r\n")
-				.append("	<thead>\r\n")
-				.append("		<tr>\r\n")
-				.append("			<th> 연장근로시간</th>\r\n")
-				.append("			<th> 야간근로시간</th>\r\n")
-				.append("			<th> 휴일근로시간</th>\r\n")
-				.append("			<th colspan=\"2\"> 통상시급(원) </th>\r\n")
-				.append("		</tr>\r\n")
-				.append("	</thead>\r\n")
-				.append("	<tbody>\r\n")
-				.append("		<tr>\r\n")
-				.append("			<td> </td>\r\n")
-				.append("			<td> </td>\r\n")
-				.append("			<td> </td>\r\n")
-				.append("			<td colspan=\"2\"> </td>\r\n")
-				.append("		</tr>\r\n")
-				.append("	</tbody>\r\n")
-				.append("</table> <!--지급내역/공제내역 테이블-->\r\n")
-				.append("<table width=\"740px\" border=\"0\" cellspacing=\"1\" cellpadding=\"1\" class=\"origin_tbl\">\r\n")
-				.append("	<tbody>\r\n")
-				.append("		<tr>\r\n")
-				.append("			<td bgcolor=\"#b1c5db\">\r\n")
-				.append("				<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"\r\n")
-				.append("					style=\"table-layout:fixed; border-collapse:collapse;word-break:break-all;\"> <!--지급내역-->\r\n")
-				.append("					<tbody>\r\n")
-				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
-				.append("							<td rowspan=\"8\" width=\"16%\" align=\"center\" bgcolor=\"#cedff7\"\r\n")
-				.append("								style=\"font-weight: bold; font-size: 12px;font-family: 돋음, dotum; color: #333355;border-right:1px solid #b1c5db;\">\r\n")
-				.append("								지급내역</td>\r\n")
-				.append("							<th width=\"14%\"> 기본급</th>\r\n")
-				.append("							<th width=\"14%\"> 연차수당</th>\r\n")
-				.append("							<th width=\"14%\"> 연장수당1</th>\r\n")
-				.append("							<th width=\"14%\"> 연장수당2</th>\r\n")
-				.append("							<th width=\"14%\"> 야간수당1</th>\r\n")
-				.append("							<th width=\"14%\"> 야간수당2</th>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">" + data.getBasicSalary() + "</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">" + data.getAnnualAllowance() + "</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOvertimeAllowance01() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOvertimeAllowance02() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getNightAllowance01() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getNightAllowance02() +"</td>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
-				.append("							<th width=\"14%\"> 휴일수당1</th>\r\n")
-				.append("							<th width=\"14%\"> 휴일수당2</th>\r\n")
-				.append("							<th width=\"14%\"> 직책수당</th>\r\n")
-				.append("							<th width=\"14%\"> 기타수당</th>\r\n")
-				.append("							<th width=\"14%\"> 보조금</th>\r\n")
-				.append("							<th width=\"14%\"> 식대</th>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHolidayAllowance01() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHolidayAllowance02() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getPositionAllowance() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOtherAllowances() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getSubsidies() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getMealsExpenses() +"</td>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
-				.append("							<th width=\"14%\"> 교통비</th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\" style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getTransportationExpenses() +"</td>\r\n")
-				.append("							<td> </td>\r\n")
-				.append("							<td> </td>\r\n")
-				.append("							<td> </td>\r\n")
-				.append("							<td> </td>\r\n")
-				.append("							<td> </td>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\" style=\"font-size: 12px;color: #000000;\">\r\n")
-				.append("							<td> </td>\r\n")
-				.append("							<td> </td>\r\n")
-				.append("							<td> </td>\r\n")
-				.append("							<td> </td>\r\n")
-				.append("							<td> </td>\r\n")
-				.append("							<td> </td>\r\n")
-				.append("						</tr> <!--//지급내역-->\r\n")
-				.append("						<tr>\r\n")
-				.append("							<td colspan=\"7\" height=\"1px\"> </td>\r\n")
-				.append("						</tr> <!--공제내역-->\r\n")
-				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
-				.append("							<td rowspan=\"8\" width=\"16%\" align=\"center\" bgcolor=\"#cedff7\"\r\n")
-				.append("								style=\"font-weight: bold; font-size: 12px;font-family: 돋음, dotum; color: #333355;border-right:1px solid #b1c5db;\">\r\n")
-				.append("								공제내역</td>\r\n")
-				.append("							<th width=\"14%\"> 국민연금</th>\r\n")
-				.append("							<th width=\"14%\"> 건강보험</th>\r\n")
-				.append("							<th width=\"14%\"> 고용보험</th>\r\n")
-				.append("							<th width=\"14%\"> 장기요양보험료</th>\r\n")
-				.append("							<th width=\"14%\"> 소득세</th>\r\n")
-				.append("							<th width=\"14%\"> 지방소득세</th>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getNationalPension() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHealthInsurance() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getEmploymentInsurance() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getCareInsurance() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getIncomtax() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getResidtax() +"</td>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
-				.append("							<th width=\"14%\"> 가불금</th>\r\n")
-				.append("							<th width=\"14%\"> 기타공제</th>\r\n")
-				.append("							<th width=\"14%\"> 경조비</th>\r\n")
-				.append("							<th width=\"14%\"> 연말정산</th>\r\n")
-				.append("							<th width=\"14%\"> 건강보험정산</th>\r\n")
-				.append("							<th width=\"14%\"> 장기요양보험정산</th>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getAdvance() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOtherTax() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getGyeongjobi() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getYearend() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHealthInsuranceSettlement() +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getCareInsuranceSettlement() +"</td>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\" style=\"font-size: 12px;color: #666677;\">\r\n")
-				.append("							<th width=\"14%\"> 연차수당</th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHolidayTax() +"</td>\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\" style=\"font-size: 12px;color: #666677;\">\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("							<th> </th>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("						</tr> <!--//공제내역-->\r\n")
-				.append("					</tbody>\r\n")
-				.append("				</table>\r\n")
-				.append("			</td>\r\n")
-				.append("		</tr>\r\n")
-				.append("	</tbody>\r\n")
-				.append("</table> <!--합계데이블-->\r\n")
-				.append("<table width=\"740px\" border=\"0\" cellspacing=\"1\" cellpadding=\"1\" class=\"origin_tbl\">\r\n")
-				.append("	<tbody>\r\n")
-				.append("		<tr>\r\n")
-				.append("			<td bgcolor=\"#7f9db9\">\r\n")
-				.append("				<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"> <!--합계-->\r\n")
-				.append("					<tbody>\r\n")
-				.append("						<tr bgcolor=\"#e7e7e7\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #555;\">\r\n")
-				.append("							<td rowspan=\"6\" width=\"16%\" align=\"center\" bgcolor=\"#a8bdd3\"\r\n")
-				.append("								style=\"font-weight: bold; font-size: 12px;font-family: 돋음, dotum; color: #000;border-right:1px solid #7f9db9;\">\r\n")
-				.append("								합계</td>\r\n")
-				.append("							<th width=\"14%\"> </th>\r\n")
-				.append("							<th width=\"14%\"> </th>\r\n")
-				.append("							<th width=\"14%\"> 지급총액</th>\r\n")
-				.append("							<th width=\"14%\"> 공제총액</th>\r\n")
-				.append("							<th width=\"14%\"> </th>\r\n")
-				.append("							<th width=\"14%\"> 차인지급액</th>\r\n")
-				.append("						</tr>\r\n")
-				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
-				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\">" + data.getSalarySum() + "</td>\r\n")
-				.append("							<td width=\"14%\">" + data.getTaxSum() + "</td>\r\n")
-				.append("							<td width=\"14%\"> </td>\r\n")
-				.append("							<td width=\"14%\">" + (data.getSalarySum() - data.getTaxSum()) + "</td>\r\n")
-				.append("						</tr>\r\n")
-				.append("					</tbody>\r\n")
-				.append("				</table>\r\n")
-				.append("			</td>\r\n")
-				.append("		</tr>\r\n")
-				.append("	</tbody>\r\n")
-				.append("</table>\r\n")
-				.append("<table class=\"calcrule_tbl\">\r\n")
-				.append("	<caption> 계산방법</caption>\r\n")
-				.append("	<colgroup>\r\n")
-				.append("		<col style=\"width:30%\">\r\n")
-				.append("		<col>\r\n")
-				.append("		<col style=\"width:30%\">\r\n")
-				.append("	</colgroup>\r\n")
-				.append("	<thead>\r\n")
-				.append("		<tr>\r\n")
-				.append("			<th> 구분</th>\r\n")
-				.append("			<th> 산출식 또는 산출방법</th>\r\n")
-				.append("			<th> 지급액</th>\r\n")
-				.append("		</tr>\r\n")
-				.append("	</thead>\r\n")
-				.append("	<tbody>\r\n")
-				.append("		<tr>\r\n")
-				.append("			<td> 기본급</td>\r\n")
-				.append("			<td> 통상시급 * 209</td>\r\n")
-				.append("			<td> 2,000,000</td>\r\n")
-				.append("		</tr>\r\n")
-				.append("		<tr>\r\n")
-				.append("			<td> 연장수당1</td>\r\n")
-				.append("			<td> 연장근로시간 * 통상시급 * 1.5</td>\r\n")
-				.append("			<td> 20,000</td>\r\n")
-				.append("		</tr>\r\n")
-				.append("	</tbody>\r\n")
-				.append("</table> <!--하단글-->\r\n")
-				.append("<table width=\"740px\">\r\n")
-				.append("	<tbody>\r\n")
-				.append("		<tr align=\"center\">\r\n")
-				.append("			<td style=\"font-size: 12px;font-family: 돋음, dotum;color: #444;padding:10px;\">\r\n")
-				.append("				<p> 귀하의 노고에 감사드립니다.</p>\r\n")
-				.append("			</td>\r\n")
-				.append("		</tr>\r\n")
-				.append("	</tbody>\r\n")
-				.append("</div>");
-
-
-			Aes256 aes256 = new Aes256();
-String enc= aes256.encrypt(key, iv, body.toString());
-System.out.println("aes256.encrypt(body) [" + enc + "]");
-//if (!enc.isEmpty()) return;
+		String key = data.getResidentRegistrationNumber();	//생년월일
+		String birth = "19"+key.substring(0,2)+"년"+key.substring(2,4)+"월"+key.substring(4,6)+"일";
+		String dtPay = data.getDtPay();
+		dtPay = dtPay.substring(0,4)+"."+dtPay.substring(4,6)+"."+dtPay.substring(6,8)+"";
+		if("디에이치(주)".equals(data.getEstName())) {
+			data.setEstName("");
+		}
+		StringBuilder body = new StringBuilder();
+		body.append("<div id=\"dec\">")
+			.append("<!--제목--->\r\n")
+			.append("<table width=\"740px\">\r\n")
+			.append("	<tbody>\r\n")
+			.append("		<tr align=\"center\">\r\n")
+			.append("			<td style=\"font-size: 16px;font-family: 돋음, dotum;color: #444444;padding:10px;\"> <b> ")
+			.append(data.getYyyymm().substring(0,4)+"년 "+data.getYyyymm().substring(5,6))//yyyymm
+			.append("월 급여 명세서</b>\r\n")
+			.append("			</td>\r\n")
+			.append("		</tr>\r\n")
+			.append("	</tbody>\r\n")
+			.append("</table>\r\n")
+			.append("<table class=\"top_basictbl\">\r\n")
+			.append("	<colgroup>\r\n")
+			.append("		<col style=\"width:50%\">\r\n")
+			.append("		<col>\r\n")
+			.append("	</colgroup>\r\n")
+			.append("	<tbody>\r\n")
+			.append("		<tr>\r\n")
+			.append("			<td class=\"txtlft\">\r\n")
+			.append("				<p> <em> 회사명</em> 디에이치(주) ")
+			.append(data.getEstName())	//사업장명
+			.append("</p>\r\n")
+			.append("			</td>\r\n")
+			.append("			<td class=\"txtrgt\">\r\n")
+			.append("				<p> <em> 지급일</em> ")
+			.append(dtPay+" </p>\r\n")	//지급일
+			.append("			</td>\r\n")
+			.append("		</tr>\r\n")
+			.append("	</tbody>\r\n")
+			.append("</table> <!--사원정보 테이블-->\r\n")
+			.append("<table class=\"userinfo_tbl\">\r\n")
+			.append("	<colgroup>\r\n")
+			.append("		<col style=\"width:80px\">\r\n")
+			.append("		<col>\r\n")
+			.append("		<col style=\"width:60px\">\r\n")
+			.append("		<col style=\"width:18%\">\r\n")
+			.append("		<col style=\"width:60px\">\r\n")
+			.append("		<col style=\"width:18%\">\r\n")
+			.append("	</colgroup>\r\n")
+			.append("	<tbody>\r\n")
+			.append("		<tr>\r\n")
+			.append("			<th> <span> 사원코드</span> </th>\r\n")
+			.append("			<td> "+data.getEmployeeNumber()+"</td>\r\n")
+			.append("			<th> <span> 사원명</span> </th>\r\n")
+			.append("			<td> "+data.getKoreanName()+"</td>\r\n")	//koreanName
+			.append("			<th> <span> 생년월일</span> </th>\r\n")
+			.append("			<td> "+birth+"</td>\r\n")	//birth
+			.append("		</tr>\r\n")
+			.append("		<tr>\r\n")
+			.append("			<th> <span> 부서</span> </th>\r\n")
+			.append("			<td> "+data.getDepartmentName()+"</td>\r\n")
+			.append("			<th> <span> 직급</span> </th>\r\n")
+			.append("			<td> "+data.getDefinedName()+"</td>\r\n")
+			.append("			<th> <span> 입사일</span> </th>\r\n")
+			.append("			<td> "+data.getHireDate()+"</td>\r\n")
+			.append("		</tr>\r\n")
+			.append("	</tbody>\r\n")
+			.append("</table> <!--근로일수 및 시간 -->\r\n")
+			.append("<table class=\"userwork_tbl\">\r\n")
+			.append("	<colgroup>\r\n")
+			.append("		<col style=\"width:20%\" span=\"5\">\r\n")
+			.append("	</colgroup>\r\n")
+			.append("	<thead>\r\n")
+			.append("		<tr>\r\n")
+			.append("			<th> 연장근로시간</th>\r\n")
+			.append("			<th> 야간근로시간</th>\r\n")
+			.append("			<th> 휴일근로시간</th>\r\n")
+			.append("			<th colspan=\"2\"> 통상시급(원) </th>\r\n")
+			.append("		</tr>\r\n")
+			.append("	</thead>\r\n")
+			.append("	<tbody>\r\n")
+			.append("		<tr>\r\n")
+			.append("			<td> </td>\r\n")
+			.append("			<td> </td>\r\n")
+			.append("			<td> </td>\r\n")
+			.append("			<td colspan=\"2\"> </td>\r\n")
+			.append("		</tr>\r\n")
+			.append("	</tbody>\r\n")
+			.append("</table> <!--지급내역/공제내역 테이블-->\r\n")
+			.append("<table width=\"740px\" border=\"0\" cellspacing=\"1\" cellpadding=\"1\" class=\"origin_tbl\">\r\n")
+			.append("	<tbody>\r\n")
+			.append("		<tr>\r\n")
+			.append("			<td bgcolor=\"#b1c5db\">\r\n")
+			.append("				<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"\r\n")
+			.append("					style=\"table-layout:fixed; border-collapse:collapse;word-break:break-all;\"> <!--지급내역-->\r\n")
+			.append("					<tbody>\r\n")
+			.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
+			.append("							<td rowspan=\"8\" width=\"16%\" align=\"center\" bgcolor=\"#cedff7\"\r\n")
+			.append("								style=\"font-weight: bold; font-size: 12px;font-family: 돋음, dotum; color: #333355;border-right:1px solid #b1c5db;\">\r\n")
+			.append("								지급내역</td>\r\n")
+			.append("							<th width=\"14%\"> 기본급</th>\r\n")
+			.append("							<th width=\"14%\"> 연차수당</th>\r\n")
+			.append("							<th width=\"14%\"> 연장수당1</th>\r\n")
+			.append("							<th width=\"14%\"> 연장수당2</th>\r\n")
+			.append("							<th width=\"14%\"> 야간수당1</th>\r\n")
+			.append("							<th width=\"14%\"> 야간수당2</th>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">" + data.getBasicSalary() + "</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">" + data.getAnnualAllowance() + "</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOvertimeAllowance01() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOvertimeAllowance02() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getNightAllowance01() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getNightAllowance02() +"</td>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
+			.append("							<th width=\"14%\"> 휴일수당1</th>\r\n")
+			.append("							<th width=\"14%\"> 휴일수당2</th>\r\n")
+			.append("							<th width=\"14%\"> 직책수당</th>\r\n")
+			.append("							<th width=\"14%\"> 기타수당</th>\r\n")
+			.append("							<th width=\"14%\"> 보조금</th>\r\n")
+			.append("							<th width=\"14%\"> 식대</th>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHolidayAllowance01() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHolidayAllowance02() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getPositionAllowance() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOtherAllowances() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getSubsidies() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getMealsExpenses() +"</td>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
+			.append("							<th width=\"14%\"> 교통비</th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\" style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getTransportationExpenses() +"</td>\r\n")
+			.append("							<td> </td>\r\n")
+			.append("							<td> </td>\r\n")
+			.append("							<td> </td>\r\n")
+			.append("							<td> </td>\r\n")
+			.append("							<td> </td>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\" style=\"font-size: 12px;color: #000000;\">\r\n")
+			.append("							<td> </td>\r\n")
+			.append("							<td> </td>\r\n")
+			.append("							<td> </td>\r\n")
+			.append("							<td> </td>\r\n")
+			.append("							<td> </td>\r\n")
+			.append("							<td> </td>\r\n")
+			.append("						</tr> <!--//지급내역-->\r\n")
+			.append("						<tr>\r\n")
+			.append("							<td colspan=\"7\" height=\"1px\"> </td>\r\n")
+			.append("						</tr> <!--공제내역-->\r\n")
+			.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
+			.append("							<td rowspan=\"8\" width=\"16%\" align=\"center\" bgcolor=\"#cedff7\"\r\n")
+			.append("								style=\"font-weight: bold; font-size: 12px;font-family: 돋음, dotum; color: #333355;border-right:1px solid #b1c5db;\">\r\n")
+			.append("								공제내역</td>\r\n")
+			.append("							<th width=\"14%\"> 국민연금</th>\r\n")
+			.append("							<th width=\"14%\"> 건강보험</th>\r\n")
+			.append("							<th width=\"14%\"> 고용보험</th>\r\n")
+			.append("							<th width=\"14%\"> 장기요양보험료</th>\r\n")
+			.append("							<th width=\"14%\"> 소득세</th>\r\n")
+			.append("							<th width=\"14%\"> 지방소득세</th>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getNationalPension() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHealthInsurance() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getEmploymentInsurance() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getCareInsurance() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getIncomtax() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getResidtax() +"</td>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
+			.append("							<th width=\"14%\"> 가불금</th>\r\n")
+			.append("							<th width=\"14%\"> 기타공제</th>\r\n")
+			.append("							<th width=\"14%\"> 경조비</th>\r\n")
+			.append("							<th width=\"14%\"> 연말정산</th>\r\n")
+			.append("							<th width=\"14%\"> 건강보험정산</th>\r\n")
+			.append("							<th width=\"14%\"> 장기요양보험정산</th>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getAdvance() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getOtherTax() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getGyeongjobi() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getYearend() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHealthInsuranceSettlement() +"</td>\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getCareInsuranceSettlement() +"</td>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\" style=\"font-size: 12px;color: #666677;\">\r\n")
+			.append("							<th width=\"14%\"> 연차수당</th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
+			.append("							<td style=\"border-bottom:1px solid #eee;\">"+ data.getHolidayTax() +"</td>\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\" style=\"font-size: 12px;color: #666677;\">\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("							<th> </th>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("						</tr> <!--//공제내역-->\r\n")
+			.append("					</tbody>\r\n")
+			.append("				</table>\r\n")
+			.append("			</td>\r\n")
+			.append("		</tr>\r\n")
+			.append("	</tbody>\r\n")
+			.append("</table> <!--합계데이블-->\r\n")
+			.append("<table width=\"740px\" border=\"0\" cellspacing=\"1\" cellpadding=\"1\" class=\"origin_tbl\">\r\n")
+			.append("	<tbody>\r\n")
+			.append("		<tr>\r\n")
+			.append("			<td bgcolor=\"#7f9db9\">\r\n")
+			.append("				<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"> <!--합계-->\r\n")
+			.append("					<tbody>\r\n")
+			.append("						<tr bgcolor=\"#e7e7e7\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #555;\">\r\n")
+			.append("							<td rowspan=\"6\" width=\"16%\" align=\"center\" bgcolor=\"#a8bdd3\"\r\n")
+			.append("								style=\"font-weight: bold; font-size: 12px;font-family: 돋음, dotum; color: #000;border-right:1px solid #7f9db9;\">\r\n")
+			.append("								합계</td>\r\n")
+			.append("							<th width=\"14%\"> </th>\r\n")
+			.append("							<th width=\"14%\"> </th>\r\n")
+			.append("							<th width=\"14%\"> 지급총액</th>\r\n")
+			.append("							<th width=\"14%\"> 공제총액</th>\r\n")
+			.append("							<th width=\"14%\"> </th>\r\n")
+			.append("							<th width=\"14%\"> 차인지급액</th>\r\n")
+			.append("						</tr>\r\n")
+			.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
+			.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("							<td width=\"14%\">" + data.getSalarySum() + "</td>\r\n")
+			.append("							<td width=\"14%\">" + data.getTaxSum() + "</td>\r\n")
+			.append("							<td width=\"14%\"> </td>\r\n")
+			.append("							<td width=\"14%\">" + (data.getSalarySum() - data.getTaxSum()) + "</td>\r\n")
+			.append("						</tr>\r\n")
+			.append("					</tbody>\r\n")
+			.append("				</table>\r\n")
+			.append("			</td>\r\n")
+			.append("		</tr>\r\n")
+			.append("	</tbody>\r\n")
+			.append("</table>\r\n")
+			.append("<table class=\"calcrule_tbl\">\r\n")
+			.append("	<caption> 계산방법</caption>\r\n")
+			.append("	<colgroup>\r\n")
+			.append("		<col style=\"width:30%\">\r\n")
+			.append("		<col>\r\n")
+			.append("		<col style=\"width:30%\">\r\n")
+			.append("	</colgroup>\r\n")
+			.append("	<thead>\r\n")
+			.append("		<tr>\r\n")
+			.append("			<th> 구분</th>\r\n")
+			.append("			<th> 산출식 또는 산출방법</th>\r\n")
+			.append("			<th> 지급액</th>\r\n")
+			.append("		</tr>\r\n")
+			.append("	</thead>\r\n")
+			.append("	<tbody>\r\n")
+			.append("		<tr>\r\n")
+			.append("			<td> 기본급</td>\r\n")
+			.append("			<td> 통상시급 * 209</td>\r\n")
+			.append("			<td> 2,000,000</td>\r\n")
+			.append("		</tr>\r\n")
+			.append("		<tr>\r\n")
+			.append("			<td> 연장수당1</td>\r\n")
+			.append("			<td> 연장근로시간 * 통상시급 * 1.5</td>\r\n")
+			.append("			<td> 20,000</td>\r\n")
+			.append("		</tr>\r\n")
+			.append("	</tbody>\r\n")
+			.append("</table> <!--하단글-->\r\n")
+			.append("<table width=\"740px\">\r\n")
+			.append("	<tbody>\r\n")
+			.append("		<tr align=\"center\">\r\n")
+			.append("			<td style=\"font-size: 12px;font-family: 돋음, dotum;color: #444;padding:10px;\">\r\n")
+			.append("				<p> 귀하의 노고에 감사드립니다.</p>\r\n")
+			.append("			</td>\r\n")
+			.append("		</tr>\r\n")
+			.append("	</tbody>\r\n")
+			.append("</div>");
 
 
 		// 첨부파일
+		Aes256 aes256 = new Aes256();
 		StringBuilder attachStr = new StringBuilder();
 		attachStr.append("<html><head> <title>:: "+ data.getYyyymm().substring(0,4)+"년 "+data.getYyyymm().substring(5,6) +"월 급여 명세서 ::</title><meta http-equiv='Content-Type' content='text/html; charset=utf-8'><meta id='viewport' name='viewport' content='width=642'><style>@font-face {font-family: 'douzone';src: local('DOUZONEText10'),url('https://static.wehago.com/fonts/douzone/DOUZONEText10.woff2') format('woff2'),url('https://static.wehago.com/fonts/douzone/DOUZONEText10.woff') format('woff');font-weight: normal;font-display: fallback;}@font-face {font-family: 'douzone';src: local('DOUZONEText30'),url('https://static.wehago.com/fonts/douzone/DOUZONEText30.woff2') format('woff2'),url('https://static.wehago.com/fonts/douzone/DOUZONEText30.woff') format('woff');font-weight: bold;font-display: fallback;}@font-face {font-family: 'douzone';src: local('DOUZONEText50'),url('https://static.wehago.com/fonts/douzone/DOUZONEText50.woff2') format('woff2'),url('https://static.wehago.com/fonts/douzone/DOUZONEText50.woff') format('woff');font-weight: 900;font-display: fallback;}body,p,h1,h2,h3,h4,h5,h6,ul,ol,li,dl,dt,dd,table,th,td,form,fieldset,legend,input,textarea,img,button,select{margin:0;padding:0}body,h1,h2,h3,h4,h5,h6,ul,ol,li,dl,button{font-family:douzone,'Microsoft?YaHei','PingFang?SC','MS?PGothic','Hiragino?Kaku?Gothic?ProN','굴림',gulim,'Apple?SD?Gothic?Neo',sans-serif}body{min-width:642px;-webkit-text-size-adjust:none}img,fieldset{border:0;vertical-align:top}a{color:#1a1a1a}em,address{font-style:normal}ul,ol,li{list-style:none}label,button{cursor:pointer}input::-ms-clear{display:none}.blind{position:absolute !important;clip:rect(0 0 0 0) !important;width:1px !important;height:1px !important;margin:-1px !important;overflow:hidden !important}table{width:100%;table-layout: fixed;border-collapse:collapse;border-spacing: 0;width:100%}table thead.blind{position:static;font-size:0} /* 테이블 thead blind 버그해결 */.clearbx:after,.clearfix:after{content:'';clear:both;display:table}.dz_font,.dz_font *{font-family:douzone,'Microsoft?YaHei','PingFang?SC','MS?PGothic','Hiragino?Kaku?Gothic?ProN','굴림',gulim,'Apple?SD?Gothic?Neo',sans-serif}body{margin:70px auto;width:642px}.origin_tbl{border:1px solid #eaeaea;margin-top:10px}.origin_tbl + .origin_tbl{margin-top:5px}.head_title{font-size:15px;color:#191919;line-height:20px;text-align:center;font-weight:900;margin-bottom:20px}.topdate{font-size:11px;color:#4a4a4a;line-height:12px;letter-spacing: -.5px;font-weight:bold;text-align:right;margin-bottom:6px}.topdate > em {font-weight:900;}.txtlft {text-align:left !important}.txtrgt {text-align:right !important}.top_basictbl{border:0;table-layout: fixed;border-spacing: 0;margin-bottom:6px}.top_basictbl td{font-size: 11px;color: #4a4a4a;line-height: 12px;letter-spacing: -.5px;font-weight: bold}.top_basictbl td em{font-weight:900}.userinfo_tbl{border:2px solid #eee}.userinfo_tbl th{font-size:11px;color:#000;letter-spacing: -.5px;line-height:12px;font-weight:900;text-align:left;padding:6px 2px;vertical-align:top}.userinfo_tbl td{font-size:11px;color:#4a4a4a;letter-spacing: -.5px;line-height:12px;font-weight:bold;text-align:left;padding:6px 2px;vertical-align:top}.userinfo_tbl th > span{position:relative;display:block;padding-left:6px}.userinfo_tbl th > span:before{content:'';position:absolute;top:50%;left:0;width:2px;height:2px;border-radius:50%;background:#000;margin-top:-2px}.userinfo_tbl tr:first-of-type th,.userinfo_tbl tr:first-of-type td{padding-top:18px}.userinfo_tbl tr:last-of-type th,.userinfo_tbl tr:last-of-type td{padding-bottom:16px}.userinfo_tbl tr th:first-of-type{padding-left:24px}.userwork_tbl{border:1px solid #eaeaea;margin-top:10px}.userwork_tbl th{font-size:11px;color:#4a4a4a;line-height:12px;letter-spacing: -.5px;background:#f8f8f8;height:30px;border:1px solid #eaeaea}.userwork_tbl td{font-size:11px;color:#000;line-height:12px;letter-spacing: -.5px;background:#fff;height:30px;text-align:center;border:1px solid #eaeaea}.pay_details_tbl{margin-top:30px}.pay_details_tbl th{background:#f8f8f8;font-size:11px;font-weight:bold;letter-spacing: -.5px;color:#000;height:30px;border:1px solid #eaeaea;border-right:0;text-align:left;padding-left:12px}.pay_details_tbl td{background:#fff;font-size:11px;font-weight:bold;letter-spacing: -.5px;color:#000;text-align:right;height:30px;border:1px solid #eaeaea;border-left:0;padding-right:12px}.pay_details_tbl td.empty{border:0;background:#fff !important}.pay_details_tbl th.tit{background:#fff;border:0;font-size:12px;color:#000;font-weight:900;padding:0}.pay_details_tbl th.tit > span{position:relative;display:block;padding-left:6px}.pay_details_tbl th.tit > span:before{content:'';position:absolute;top:50%;left:0;width:2px;height:2px;border-radius:50%;background:#000;margin-top:-2px}.pay_details_tbl .total th,.pay_details_tbl .total td{border-color:#e6ebf2;background:#f2f6fa}.pay_details_tbl .total td{font-weight:900;font-size:12px}.realpay_dl {position:relative;border:1px solid #1c90fb;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.07);background:#f2f9ff;margin-top:16px;padding:16px 16px 14px;line-height:18px;clear:both;overflow:hidden}.realpay_dl dt{float:left;font-size:12px;color:#000;letter-spacing: -.55px;font-weight:bold}.realpay_dl dd{float:right;font-size:14px;color:#1c90fb;letter-spacing: -.7px;font-weight:900}.calcrule_tbl {margin-top:32px}.calcrule_tbl caption{position:relative;font-size:12px;color:#000;letter-spacing: -.33px;line-height:14px;text-align:left;font-weight:900;padding-left:6px;margin-bottom:10px}.calcrule_tbl caption:before{content:'';position:absolute;top:50%;left:0;width:2px;height:2px;border-radius:50%;background:#000;margin-top:-2px}.calcrule_tbl th,.calcrule_tbl td {font-size:11px;letter-spacing: -.5px;font-weight:bold;height:30px;border:1px solid #eaeaea;text-align:center}.calcrule_tbl th {color:#4a4a4a;background:#f8f8f8}.calcrule_tbl td {color:#000}.thx_text{font-size:12px;color:#000;font-weight:bold;line-height:14px;text-align:center;margin-top:24px}</style></head><body leftmargin='0' topmargin='0' style='font-face:맑은고딕,Malgun Gothic, 돋음, dotum;' align='center'>")
 			.append("<div id='precheck' style='font-size: 16px;font-family: 돋음, dotum;color: #444444;padding:10px;'>")
