@@ -83,51 +83,51 @@ public class SalaryService {
 
         return salaryDao.getCalcSalaryList(basicSalaryDto);
     }
-    
+
     @Transactional
     public ResponseDto updateSalaryList(List<BasicSalaryDto> basicSalaryDtoList) throws Exception {
-    	ResponseDto responseDto = ResponseDto.builder().build();
-    	
-    	CompanyDto companyDto = new CompanyDto();
+        ResponseDto responseDto = ResponseDto.builder().build();
+
+        CompanyDto companyDto = new CompanyDto();
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userName = ((UserDetails) principal).getUsername();
         companyDto.setEmailId(userName);
         CompanyDto info = companyDao.selectTokenInfo(companyDto);
-        
-    	for(BasicSalaryDto b : basicSalaryDtoList) {
-    		b.setLoginUserId(info.getUserId());
-    		salaryDao.updateSalaryList(b);
-    	}
-    	
-    	return responseDto;
-    			
+
+        for (BasicSalaryDto b : basicSalaryDtoList) {
+            b.setLoginUserId(info.getUserId());
+            salaryDao.updateSalaryList(b);
+        }
+
+        return responseDto;
+
     }
-    
+
     @Transactional
-    public ResponseDto uploadOtherAllowance(MultipartFile file, String yyyymm, ErpIUDto.RequestDto erpIUDto ) throws CustomException, IOException, InvalidFormatException {
-    	ResponseDto responseDto = ResponseDto.builder().build();
-    	
-    	CompanyDto companyDto = new CompanyDto();
+    public ResponseDto uploadOtherAllowance(MultipartFile file, String yyyymm, ErpIUDto.RequestDto erpIUDto) throws CustomException, IOException, InvalidFormatException {
+        ResponseDto responseDto = ResponseDto.builder().build();
+
+        CompanyDto companyDto = new CompanyDto();
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userName = ((UserDetails) principal).getUsername();
         companyDto.setEmailId(userName);
         CompanyDto info = companyDao.selectTokenInfo(companyDto);
-        
+
         List<OtherAllowanceDto> listOtherAllowance = new ArrayList<>();
         try {
-        	OPCPackage opcPackage = OPCPackage.open(file.getInputStream());
+            OPCPackage opcPackage = OPCPackage.open(file.getInputStream());
             XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
             XSSFSheet sheet = workbook.getSheetAt(0);
-            
+
             int rows = sheet.getPhysicalNumberOfRows();
             int rowindex = 0;
             int cellindex = 0;
-            
+
             for (rowindex = 1; rowindex < rows; rowindex++) {
-            	OtherAllowanceDto otherAllowanceDto = new OtherAllowanceDto();
-            	otherAllowanceDto.setCompanyId(info.getCompanyId());
-            	otherAllowanceDto.setLoginUserId(info.getUserId());
-            	otherAllowanceDto.setYyyymm(yyyymm);
+                OtherAllowanceDto otherAllowanceDto = new OtherAllowanceDto();
+                otherAllowanceDto.setCompanyId(info.getCompanyId());
+                otherAllowanceDto.setLoginUserId(info.getUserId());
+                otherAllowanceDto.setYyyymm(yyyymm);
 
                 XSSFRow row = sheet.getRow(rowindex);
                 int cells = row.getPhysicalNumberOfCells();
@@ -136,40 +136,40 @@ public class SalaryService {
                     XSSFCell cell = row.getCell(cellindex);
                     switch (cellindex) {
                         case 0:
-                        	otherAllowanceDto.setEmployeeNumber(cell.getStringCellValue());
+                            otherAllowanceDto.setEmployeeNumber(cell.getStringCellValue());
                             break;
                         case 2:
-                        	otherAllowanceDto.setAnnualLeaveCalc(cell.getNumericCellValue());
+                            otherAllowanceDto.setAnnualLeaveCalc(cell.getNumericCellValue());
                             break;
                         case 3:
-                        	otherAllowanceDto.setAnnualLeaveAllowance(cell.getNumericCellValue());
+                            otherAllowanceDto.setAnnualLeaveAllowance(cell.getNumericCellValue());
                             break;
                         case 4:
-                        	otherAllowanceDto.setOther02Used(cell.getNumericCellValue());
+                            otherAllowanceDto.setOther02Used(cell.getNumericCellValue());
                             break;
                         case 5:
-                        	otherAllowanceDto.setOtherAllowance02(cell.getNumericCellValue());
+                            otherAllowanceDto.setOtherAllowance02(cell.getNumericCellValue());
                             break;
                     }
                     if (cellindex == 5) break;
                 }
-                if(otherAllowanceDto.getEmployeeNumber() != null && !"".equals(otherAllowanceDto.getEmployeeNumber())) {
-                	listOtherAllowance.add(otherAllowanceDto);
+                if (otherAllowanceDto.getEmployeeNumber() != null && !"".equals(otherAllowanceDto.getEmployeeNumber())) {
+                    listOtherAllowance.add(otherAllowanceDto);
                 }
             }
             opcPackage.close();
             workbook.close();
-            
+
             for (OtherAllowanceDto item : listOtherAllowance) {
                 salaryDao.upadateOtherAllowance(item);
             }
-        	
-        }catch(Exception e) {
-        	logger.error("Exception", e);
+
+        } catch (Exception e) {
+            logger.error("Exception", e);
             throw e;
         }
-    	
-    	return responseDto;
+
+        return responseDto;
     }
 
     @Transactional
@@ -480,9 +480,9 @@ public class SalaryService {
             transportationAmount = BigDecimal.ZERO; // 교통비
             mealsAmount = BigDecimal.ZERO;          // 식대
             otherAmount = BigDecimal.ZERO;          // 기타
-            lateAmount =  BigDecimal.ZERO;          // 지각
+            lateAmount = BigDecimal.ZERO;          // 지각
             earlyLeaverAmount = BigDecimal.ZERO;    // 조퇴
-            OuterAmount  = BigDecimal.ZERO;    // 외출
+            OuterAmount = BigDecimal.ZERO;    // 외출
             // 입사일, 퇴사일
             LocalDate hireDate = LocalDate.parse(basicSalaryDto.getHireDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             LocalDate retireDate = LocalDate.parse(basicSalaryDto.getRetireDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -910,7 +910,11 @@ public class SalaryService {
                         if (adtDataDto.getWorkStatus().equals("야간")) {
                             duration = Duration.between(workStartDateTime.with(LocalTime.of(22, 00)), workStartDateTime);
                         } else {
-                            duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime);
+                            if (adtDataDto.getWorkStatus().contains("오전반차")) {
+                                duration = Duration.between(workStartDateTime.with(LocalTime.of(13, 30)),workStartDateTime);
+                            } else {
+                                duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime);
+                            }
                         }
                         double minutes = duration.toMinutes() % 60;
                         rtLateUsed = rtLateUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
@@ -961,7 +965,7 @@ public class SalaryService {
                                     && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)))) {
                                 System.out.println("12:40\t14:00");
                                 duration = Duration.between(OutStartDateTime.with(LocalTime.of(13, 30)), OutEndDateTime);
-                            } else if ((!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)) )
+                            } else if ((!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)))
                                     && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(12, 30))) && (!OutEndDateTime.toLocalTime().isAfter(LocalTime.of(13, 30)))) {
                                 System.out.println("10:00\t12:50");
                                 duration = Duration.between(OutStartDateTime, OutEndDateTime.with(LocalTime.of(12, 30)));
@@ -971,8 +975,10 @@ public class SalaryService {
                                 duration = duration.minus(Duration.ofHours(1));
                             }
                             boolean intime = false;
-                            if ((!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(12, 00)) && !OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)))
-                                    || !OutStartDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)) && !OutStartDateTime.toLocalTime().isAfter(LocalTime.of(14, 00))) {
+                            if (((!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(12, 00)) && !OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)))
+                                    && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(13, 30)))
+                                    || (!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)) && !OutStartDateTime.toLocalTime().isAfter(LocalTime.of(14, 00))
+                                    && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(14, 00)))) {
                                 intime = true;
                             }
                             if ((!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(12, 00)) && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)))
