@@ -592,7 +592,7 @@ public class SalaryService {
                         .add(holidayAllowance))
                         .multiply(BigDecimal.valueOf(diff)
                                 .divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP))
-                        .setScale(0, RoundingMode.UP);
+                        .setScale(0, RoundingMode.FLOOR);
 
                 basicAmount = new BigDecimal(basicSalaryDto.getBasicSalary()).multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP)).setScale(0, RoundingMode.FLOOR);
                 overtimeAllowance02 = Optional.ofNullable(basicSalaryDto.getOvertimeAllowance02())
