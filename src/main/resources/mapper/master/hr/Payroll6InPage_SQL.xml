@@ -141,7 +141,7 @@
       LEFT JOIN fnd_code_detail fcd06
       ON fcd06.company_id  = he.company_id 
       AND fcd06.code_id = fc06.code_id
-      AND fcd06.defined_cd = he.duty_type 
+      AND fcd06.defined_cd = he.duty_type f
       -- AND fcd06.defined_cd = 100 -- 임원
       LEFT JOIN hr_department hd
       ON hd.department_id = he.department_id
@@ -151,11 +151,12 @@
       <if test="estId !=999 and estId != null">
       	AND   he.est_id = #{estId}
       </if>
-      ORDER BY he.employee_type
-      , IFNULL(fcd06.defined_cd, '99999') -- 직군
-      , he.department_id -- 부서 아이디
-      , fcd02.defined_name  -- 직급
-      , he.korean_name
+      ORDER BY IFNULL(fcd06.defined_cd, '99999') -- 임원 부터 (직군)
+      , he.employee_type -- 년봉제/시급제
+      , he.est_id -- 사업장
+      , he.department_id -- 부서 아이디 (부서 등록시 비고 1로 변경 예정)
+      , fcd02.defined_cd -- 직급 (직위 등록시 관련 1로 변경 예정)
+      , hdcs.employee_id -- 사번
 	</select>
 	
 </mapper>
