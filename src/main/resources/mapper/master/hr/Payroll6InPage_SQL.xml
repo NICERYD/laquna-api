@@ -141,7 +141,7 @@
       LEFT JOIN fnd_code_detail fcd06
       ON fcd06.company_id  = he.company_id 
       AND fcd06.code_id = fc06.code_id
-      AND fcd06.defined_cd = he.duty_type f
+      AND fcd06.defined_cd = he.duty_type
       -- AND fcd06.defined_cd = 100 -- 임원
       LEFT JOIN hr_department hd
       ON hd.department_id = he.department_id
