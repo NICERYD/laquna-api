@@ -112,11 +112,14 @@ public class SalaryService {
         String userName = ((UserDetails) principal).getUsername();
         companyDto.setEmailId(userName);
         CompanyDto info = companyDao.selectTokenInfo(companyDto);
+        
+        OPCPackage opcPackage = null;
+        XSSFWorkbook workbook = null;
 
         List<OtherAllowanceDto> listOtherAllowance = new ArrayList<>();
         try {
-            OPCPackage opcPackage = OPCPackage.open(file.getInputStream());
-            XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+            opcPackage = OPCPackage.open(file.getInputStream());
+            workbook = new XSSFWorkbook(opcPackage);
             XSSFSheet sheet = workbook.getSheetAt(0);
 
             int rows = sheet.getPhysicalNumberOfRows();
@@ -157,16 +160,24 @@ public class SalaryService {
                     listOtherAllowance.add(otherAllowanceDto);
                 }
             }
-            opcPackage.close();
-            workbook.close();
 
             for (OtherAllowanceDto item : listOtherAllowance) {
                 salaryDao.upadateOtherAllowance(item);
             }
 
+        } catch(IllegalStateException e) {
+        	logger.error("IllegalStateException", e.getMessage());
+        	responseDto.setSuccess(false);
+        	responseDto.setMessage("엑셀 처리 중 오류가 발생했습니다. ("+ e.getMessage()+")"); 
         } catch (Exception e) {
             logger.error("Exception", e);
-            throw e;
+            responseDto.setSuccess(false);
+            responseDto.setMessage("엑셀 처리 중 오류가 발생했습니다. ("+ e.getMessage()+")");
+        } finally {
+        	if(opcPackage != null)
+        		opcPackage.close();
+        	if(workbook != null)
+        		workbook.close();
         }
 
         return responseDto;
@@ -187,10 +198,15 @@ public class SalaryService {
 
         List<ADTExcelDto> listADT = new ArrayList<>();
         List<ADTExcelDto> OutlistADT = new ArrayList<>();
+        
+        OPCPackage opcPackage = null;
+        XSSFWorkbook workbook = null;
+        OPCPackage outOpcPackage = null;
+        XSSFWorkbook outWorkbook = null;
 
         try {
-            OPCPackage opcPackage = OPCPackage.open(adtExcel01.getInputStream());
-            XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+            opcPackage = OPCPackage.open(adtExcel01.getInputStream());
+            workbook = new XSSFWorkbook(opcPackage);
             XSSFSheet sheet = workbook.getSheetAt(0);
 
             int rows = sheet.getPhysicalNumberOfRows();
@@ -261,15 +277,15 @@ public class SalaryService {
                 }
                 listADT.add(adtExcelDto);
             }
-            opcPackage.close();
+            
             salaryDao.deleteADTData(erpIUDto);
             salaryDao.deleteCalcSalary(erpIUDto);
             salaryDao.insetADTData(listADT);
 
             if (adtExcel02 != null && !adtExcel02.isEmpty()) {
                 //외출 리스트
-                OPCPackage outOpcPackage = OPCPackage.open(adtExcel02.getInputStream());
-                XSSFWorkbook outWorkbook = new XSSFWorkbook(outOpcPackage);
+                outOpcPackage = OPCPackage.open(adtExcel02.getInputStream());
+                outWorkbook = new XSSFWorkbook(outOpcPackage);
                 XSSFSheet outSheet = outWorkbook.getSheetAt(0);
 
                 int outRows = outSheet.getPhysicalNumberOfRows();
@@ -308,16 +324,29 @@ public class SalaryService {
                     }
                 }
                 logger.info("outAdtExcelDto : {}", OutlistADT.toString());
-                outOpcPackage.close();
-                outWorkbook.close();
+                
 
                 for (ADTExcelDto item : OutlistADT) {
                     salaryDao.upadateOutAdTData(item);
                 }
             }
+        } catch(IllegalStateException e) {
+        	logger.error("IllegalStateException", e.getMessage());
+        	responseDto.setSuccess(false);
+        	responseDto.setMessage("엑셀 처리 중 오류가 발생했습니다. ("+ e.getMessage()+")"); 
         } catch (Exception e) {
             logger.error("Exception", e);
-            throw e;
+            responseDto.setSuccess(false);
+            responseDto.setMessage("엑셀 처리 중 오류가 발생했습니다. ("+ e.getMessage()+")");
+        } finally {
+        	if(opcPackage != null)
+        		opcPackage.close();
+        	if(workbook != null)
+        		workbook.close();
+        	if(outOpcPackage != null)
+        		outOpcPackage.close();
+        	if(outWorkbook != null)
+        		outWorkbook.close();
         }
         return responseDto;
     }
