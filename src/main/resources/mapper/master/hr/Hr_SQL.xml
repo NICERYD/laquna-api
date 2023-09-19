@@ -390,6 +390,7 @@
         , creation_date
         , last_updated_by
         , last_update_date
+        , order_index
         )
         values
         <foreach item="item" index="index" collection="list" separator=", ">
@@ -407,6 +408,7 @@
             , now()
             , #{item.loginUserId}
             , now()
+            , #{item.orderIndex}
             )
         </foreach>
     </insert>
@@ -675,7 +677,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             'D19011'
+--             'D18717'
 --             )
 --           AND fbe.est_id = 2
         UNION ALL

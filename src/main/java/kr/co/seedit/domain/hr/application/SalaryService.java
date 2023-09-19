@@ -759,7 +759,7 @@ public class SalaryService {
             } else if (basicSalaryDto.getEmployeeType().equals("200") && !basicSalaryDto.getDutyType().equals("201") && !(basicSalaryDto.getHourlyPay() == null)) {
 
                 // 총휴일근무 시간
-                Duration holidayMinite = Duration.ZERO;
+                Double holidayMinite = 0.0;
                 // 야간조 근무일수
                 Integer nightCnt = 0;
                 hourlyPay = new BigDecimal(basicSalaryDto.getHourlyPay());
@@ -938,10 +938,10 @@ public class SalaryService {
                         LocalTime localTime = LocalTime.parse(adtDataDto.getHolidayTime(), DateTimeFormatter.ofPattern("HH:mm"));
                         if (adtDataDto.getDateWeek().equals("6")) {
                             rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + (Duration.between(LocalTime.MIN, localTime).toHours() + (Duration.between(LocalTime.MIN, localTime).toMinutes() % 60 >= 30 ? 0.5 : 0));
-                        } else if (adtDataDto.getDateWeek().equals("7")) {
+                        } else if (adtDataDto.getDateWeek().equals("7") || adtDataDto.getWorkStatus().contains("공휴일")) {
                             rtHolidaySundayUsed = rtHolidaySundayUsed + (Duration.between(LocalTime.MIN, localTime).toHours() + (Duration.between(LocalTime.MIN, localTime).toMinutes() % 60 >= 30 ? 0.5 : 0));
                         }
-                        holidayMinite = holidayMinite.plus(Duration.between(LocalTime.MIN, localTime));
+                        holidayMinite = holidayMinite + (Duration.between(LocalTime.MIN, localTime).toHours() + (Duration.between(LocalTime.MIN, localTime).toMinutes() % 60 >= 30 ? 0.5 : 0));
                     }
 
                     // 기타수당 - 지각
@@ -1077,8 +1077,8 @@ public class SalaryService {
                     rtMeal = (double) nightCnt;
                 }
                 // 휴일수당1
-                if (holidayMinite != Duration.ZERO) {
-                    holidayAllowance01 = holidayAllowance01.add(BigDecimal.valueOf(holidayMinite.toHours() + (holidayMinite.toMinutes() % 60 >= 30 ? 0.5 : 0)).multiply(hourlyPay).multiply(BigDecimal.valueOf(1.5)));
+                if (holidayMinite != 0) {
+                    holidayAllowance01 = holidayAllowance01.add(BigDecimal.valueOf(holidayMinite/8).multiply(hourlyPay.multiply(BigDecimal.valueOf(8))).multiply(BigDecimal.valueOf(1.5)));
                 }
                 // 휴일수당1(야간조 5일근무 +1)
                 if (nightTeamPlus != 0) {
