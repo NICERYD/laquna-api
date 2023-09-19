@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -566,13 +567,22 @@ public class SalaryService {
             // 00. 해당월 입사/퇴직자 처리 댜상:연봉제, 시급제 && 별정직, 경비
             YearMonth yearMonth = YearMonth.parse(requestDto.getYyyymm(), DateTimeFormatter.ofPattern("yyyyMM"));
             String midStatus = "000";
+            Calendar calendar = Calendar.getInstance();
+            try {
+                calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(basicSalaryDto.getRetireDate()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            int firstDayOfMonth = calendar.getActualMinimum(Calendar.DAY_OF_MONTH);
+            int lastDayOfMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
             // 해당 월(YYYYMM) 기준 중도 입사/퇴사 날짜계산
             long diff;
             // 중도 입사/퇴사 체크. 000:해당없음, 001:중도입사, 002:중도퇴사
-            if (basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
+            if (!(calendar.get(Calendar.DAY_OF_MONTH) == firstDayOfMonth) && basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
                 diff = ChronoUnit.DAYS.between(hireDate, yearMonth.atEndOfMonth()) + 1;
                 midStatus = "001";
-            } else if (basicSalaryDto.getRetireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
+            } else if (!(calendar.get(Calendar.DAY_OF_MONTH) == lastDayOfMonth) && basicSalaryDto.getRetireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
                 diff = ChronoUnit.DAYS.between(yearMonth.atDay(1), retireDate) + 1;
                 midStatus = "002";
             } else {
@@ -657,7 +667,8 @@ public class SalaryService {
                     }
                     // 휴일수당1
                     if (Arrays.asList("휴일", "휴일출근").contains(adtDataDto.getInStatus())
-                            && !adtDataDto.getHolidayTime().equals("00:00")) {
+                            && !adtDataDto.getHolidayTime().equals("00:00") && !adtDataDto.getWorkStatus().equals("연차")) {
+                        System.out.println(adtDataDto.getEmployeeNumber());
                         LocalDateTime workStartTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDateTime workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         String dataWeek = adtDataDto.getDateWeek();
