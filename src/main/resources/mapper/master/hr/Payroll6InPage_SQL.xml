@@ -129,10 +129,10 @@
 		AND hdcs.employee_id = he.employee_id 
 		AND hdcs.yyyymm = he.attribute1 
 		-- 직급
-		INNER JOIN fnd_code fc02
+		LEFT JOIN fnd_code fc02
 		ON fc02.company_id  = he.company_id 
 		AND fc02.code_field = 'HR_A0003'
-		INNER JOIN fnd_code_detail fcd02
+		LEFT JOIN fnd_code_detail fcd02
 		ON fcd02.company_id  = he.company_id 
 		AND fcd02.code_id = fc02.code_id 
 		AND fcd02.defined_cd = he.position_code 
@@ -145,7 +145,7 @@
 		AND fcd07.code_id = fc07.code_id
 		AND fcd07.defined_cd = he.position_code
 		-- 직군
-		INNER JOIN fnd_code fc06
+		LEFT JOIN fnd_code fc06
 		ON fc06.company_id  = he.company_id 
 		AND fc06.code_field = 'HR_A0006'
 		LEFT JOIN fnd_code_detail fcd06
