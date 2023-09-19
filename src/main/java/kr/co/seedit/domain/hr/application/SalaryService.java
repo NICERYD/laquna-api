@@ -868,17 +868,17 @@ public class SalaryService {
                         Duration duration = null;
                         if (adtDataDto.getWorkStatus().equals("야간")) {
                             if (adtDataDto.getOutStatus().equals("연장근무")) {
-                                duration = Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime);
+                                duration = Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime).toMinutes() >= 60 ? Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime) : Duration.ofMinutes(0);
                             }
                         } else {
                             if (adtDataDto.getOutStatus().equals("연장근무")) {
-                                duration = Duration.between(workEndDateTime.with(LocalTime.of(18, 00)), workEndDateTime);
+                                duration = Duration.between(workEndDateTime.with(LocalTime.of(18, 00)), workEndDateTime).toMinutes() >= 60 ? Duration.between(workEndDateTime.with(LocalTime.of(18, 00)), workEndDateTime) : Duration.ofMinutes(0);;
                             } else if (adtDataDto.getOutStatus().equals("연장/야간근무") && workStartDate.equals(workEndDate)) {
                                 duration = Duration.ofHours(4);
                             } else if (adtDataDto.getOutStatus().equals("연장/야간근무") && !workStartDate.equals(workEndDate)) {
                                 duration = Duration.ofHours(4);
                                 if (!workEndDateTime.isBefore(workEndDateTime.with(LocalTime.of(06, 00)))) {
-                                    duration = duration.plus(Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime));
+                                    duration = duration.plus(Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime).toMinutes() >= 60 ? Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime) : Duration.ofMinutes(0));
                                 }
                             }
                         }
