@@ -2120,384 +2120,384 @@ public class ReportService {
 		return workbook;
 	}
 
-	@Transactional
-	public XSSFWorkbook createPersonalPayrollOrigin(ReportParamsDto reportParamsDto) throws Exception {
-		// Get Employee List
-		List<PersonalPayrollParamsDto> employees = new ArrayList<>();
-		employees = reportDao.findEmployees(reportParamsDto);
-
-		String[] headerArr = { "근무일자", "근무스케줄", "출근시간", "퇴근시간", "출근판정", "퇴근판정", "지각", "연장", "야간", "휴일", "정상", "실근무" };
-
-		XSSFWorkbook workbook = new XSSFWorkbook();
-		XSSFFormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
-		// Style Setting
-		Font font = workbook.createFont();
-		font.setFontName("맑은 고딕");
-		font.setFontHeightInPoints((short) 11);
-
-		Font boldFont = workbook.createFont();
-		boldFont.setFontName("맑은 고딕");
-		boldFont.setFontHeightInPoints((short) 11);
-		boldFont.setBold(true);
-		
-		CellStyle DefaultStyle = workbook.createCellStyle();
-		DefaultStyle.setBorderTop(BorderStyle.THIN);
-		DefaultStyle.setBorderBottom(BorderStyle.THIN);
-		DefaultStyle.setBorderLeft(BorderStyle.THIN);
-		DefaultStyle.setBorderRight(BorderStyle.THIN);
-		DefaultStyle.setFont(font);
-		DefaultStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-		CellStyle DefaultCenterStyle = workbook.createCellStyle();
-		DefaultCenterStyle.setBorderTop(BorderStyle.THIN);
-		DefaultCenterStyle.setBorderBottom(BorderStyle.THIN);
-		DefaultCenterStyle.setBorderLeft(BorderStyle.THIN);
-		DefaultCenterStyle.setBorderRight(BorderStyle.THIN);
-		DefaultCenterStyle.setFont(font);
-		DefaultCenterStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-		DefaultCenterStyle.setAlignment(HorizontalAlignment.CENTER);
-
-		CellStyle DefaultBoldStyle = workbook.createCellStyle();
-		DefaultBoldStyle.setBorderTop(BorderStyle.THIN);
-		DefaultBoldStyle.setBorderBottom(BorderStyle.THIN);
-		DefaultBoldStyle.setBorderLeft(BorderStyle.THIN);
-		DefaultBoldStyle.setBorderRight(BorderStyle.THIN);
-		DefaultBoldStyle.setFont(boldFont);
-		DefaultBoldStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-		DefaultBoldStyle.setAlignment(HorizontalAlignment.CENTER);
-		
-		CellStyle DefaultCountStyle = workbook.createCellStyle();
-		DefaultCountStyle.setBorderTop(BorderStyle.THIN);
-		DefaultCountStyle.setBorderBottom(BorderStyle.THIN);
-		DefaultCountStyle.setBorderLeft(BorderStyle.THIN);
-		DefaultCountStyle.setBorderRight(BorderStyle.THIN);
-		DefaultCountStyle.setFont(font);
-		DefaultCountStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-		DefaultCountStyle.setAlignment(HorizontalAlignment.CENTER);
-		DefaultCountStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("##회"));
-		
-		CellStyle DefaultCountDoubleStyle = workbook.createCellStyle();
-		DefaultCountDoubleStyle.setBorderTop(BorderStyle.THIN);
-		DefaultCountDoubleStyle.setBorderBottom(BorderStyle.THIN);
-		DefaultCountDoubleStyle.setBorderLeft(BorderStyle.THIN);
-		DefaultCountDoubleStyle.setBorderRight(BorderStyle.THIN);
-		DefaultCountDoubleStyle.setFont(font);
-		DefaultCountDoubleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-		DefaultCountDoubleStyle.setAlignment(HorizontalAlignment.CENTER);
-		DefaultCountDoubleStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("##.#회"));
-		
-		CellStyle RightBorderStyle = workbook.createCellStyle();
-		RightBorderStyle.setBorderRight(BorderStyle.THIN);
-		
-		CellStyle YellowStyle = workbook.createCellStyle();
-		YellowStyle.setBorderTop(BorderStyle.THIN);
-		YellowStyle.setBorderBottom(BorderStyle.THIN);
-		YellowStyle.setBorderLeft(BorderStyle.THIN);
-		YellowStyle.setBorderRight(BorderStyle.THIN);
-		YellowStyle.setFont(font);
-		YellowStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-		YellowStyle.setAlignment(HorizontalAlignment.CENTER);
-		YellowStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
-		YellowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-		CellStyle GreenStyle = workbook.createCellStyle();
-		GreenStyle.setBorderTop(BorderStyle.THIN);
-		GreenStyle.setBorderBottom(BorderStyle.THIN);
-		GreenStyle.setBorderLeft(BorderStyle.THIN);
-		GreenStyle.setBorderRight(BorderStyle.THIN);
-		GreenStyle.setFont(font);
-		GreenStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-		GreenStyle.setAlignment(HorizontalAlignment.CENTER);
-		GreenStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
-		GreenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-		for (PersonalPayrollParamsDto e : employees) {
-			String employeeType = e.getEmployeeType();
-			// Get ADT Data
-			reportParamsDto.setEmployeeId(e.getEmployeeId());
-			List<EmployeeInformationDto> personalAdtList = new ArrayList<>();
-			personalAdtList = reportDao.findPersonalPayroll(reportParamsDto);
-
-			XSSFSheet sheet = workbook.createSheet(e.getKoreanName());
-			int rowindex = 0;
-			int cellindex = 0;
-			XSSFRow row = null;
-			XSSFCell cell = null;
-
-			sheet.setColumnWidth(0, 4000);
-			sheet.setColumnWidth(1, 3000);
-			sheet.setColumnWidth(2, 5000);
-			sheet.setColumnWidth(3, 5000);
-			sheet.setColumnWidth(4, 3000);
-			sheet.setColumnWidth(5, 3000);
-			sheet.setColumnWidth(6, 3000);
-			sheet.setColumnWidth(7, 3000);
-			sheet.setColumnWidth(8, 3000);
-			sheet.setColumnWidth(9, 3000);
-			sheet.setColumnWidth(10, 3000);
-			sheet.setColumnWidth(11, 3000);
-			sheet.setColumnWidth(12, 3000);
-			sheet.setColumnWidth(13, 3000);
-			sheet.setColumnWidth(14, 1500);
-			sheet.setColumnWidth(15, 1500);
-			sheet.setColumnWidth(16, 3000);
-
-			row = sheet.createRow(rowindex++);
-			for (cellindex = 0; cellindex < headerArr.length; cellindex++) {
-				cell = row.createCell(cellindex);
-				cell.setCellValue(headerArr[cellindex]);
-				cell.setCellStyle(DefaultCenterStyle);
-			}
-
-			for (EmployeeInformationDto p : personalAdtList) {
-				row = sheet.createRow(rowindex++);
-				cellindex = 0;
-				cell = row.createCell(cellindex++);
-				cell.setCellValue(p.getWorkDate());
-				cell.setCellStyle(DefaultCenterStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue(p.getWorkStatus());
-				switch (p.getWorkStatus()) {
-				case "연차":
-				case "오후반차":
-				case "오전반차_정상":
-				case "오전반차_생산":
-				case "휴가":
-					cell.setCellStyle(GreenStyle);
-					break;
-				case "야간":
-					cell.setCellStyle(YellowStyle);
-					break;
-				default:
-					cell.setCellStyle(DefaultCenterStyle);
-				}
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue(p.getWorkStartDate());
-				cell.setCellStyle(DefaultCenterStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue(p.getWorkEndDate());
-				cell.setCellStyle(DefaultCenterStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue(p.getInStatus());
-				if ("지각".equals(p.getInStatus()))
-					cell.setCellStyle(YellowStyle);
-				else
-					cell.setCellStyle(DefaultCenterStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue(p.getOutStatus());
-				if ("조퇴".equals(p.getOutStatus()))
-					cell.setCellStyle(YellowStyle);
-				else
-					cell.setCellStyle(DefaultCenterStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue(p.getLateTime());
-				cell.setCellStyle(DefaultCenterStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue(p.getOverTime());
-				cell.setCellStyle(DefaultCenterStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue(p.getNightTime());
-				cell.setCellStyle(DefaultCenterStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue(p.getHolidayTime());
-				cell.setCellStyle(DefaultCenterStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue(p.getDefaultTime());
-				cell.setCellStyle(DefaultCenterStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue(p.getRealWorkTime());
-				cell.setCellStyle(DefaultCenterStyle);
-			}
-
-			sheet.setAutoFilter(new CellRangeAddress(0, personalAdtList.size() + 1, 0, headerArr.length - 1));
-			
-			rowindex = 0;
-			cellindex = headerArr.length;
-			row = sheet.getRow(rowindex++);
-			cell = row.createCell(cellindex++);
-			cell.setCellValue("성명");
-			cell.setCellStyle(DefaultBoldStyle);
-
-			cell = row.createCell(cellindex++);
-			cell.setCellValue(e.getKoreanName());
-			cell.setCellStyle(DefaultBoldStyle);
-
-			cell = row.createCell(cellindex++);
-			if ("100".equals(employeeType)) {
-				cell.setCellValue("연봉");
-				cell.setCellStyle(DefaultBoldStyle);
-				row.createCell(cellindex++).setCellStyle(DefaultBoldStyle); // merge
-				row.createCell(cellindex++).setCellStyle(DefaultBoldStyle); // merge
-				sheet.addMergedRegion(new CellRangeAddress(rowindex-1, rowindex-1, 14, 16));
-				
-				cellindex = headerArr.length;
-				row = sheet.getRow(rowindex++);
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("구분");
-				cell.setCellStyle(DefaultCenterStyle);
-				row.createCell(cellindex++).setCellStyle(DefaultCenterStyle); // merge
-				sheet.addMergedRegion(new CellRangeAddress(rowindex-1, rowindex-1, 12, 13));
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("구분");
-				cell.setCellStyle(DefaultCenterStyle);
-				row.createCell(cellindex++).setCellStyle(DefaultCenterStyle); // merge
-				row.createCell(cellindex++).setCellStyle(DefaultCenterStyle); // merge
-				sheet.addMergedRegion(new CellRangeAddress(rowindex-1, rowindex-1, 14, 16));
-
-				cellindex = headerArr.length;
-				row = sheet.getRow(rowindex++);
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("연차(휴가)");
-				cell.setCellStyle(DefaultStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellFormula("SUM( COUNTIF(B2:B32,\"연차\"), COUNTIF(B2:B32,\"휴가\") )");
-				cell.setCellStyle(DefaultCountStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("반차");
-				cell.setCellStyle(DefaultStyle);
-				row.createCell(cellindex++).setCellStyle(DefaultStyle); // merge
-
-				cell = row.createCell(cellindex++);
-				cell.setCellFormula("COUNTIF(B2:B32,\"*반차*\")");
-				cell.setCellStyle(DefaultCountStyle);
-
-				cellindex = headerArr.length;
-				row = sheet.getRow(rowindex++);
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("지각");
-				cell.setCellStyle(DefaultStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellFormula("SUM(G2:G32)");
-				cell.setCellStyle(DefaultCenterStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("지각횟수");
-				cell.setCellStyle(DefaultStyle);
-				row.createCell(cellindex++).setCellStyle(DefaultStyle); // merge
-
-				cell = row.createCell(cellindex++);
-				cell.setCellFormula("COUNTIF(E2:E32,\"지각\")");
-				cell.setCellStyle(DefaultCountStyle);
-				
-				cellindex = headerArr.length;
-				row = sheet.getRow(rowindex++);
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("결근");
-				cell.setCellStyle(DefaultStyle);
-				
-				cell = row.createCell(cellindex++);
-				cell.setCellFormula("COUNTIF(E2:E32,\"결근\")");
-				cell.setCellStyle(DefaultCountStyle);
-				
-				row.createCell(16).setCellStyle(RightBorderStyle);
-				
-				cellindex = headerArr.length;
-				row = sheet.getRow(rowindex++);
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("평일연장 2H");
-				cell.setCellStyle(DefaultBoldStyle);
-				
-				cell = row.createCell(cellindex++);
-				cell.setCellStyle(DefaultCountStyle);
-				
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("철야익일 4.5H");
-				cell.setCellStyle(DefaultBoldStyle);
-				row.createCell(cellindex++).setCellStyle(DefaultBoldStyle); // merge
-				
-				cell = row.createCell(cellindex++);
-				cell.setCellStyle(DefaultCountStyle);
-				
-				rowindex++;
-				row.createCell(16).setCellStyle(RightBorderStyle);
-				
-				cellindex = headerArr.length;
-				row = sheet.getRow(rowindex++);
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("토요 4H↑");
-				cell.setCellStyle(DefaultStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellStyle(DefaultCountDoubleStyle);
-				
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("일요 4H↑");
-				cell.setCellStyle(DefaultStyle);
-				row.createCell(cellindex++).setCellStyle(DefaultStyle); // merge
-
-				cell = row.createCell(cellindex++);
-				cell.setCellStyle(DefaultCountDoubleStyle);
-				
-				cellindex = headerArr.length;
-				row = sheet.getRow(rowindex++);
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("토요 8H");
-				cell.setCellStyle(DefaultStyle);
-
-				cell = row.createCell(cellindex++);
-				cell.setCellStyle(DefaultCountStyle);
-				
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("일요 8H");
-				cell.setCellStyle(DefaultStyle);
-				row.createCell(cellindex++).setCellStyle(DefaultStyle); // merge
-
-				cell = row.createCell(cellindex++);
-				cell.setCellStyle(DefaultCountStyle);
-				
-				cellindex = headerArr.length;
-				row = sheet.getRow(rowindex++);
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("토요 계");
-				cell.setCellStyle(DefaultBoldStyle);
-				
-				cell = row.createCell(cellindex++);
-				cell.setCellStyle(DefaultCountDoubleStyle);
-				
-				cell = row.createCell(cellindex++);
-				cell.setCellValue("일요 계");
-				cell.setCellStyle(DefaultBoldStyle);
-				row.createCell(cellindex++).setCellStyle(DefaultBoldStyle); // merge
-				
-				cell = row.createCell(cellindex++);
-				cell.setCellStyle(DefaultCountDoubleStyle);
-				
-				//2행부터 9행까지 merge
-				for(int i=2; i<10; i++) {
-					sheet.addMergedRegion(new CellRangeAddress(i, i, 14, 15));
-				}
-				
-				row = sheet.getRow(rowindex++);
-				row.createCell(16).setCellStyle(RightBorderStyle);
-				
-			} else if ("200".equals(employeeType)) {
-				cell.setCellValue("시급(야간)");
-				cell.setCellStyle(DefaultBoldStyle);
-				row.createCell(cellindex++).setCellStyle(DefaultBoldStyle); // merge
-				row.createCell(cellindex++).setCellStyle(DefaultBoldStyle); // merge
-				sheet.addMergedRegion(new CellRangeAddress(rowindex-1, rowindex-1, 14, 16));
-
-			}
-
-		}
-		formulaEvaluator.evaluateAll(); // 수식 전체 실행
-		return workbook;
-	}
+//	@Transactional
+//	public XSSFWorkbook createPersonalPayrollOrigin(ReportParamsDto reportParamsDto) throws Exception {
+//		// Get Employee List
+//		List<PersonalPayrollParamsDto> employees = new ArrayList<>();
+//		employees = reportDao.findEmployees(reportParamsDto);
+//
+//		String[] headerArr = { "근무일자", "근무스케줄", "출근시간", "퇴근시간", "출근판정", "퇴근판정", "지각", "연장", "야간", "휴일", "정상", "실근무" };
+//
+//		XSSFWorkbook workbook = new XSSFWorkbook();
+//		XSSFFormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+//		// Style Setting
+//		Font font = workbook.createFont();
+//		font.setFontName("맑은 고딕");
+//		font.setFontHeightInPoints((short) 11);
+//
+//		Font boldFont = workbook.createFont();
+//		boldFont.setFontName("맑은 고딕");
+//		boldFont.setFontHeightInPoints((short) 11);
+//		boldFont.setBold(true);
+//		
+//		CellStyle DefaultStyle = workbook.createCellStyle();
+//		DefaultStyle.setBorderTop(BorderStyle.THIN);
+//		DefaultStyle.setBorderBottom(BorderStyle.THIN);
+//		DefaultStyle.setBorderLeft(BorderStyle.THIN);
+//		DefaultStyle.setBorderRight(BorderStyle.THIN);
+//		DefaultStyle.setFont(font);
+//		DefaultStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+//
+//		CellStyle DefaultCenterStyle = workbook.createCellStyle();
+//		DefaultCenterStyle.setBorderTop(BorderStyle.THIN);
+//		DefaultCenterStyle.setBorderBottom(BorderStyle.THIN);
+//		DefaultCenterStyle.setBorderLeft(BorderStyle.THIN);
+//		DefaultCenterStyle.setBorderRight(BorderStyle.THIN);
+//		DefaultCenterStyle.setFont(font);
+//		DefaultCenterStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+//		DefaultCenterStyle.setAlignment(HorizontalAlignment.CENTER);
+//
+//		CellStyle DefaultBoldStyle = workbook.createCellStyle();
+//		DefaultBoldStyle.setBorderTop(BorderStyle.THIN);
+//		DefaultBoldStyle.setBorderBottom(BorderStyle.THIN);
+//		DefaultBoldStyle.setBorderLeft(BorderStyle.THIN);
+//		DefaultBoldStyle.setBorderRight(BorderStyle.THIN);
+//		DefaultBoldStyle.setFont(boldFont);
+//		DefaultBoldStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+//		DefaultBoldStyle.setAlignment(HorizontalAlignment.CENTER);
+//		
+//		CellStyle DefaultCountStyle = workbook.createCellStyle();
+//		DefaultCountStyle.setBorderTop(BorderStyle.THIN);
+//		DefaultCountStyle.setBorderBottom(BorderStyle.THIN);
+//		DefaultCountStyle.setBorderLeft(BorderStyle.THIN);
+//		DefaultCountStyle.setBorderRight(BorderStyle.THIN);
+//		DefaultCountStyle.setFont(font);
+//		DefaultCountStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+//		DefaultCountStyle.setAlignment(HorizontalAlignment.CENTER);
+//		DefaultCountStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("##회"));
+//		
+//		CellStyle DefaultCountDoubleStyle = workbook.createCellStyle();
+//		DefaultCountDoubleStyle.setBorderTop(BorderStyle.THIN);
+//		DefaultCountDoubleStyle.setBorderBottom(BorderStyle.THIN);
+//		DefaultCountDoubleStyle.setBorderLeft(BorderStyle.THIN);
+//		DefaultCountDoubleStyle.setBorderRight(BorderStyle.THIN);
+//		DefaultCountDoubleStyle.setFont(font);
+//		DefaultCountDoubleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+//		DefaultCountDoubleStyle.setAlignment(HorizontalAlignment.CENTER);
+//		DefaultCountDoubleStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("##.#회"));
+//		
+//		CellStyle RightBorderStyle = workbook.createCellStyle();
+//		RightBorderStyle.setBorderRight(BorderStyle.THIN);
+//		
+//		CellStyle YellowStyle = workbook.createCellStyle();
+//		YellowStyle.setBorderTop(BorderStyle.THIN);
+//		YellowStyle.setBorderBottom(BorderStyle.THIN);
+//		YellowStyle.setBorderLeft(BorderStyle.THIN);
+//		YellowStyle.setBorderRight(BorderStyle.THIN);
+//		YellowStyle.setFont(font);
+//		YellowStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+//		YellowStyle.setAlignment(HorizontalAlignment.CENTER);
+//		YellowStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+//		YellowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//
+//		CellStyle GreenStyle = workbook.createCellStyle();
+//		GreenStyle.setBorderTop(BorderStyle.THIN);
+//		GreenStyle.setBorderBottom(BorderStyle.THIN);
+//		GreenStyle.setBorderLeft(BorderStyle.THIN);
+//		GreenStyle.setBorderRight(BorderStyle.THIN);
+//		GreenStyle.setFont(font);
+//		GreenStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+//		GreenStyle.setAlignment(HorizontalAlignment.CENTER);
+//		GreenStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
+//		GreenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//
+//		for (PersonalPayrollParamsDto e : employees) {
+//			String employeeType = e.getEmployeeType();
+//			// Get ADT Data
+//			reportParamsDto.setEmployeeId(e.getEmployeeId());
+//			List<EmployeeInformationDto> personalAdtList = new ArrayList<>();
+//			personalAdtList = reportDao.findPersonalPayroll(reportParamsDto);
+//
+//			XSSFSheet sheet = workbook.createSheet(e.getKoreanName());
+//			int rowindex = 0;
+//			int cellindex = 0;
+//			XSSFRow row = null;
+//			XSSFCell cell = null;
+//
+//			sheet.setColumnWidth(0, 4000);
+//			sheet.setColumnWidth(1, 3000);
+//			sheet.setColumnWidth(2, 5000);
+//			sheet.setColumnWidth(3, 5000);
+//			sheet.setColumnWidth(4, 3000);
+//			sheet.setColumnWidth(5, 3000);
+//			sheet.setColumnWidth(6, 3000);
+//			sheet.setColumnWidth(7, 3000);
+//			sheet.setColumnWidth(8, 3000);
+//			sheet.setColumnWidth(9, 3000);
+//			sheet.setColumnWidth(10, 3000);
+//			sheet.setColumnWidth(11, 3000);
+//			sheet.setColumnWidth(12, 3000);
+//			sheet.setColumnWidth(13, 3000);
+//			sheet.setColumnWidth(14, 1500);
+//			sheet.setColumnWidth(15, 1500);
+//			sheet.setColumnWidth(16, 3000);
+//
+//			row = sheet.createRow(rowindex++);
+//			for (cellindex = 0; cellindex < headerArr.length; cellindex++) {
+//				cell = row.createCell(cellindex);
+//				cell.setCellValue(headerArr[cellindex]);
+//				cell.setCellStyle(DefaultCenterStyle);
+//			}
+//
+//			for (EmployeeInformationDto p : personalAdtList) {
+//				row = sheet.createRow(rowindex++);
+//				cellindex = 0;
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue(p.getWorkDate());
+//				cell.setCellStyle(DefaultCenterStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue(p.getWorkStatus());
+//				switch (p.getWorkStatus()) {
+//				case "연차":
+//				case "오후반차":
+//				case "오전반차_정상":
+//				case "오전반차_생산":
+//				case "휴가":
+//					cell.setCellStyle(GreenStyle);
+//					break;
+//				case "야간":
+//					cell.setCellStyle(YellowStyle);
+//					break;
+//				default:
+//					cell.setCellStyle(DefaultCenterStyle);
+//				}
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue(p.getWorkStartDate());
+//				cell.setCellStyle(DefaultCenterStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue(p.getWorkEndDate());
+//				cell.setCellStyle(DefaultCenterStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue(p.getInStatus());
+//				if ("지각".equals(p.getInStatus()))
+//					cell.setCellStyle(YellowStyle);
+//				else
+//					cell.setCellStyle(DefaultCenterStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue(p.getOutStatus());
+//				if ("조퇴".equals(p.getOutStatus()))
+//					cell.setCellStyle(YellowStyle);
+//				else
+//					cell.setCellStyle(DefaultCenterStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue(p.getLateTime());
+//				cell.setCellStyle(DefaultCenterStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue(p.getOverTime());
+//				cell.setCellStyle(DefaultCenterStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue(p.getNightTime());
+//				cell.setCellStyle(DefaultCenterStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue(p.getHolidayTime());
+//				cell.setCellStyle(DefaultCenterStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue(p.getDefaultTime());
+//				cell.setCellStyle(DefaultCenterStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue(p.getRealWorkTime());
+//				cell.setCellStyle(DefaultCenterStyle);
+//			}
+//
+//			sheet.setAutoFilter(new CellRangeAddress(0, personalAdtList.size() + 1, 0, headerArr.length - 1));
+//			
+//			rowindex = 0;
+//			cellindex = headerArr.length;
+//			row = sheet.getRow(rowindex++);
+//			cell = row.createCell(cellindex++);
+//			cell.setCellValue("성명");
+//			cell.setCellStyle(DefaultBoldStyle);
+//
+//			cell = row.createCell(cellindex++);
+//			cell.setCellValue(e.getKoreanName());
+//			cell.setCellStyle(DefaultBoldStyle);
+//
+//			cell = row.createCell(cellindex++);
+//			if ("100".equals(employeeType)) {
+//				cell.setCellValue("연봉");
+//				cell.setCellStyle(DefaultBoldStyle);
+//				row.createCell(cellindex++).setCellStyle(DefaultBoldStyle); // merge
+//				row.createCell(cellindex++).setCellStyle(DefaultBoldStyle); // merge
+//				sheet.addMergedRegion(new CellRangeAddress(rowindex-1, rowindex-1, 14, 16));
+//				
+//				cellindex = headerArr.length;
+//				row = sheet.getRow(rowindex++);
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("구분");
+//				cell.setCellStyle(DefaultCenterStyle);
+//				row.createCell(cellindex++).setCellStyle(DefaultCenterStyle); // merge
+//				sheet.addMergedRegion(new CellRangeAddress(rowindex-1, rowindex-1, 12, 13));
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("구분");
+//				cell.setCellStyle(DefaultCenterStyle);
+//				row.createCell(cellindex++).setCellStyle(DefaultCenterStyle); // merge
+//				row.createCell(cellindex++).setCellStyle(DefaultCenterStyle); // merge
+//				sheet.addMergedRegion(new CellRangeAddress(rowindex-1, rowindex-1, 14, 16));
+//
+//				cellindex = headerArr.length;
+//				row = sheet.getRow(rowindex++);
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("연차(휴가)");
+//				cell.setCellStyle(DefaultStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellFormula("SUM( COUNTIF(B2:B32,\"연차\"), COUNTIF(B2:B32,\"휴가\") )");
+//				cell.setCellStyle(DefaultCountStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("반차");
+//				cell.setCellStyle(DefaultStyle);
+//				row.createCell(cellindex++).setCellStyle(DefaultStyle); // merge
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellFormula("COUNTIF(B2:B32,\"*반차*\")");
+//				cell.setCellStyle(DefaultCountStyle);
+//
+//				cellindex = headerArr.length;
+//				row = sheet.getRow(rowindex++);
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("지각");
+//				cell.setCellStyle(DefaultStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellFormula("SUM(G2:G32)");
+//				cell.setCellStyle(DefaultCenterStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("지각횟수");
+//				cell.setCellStyle(DefaultStyle);
+//				row.createCell(cellindex++).setCellStyle(DefaultStyle); // merge
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellFormula("COUNTIF(E2:E32,\"지각\")");
+//				cell.setCellStyle(DefaultCountStyle);
+//				
+//				cellindex = headerArr.length;
+//				row = sheet.getRow(rowindex++);
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("결근");
+//				cell.setCellStyle(DefaultStyle);
+//				
+//				cell = row.createCell(cellindex++);
+//				cell.setCellFormula("COUNTIF(E2:E32,\"결근\")");
+//				cell.setCellStyle(DefaultCountStyle);
+//				
+//				row.createCell(16).setCellStyle(RightBorderStyle);
+//				
+//				cellindex = headerArr.length;
+//				row = sheet.getRow(rowindex++);
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("평일연장 2H");
+//				cell.setCellStyle(DefaultBoldStyle);
+//				
+//				cell = row.createCell(cellindex++);
+//				cell.setCellStyle(DefaultCountStyle);
+//				
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("철야익일 4.5H");
+//				cell.setCellStyle(DefaultBoldStyle);
+//				row.createCell(cellindex++).setCellStyle(DefaultBoldStyle); // merge
+//				
+//				cell = row.createCell(cellindex++);
+//				cell.setCellStyle(DefaultCountStyle);
+//				
+//				rowindex++;
+//				row.createCell(16).setCellStyle(RightBorderStyle);
+//				
+//				cellindex = headerArr.length;
+//				row = sheet.getRow(rowindex++);
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("토요 4H↑");
+//				cell.setCellStyle(DefaultStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellStyle(DefaultCountDoubleStyle);
+//				
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("일요 4H↑");
+//				cell.setCellStyle(DefaultStyle);
+//				row.createCell(cellindex++).setCellStyle(DefaultStyle); // merge
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellStyle(DefaultCountDoubleStyle);
+//				
+//				cellindex = headerArr.length;
+//				row = sheet.getRow(rowindex++);
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("토요 8H");
+//				cell.setCellStyle(DefaultStyle);
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellStyle(DefaultCountStyle);
+//				
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("일요 8H");
+//				cell.setCellStyle(DefaultStyle);
+//				row.createCell(cellindex++).setCellStyle(DefaultStyle); // merge
+//
+//				cell = row.createCell(cellindex++);
+//				cell.setCellStyle(DefaultCountStyle);
+//				
+//				cellindex = headerArr.length;
+//				row = sheet.getRow(rowindex++);
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("토요 계");
+//				cell.setCellStyle(DefaultBoldStyle);
+//				
+//				cell = row.createCell(cellindex++);
+//				cell.setCellStyle(DefaultCountDoubleStyle);
+//				
+//				cell = row.createCell(cellindex++);
+//				cell.setCellValue("일요 계");
+//				cell.setCellStyle(DefaultBoldStyle);
+//				row.createCell(cellindex++).setCellStyle(DefaultBoldStyle); // merge
+//				
+//				cell = row.createCell(cellindex++);
+//				cell.setCellStyle(DefaultCountDoubleStyle);
+//				
+//				//2행부터 9행까지 merge
+//				for(int i=2; i<10; i++) {
+//					sheet.addMergedRegion(new CellRangeAddress(i, i, 14, 15));
+//				}
+//				
+//				row = sheet.getRow(rowindex++);
+//				row.createCell(16).setCellStyle(RightBorderStyle);
+//				
+//			} else if ("200".equals(employeeType)) {
+//				cell.setCellValue("시급(야간)");
+//				cell.setCellStyle(DefaultBoldStyle);
+//				row.createCell(cellindex++).setCellStyle(DefaultBoldStyle); // merge
+//				row.createCell(cellindex++).setCellStyle(DefaultBoldStyle); // merge
+//				sheet.addMergedRegion(new CellRangeAddress(rowindex-1, rowindex-1, 14, 16));
+//
+//			}
+//
+//		}
+//		formulaEvaluator.evaluateAll(); // 수식 전체 실행
+//		return workbook;
+//	}
 	
 	@Transactional
 	public void createEmailFile() throws Exception {
