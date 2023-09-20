@@ -156,7 +156,7 @@
       , he.est_id -- 사업장
       , he.department_id -- 부서 아이디 (부서 등록시 비고 1로 변경 예정)
       , fcd02.defined_cd -- 직급 (직위 등록시 관련 1로 변경 예정)
-      , hdcs.employee_id -- 사번
+      , he.employee_number -- 사번
 	</select>
 	
 </mapper>
