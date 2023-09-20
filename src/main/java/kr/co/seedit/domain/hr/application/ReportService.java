@@ -375,7 +375,7 @@ public class ReportService {
 			if (reportParamsDto.getEstId() != null && reportParamsDto.getEstId() != 999) {
 				cell.setCellValue(reportPayrollDtoList.get(0).getEstName());
 			} else {
-				cell.setCellValue("전체 사업장");
+				cell.setCellValue("디에이치(주)");
 			}
 			
 			sheet.setColumnWidth(0, 2500);
