@@ -81,7 +81,7 @@
 		   LEFT JOIN fnd_code fc07
 		   ON fc07.company_id  = he.company_id
 		   AND fc07.code_field = 'HR_A0007'
-		   LEFT JOIN fnd_code_detail fcd07
+		   INNER JOIN fnd_code_detail fcd07
 		   ON fcd07.company_id  = fc07.company_id 
 		   AND fcd07.code_id = fc07.code_id
 		   AND fcd07.defined_cd = he.position_code
@@ -118,7 +118,7 @@
 	
 	<select id="getCalcSalaryList" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto" resultType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
         /*SalaryDao.getCalcSalaryList*/
-        SELECT DISTINCT he.employee_number employeeNumber
+        SELECT he.employee_number employeeNumber
         , hdcs.salary_id
         , he.email_address
         , he.resident_registration_number
@@ -175,7 +175,7 @@
 		LEFT JOIN fnd_code fc07
 		ON fc07.company_id  = he.company_id
 		AND fc07.code_field = 'HR_A0007'
-		LEFT JOIN fnd_code_detail fcd07
+		INNER JOIN fnd_code_detail fcd07
 		ON fcd07.company_id  = fc07.company_id 
 		AND fcd07.code_id = fc07.code_id
 		AND fcd07.defined_cd = he.position_code
