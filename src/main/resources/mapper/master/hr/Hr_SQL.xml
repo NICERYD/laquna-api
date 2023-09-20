@@ -109,9 +109,9 @@
     AND   he.attribute1  = #{yyyymm}
     ORDER BY check_first -- 임원
 		, he.est_id -- 사업장
-		, IFNULL(hd.order_index,'99999') -- 부서정렬
+		, LPAD(IFNULL(hd.order_index,'9999999999'), '10' , '0') -- 부서정렬
 		, check_special
-		, IFNULL(fcd07.value01, '99999') -- 직급정렬
+		, LPAD(IFNULL(fcd07.value01,'9999999999'), '10' , '0') -- 직급정렬
 		, he.employee_number -- 사번
     	, hadt.work_date
 	</select>
@@ -126,8 +126,8 @@
         , he.est_id e
         , fbe.est_name
         , hd.department_name
-        , IFNULL(hd.order_index,'99999') hdo
-        , IFNULL(fcd07.value01, '99999') fcdo
+        , LPAD(IFNULL(hd.order_index,'9999999999'), '10' , '0') hdo
+        , LPAD(IFNULL(fcd07.value01,'9999999999'), '10' , '0') fcdo
         , fcd02.defined_name
         , CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '100' THEN 0 ELSE 1 END as check_first
 		, CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '201' THEN 1 ELSE 0 END as check_special
