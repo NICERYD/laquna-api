@@ -39,6 +39,8 @@
            , he.employee_number  -- 사원번호
            , he.korean_name -- 성명
            , fcd02.defined_name -- 직급
+           , CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '100' THEN 0 ELSE 1 END as check_first
+		   , CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '201' THEN 1 ELSE 0 END as check_special
            , hadt.work_status -- 근무형태
            , hadt.work_start_date -- 출근일시
            , hadt.work_end_date -- 퇴근일시
@@ -75,6 +77,23 @@
            ON fcd02.company_id  = he.company_id
            AND fcd02.code_id = fc02.code_id
            AND fcd02.defined_cd = he.position_code
+           -- 직위순서
+		   LEFT JOIN fnd_code fc07
+		   ON fc07.company_id  = he.company_id
+		   AND fc07.code_field = 'HR_A0007'
+		   LEFT JOIN fnd_code_detail fcd07
+		   ON fcd07.company_id  = fc07.company_id 
+		   AND fcd07.code_id = fc07.code_id
+		   AND fcd07.defined_cd = he.position_code
+		   -- 직군
+		   LEFT JOIN fnd_code fc06
+		   ON fc06.company_id  = he.company_id 
+		   AND fc06.code_field = 'HR_A0006'
+		   LEFT JOIN fnd_code_detail fcd06
+		   ON fcd06.company_id  = he.company_id 
+		   AND fcd06.code_id = fc06.code_id
+		   AND fcd06.defined_cd = he.duty_type
+		   -- AND fcd06.defined_cd = 100 -- 임원
            -- 사업장
            INNER JOIN fnd_business_est fbe
            ON fbe.company_id  = he.company_id
@@ -88,19 +107,30 @@
 		AND	he.est_id = #{estId}
 		</if>
     AND   he.attribute1  = #{yyyymm}
-    ORDER BY he.korean_name, hadt.work_date
+    ORDER BY check_first -- 임원
+		, he.est_id -- 사업장
+		, IFNULL(hd.order_index,'99999') -- 부서정렬
+		, check_special
+		, IFNULL(fcd07.value01, '99999') -- 직급정렬
+		, he.employee_number -- 사번
+    	, hadt.work_date
 	</select>
 	
 	<select id="getCalcSalaryList" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto" resultType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
         /*SalaryDao.getCalcSalaryList*/
-        SELECT he.employee_number
+        SELECT he.employee_number employeeNumber
         , hdcs.salary_id
         , he.email_address
         , he.resident_registration_number
         , he.korean_name
+        , he.est_id e
         , fbe.est_name
         , hd.department_name
+        , IFNULL(hd.order_index,'99999') hdo
+        , IFNULL(fcd07.value01, '99999') fcdo
         , fcd02.defined_name
+        , CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '100' THEN 0 ELSE 1 END as check_first
+		, CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '201' THEN 1 ELSE 0 END as check_special
         , he.employee_type
         , hdcs.basic_salary
         , ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0) AS annual_allowance
@@ -133,6 +163,7 @@
         ON he.company_id = hd.company_id
         AND he.department_id = hd.department_id
         AND he.attribute1  = hd.attribute2
+        -- 직급
         INNER JOIN fnd_code fc02
         ON fc02.company_id  = he.company_id
         AND fc02.code_field = 'HR_A0003'
@@ -140,6 +171,23 @@
         ON fcd02.company_id  = he.company_id
         AND fcd02.code_id = fc02.code_id
         AND fcd02.defined_cd = he.position_code
+        -- 직위순서
+		LEFT JOIN fnd_code fc07
+		ON fc07.company_id  = he.company_id
+		AND fc07.code_field = 'HR_A0007'
+		LEFT JOIN fnd_code_detail fcd07
+		ON fcd07.company_id  = fc07.company_id 
+		AND fcd07.code_id = fc07.code_id
+		AND fcd07.defined_cd = he.position_code
+		-- 직군
+		LEFT JOIN fnd_code fc06
+		ON fc06.company_id  = he.company_id 
+		AND fc06.code_field = 'HR_A0006'
+		LEFT JOIN fnd_code_detail fcd06
+		ON fcd06.company_id  = he.company_id 
+		AND fcd06.code_id = fc06.code_id
+		AND fcd06.defined_cd = he.duty_type
+		-- AND fcd06.defined_cd = 100 -- 임원
         LEFT JOIN hr_bonus hb
         ON he.company_id = hb.company_id
         AND he.employee_id = hb.employee_id
@@ -158,9 +206,14 @@
         , "" as email_address
         , "" as resident_registration_number
         , "" as korean_name
+        , 0 as est_id
         , "" as est_name
         , "" as department_name
+        , 0 as order_index
+        , 0 as value01
         , "" as defined_name
+        , 0 as check_first
+		, 0 as check_special
         , "" as employee_type
         , sum(hdcs.basic_salary) as basic_salary
         , sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) AS annual_allowance
@@ -210,7 +263,13 @@
         </if>
         ORDER BY CASE WHEN salary_id =000 THEN 1
         			ELSE 2
-        			END, employee_type, employee_number
+        			END
+        			, check_first -- 임원
+					, e -- 사업장
+					, hdo -- 부서정렬
+					, check_special
+					, fcdo -- 직급정렬
+					, employeeNumber -- 사번
     </select>
     
     <update id="updateSalaryList" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
