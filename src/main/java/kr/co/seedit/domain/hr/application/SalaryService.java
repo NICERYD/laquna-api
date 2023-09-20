@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -566,13 +567,22 @@ public class SalaryService {
             // 00. 해당월 입사/퇴직자 처리 댜상:연봉제, 시급제 && 별정직, 경비
             YearMonth yearMonth = YearMonth.parse(requestDto.getYyyymm(), DateTimeFormatter.ofPattern("yyyyMM"));
             String midStatus = "000";
+            Calendar calendar = Calendar.getInstance();
+            try {
+                calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(basicSalaryDto.getRetireDate()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            int firstDayOfMonth = calendar.getActualMinimum(Calendar.DAY_OF_MONTH);
+            int lastDayOfMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
             // 해당 월(YYYYMM) 기준 중도 입사/퇴사 날짜계산
             long diff;
             // 중도 입사/퇴사 체크. 000:해당없음, 001:중도입사, 002:중도퇴사
-            if (basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
+            if (!(calendar.get(Calendar.DAY_OF_MONTH) == firstDayOfMonth) && basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
                 diff = ChronoUnit.DAYS.between(hireDate, yearMonth.atEndOfMonth()) + 1;
                 midStatus = "001";
-            } else if (basicSalaryDto.getRetireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
+            } else if (!(calendar.get(Calendar.DAY_OF_MONTH) == lastDayOfMonth) && basicSalaryDto.getRetireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
                 diff = ChronoUnit.DAYS.between(yearMonth.atDay(1), retireDate) + 1;
                 midStatus = "002";
             } else {
@@ -592,7 +602,7 @@ public class SalaryService {
                         .add(holidayAllowance))
                         .multiply(BigDecimal.valueOf(diff)
                                 .divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP))
-                        .setScale(0, RoundingMode.UP);
+                        .setScale(0, RoundingMode.FLOOR);
 
                 basicAmount = new BigDecimal(basicSalaryDto.getBasicSalary()).multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP)).setScale(0, RoundingMode.FLOOR);
                 overtimeAllowance02 = Optional.ofNullable(basicSalaryDto.getOvertimeAllowance02())
@@ -657,7 +667,8 @@ public class SalaryService {
                     }
                     // 휴일수당1
                     if (Arrays.asList("휴일", "휴일출근").contains(adtDataDto.getInStatus())
-                            && !adtDataDto.getHolidayTime().equals("00:00")) {
+                            && !adtDataDto.getHolidayTime().equals("00:00") && !adtDataDto.getWorkStatus().equals("연차")) {
+                        System.out.println(adtDataDto.getEmployeeNumber());
                         LocalDateTime workStartTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDateTime workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         String dataWeek = adtDataDto.getDateWeek();
@@ -748,7 +759,7 @@ public class SalaryService {
             } else if (basicSalaryDto.getEmployeeType().equals("200") && !basicSalaryDto.getDutyType().equals("201") && !(basicSalaryDto.getHourlyPay() == null)) {
 
                 // 총휴일근무 시간
-                Duration holidayMinite = Duration.ZERO;
+                Double holidayMinite = 0.0;
                 // 야간조 근무일수
                 Integer nightCnt = 0;
                 hourlyPay = new BigDecimal(basicSalaryDto.getHourlyPay());
@@ -857,17 +868,17 @@ public class SalaryService {
                         Duration duration = null;
                         if (adtDataDto.getWorkStatus().equals("야간")) {
                             if (adtDataDto.getOutStatus().equals("연장근무")) {
-                                duration = Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime);
+                                duration = Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime).toMinutes() >= 60 ? Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime) : Duration.ofMinutes(0);
                             }
                         } else {
                             if (adtDataDto.getOutStatus().equals("연장근무")) {
-                                duration = Duration.between(workEndDateTime.with(LocalTime.of(18, 00)), workEndDateTime);
+                                duration = Duration.between(workEndDateTime.with(LocalTime.of(18, 00)), workEndDateTime).toMinutes() >= 60 ? Duration.between(workEndDateTime.with(LocalTime.of(18, 00)), workEndDateTime) : Duration.ofMinutes(0);;
                             } else if (adtDataDto.getOutStatus().equals("연장/야간근무") && workStartDate.equals(workEndDate)) {
                                 duration = Duration.ofHours(4);
                             } else if (adtDataDto.getOutStatus().equals("연장/야간근무") && !workStartDate.equals(workEndDate)) {
                                 duration = Duration.ofHours(4);
                                 if (!workEndDateTime.isBefore(workEndDateTime.with(LocalTime.of(06, 00)))) {
-                                    duration = duration.plus(Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime));
+                                    duration = duration.plus(Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime).toMinutes() >= 60 ? Duration.between(workEndDateTime.with(LocalTime.of(06, 00)), workEndDateTime) : Duration.ofMinutes(0));
                                 }
                             }
                         }
@@ -927,10 +938,10 @@ public class SalaryService {
                         LocalTime localTime = LocalTime.parse(adtDataDto.getHolidayTime(), DateTimeFormatter.ofPattern("HH:mm"));
                         if (adtDataDto.getDateWeek().equals("6")) {
                             rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + (Duration.between(LocalTime.MIN, localTime).toHours() + (Duration.between(LocalTime.MIN, localTime).toMinutes() % 60 >= 30 ? 0.5 : 0));
-                        } else if (adtDataDto.getDateWeek().equals("7")) {
+                        } else if (adtDataDto.getDateWeek().equals("7") || adtDataDto.getWorkStatus().contains("공휴일")) {
                             rtHolidaySundayUsed = rtHolidaySundayUsed + (Duration.between(LocalTime.MIN, localTime).toHours() + (Duration.between(LocalTime.MIN, localTime).toMinutes() % 60 >= 30 ? 0.5 : 0));
                         }
-                        holidayMinite = holidayMinite.plus(Duration.between(LocalTime.MIN, localTime));
+                        holidayMinite = holidayMinite + (Duration.between(LocalTime.MIN, localTime).toHours() + (Duration.between(LocalTime.MIN, localTime).toMinutes() % 60 >= 30 ? 0.5 : 0));
                     }
 
                     // 기타수당 - 지각
@@ -1066,8 +1077,8 @@ public class SalaryService {
                     rtMeal = (double) nightCnt;
                 }
                 // 휴일수당1
-                if (holidayMinite != Duration.ZERO) {
-                    holidayAllowance01 = holidayAllowance01.add(BigDecimal.valueOf(holidayMinite.toHours() + (holidayMinite.toMinutes() % 60 >= 30 ? 0.5 : 0)).multiply(hourlyPay).multiply(BigDecimal.valueOf(1.5)));
+                if (holidayMinite != 0) {
+                    holidayAllowance01 = holidayAllowance01.add(BigDecimal.valueOf(holidayMinite/8).multiply(hourlyPay.multiply(BigDecimal.valueOf(8))).multiply(BigDecimal.valueOf(1.5)));
                 }
                 // 휴일수당1(야간조 5일근무 +1)
                 if (nightTeamPlus != 0) {

@@ -50,6 +50,8 @@
         , fbe.est_name
         , hd.department_name
         , fcd02.defined_name
+        , CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '100' THEN 0 ELSE 1 END as check_first
+		, CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '201' THEN 1 ELSE 0 END as check_special
         , he.employee_type
         , he.hire_date
         , IF(he.retire_date != '9999-12-31', he.retire_date, null)
@@ -97,10 +99,12 @@
         AND hdcs.employee_id  = he.employee_id
         AND hdcs.yyyymm  = he.attribute1
         AND he.est_id = fbe.est_id
+        -- 부서
         INNER JOIN hr_department  hd
         ON he.company_id = hd.company_id
         AND he.department_id = hd.department_id
         AND he.attribute1  = hd.attribute2
+        -- 직급
         INNER JOIN fnd_code fc02
         ON fc02.company_id  = he.company_id
         AND fc02.code_field = 'HR_A0003'
@@ -108,10 +112,29 @@
         ON fcd02.company_id  = he.company_id
         AND fcd02.code_id = fc02.code_id
         AND fcd02.defined_cd = he.position_code
+        -- 직위순서
+		LEFT JOIN fnd_code fc07
+		ON fc07.company_id  = he.company_id
+		AND fc07.code_field = 'HR_A0007'
+		LEFT JOIN fnd_code_detail fcd07
+		ON fcd07.company_id  = fc07.company_id 
+		AND fcd07.code_id = fc07.code_id
+		AND fcd07.defined_cd = he.position_code
+		-- 직군
+		LEFT JOIN fnd_code fc06
+		ON fc06.company_id  = he.company_id 
+		AND fc06.code_field = 'HR_A0006'
+		LEFT JOIN fnd_code_detail fcd06
+		ON fcd06.company_id  = he.company_id 
+		AND fcd06.code_id = fc06.code_id
+		AND fcd06.defined_cd = he.duty_type
+		-- AND fcd06.defined_cd = 100 -- 임원
+        -- 상여
         LEFT JOIN hr_bonus hb
         ON he.company_id = hb.company_id
         AND he.employee_id = hb.employee_id
         AND he.attribute1 = hb.yyyymm
+        -- 세금
         LEFT JOIN hr_dh_tax hdt 
         ON he.company_id = hdt.company_id
         AND he.employee_id = hdt.employee_id
@@ -121,7 +144,12 @@
             AND   he.est_id = #{estId}
         </if>
         AND   he.attribute1  = #{yyyymm}
-        ORDER BY he.department_id, he.position_code
+        ORDER BY check_first -- 임원
+		, he.est_id -- 사업장
+		, IFNULL(hd.order_index,'99999') -- 부서정렬
+		, check_special
+		, IFNULL(fcd07.value01, '99999') -- 직급정렬
+		, hdcs.employee_id -- 사번
 	</select>
 	
 	<select id="findEstPayrollData" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.ReportPayrollDto">
@@ -194,9 +222,10 @@
 		WHERE he.company_id = #{companyId}
 		AND he.attribute1  = #{yyyymm}
 		GROUP BY fbe.est_name
+		ORDER BY fbe.est_id
 	</select>
 	
-	<select id="findEmployees" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.PersonalPayrollParamsDto">
+<!--	<select id="findEmployees" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.PersonalPayrollParamsDto">
 		/*ReportDao.findEmployees*/
 		SELECT DISTINCT(he.employee_id)
 				,he.korean_name
@@ -213,7 +242,7 @@
         AND   he.attribute1  = #{yyyymm}
         ORDER BY he.department_id, he.position_code
 	</select>
-	
+-->
 	<select id="findPersonalPayroll" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.EmployeeInformationDto">
 		/*ReportDao.findPersonalPayroll*/
 		SELECT hadt.work_date -- 근태기준일
@@ -275,6 +304,7 @@
 	    ORDER BY hadt.work_date
 	</select>
 	
+<!--
 	<select id="findPayroll" parameterType="kr.co.seedit.domain.hr.dto.MonthlyKeunTaeDto" resultType="kr.co.seedit.domain.hr.dto.ReportMonthlyKeunTaeDto">
 		SELECT he.korean_name
 				,fcd02.defined_name
@@ -319,7 +349,7 @@
 		WHERE hdmkt.company_id = #{companyId}
 		AND hdmkt.yyyymm = #{yyyymm}
 	</select>
-	
+-->
 	<select id="findPayStubForMail" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.ReportPayrollDto">
 		/*ReportDao.findPayStubForMail*/
 		SELECT he.employee_number

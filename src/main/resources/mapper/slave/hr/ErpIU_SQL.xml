@@ -13,6 +13,7 @@
              , MD.TP_DEPT as distal_yn
              , MD.CD_DEPT as department_code
              , MD.cd_bizarea AS est_id
+             , MD.DC_RMK1 as order_index
              , #{yyyymm} as yyyymm
              , #{companyId} as company_id
              , #{loginUserId} AS loginUserId

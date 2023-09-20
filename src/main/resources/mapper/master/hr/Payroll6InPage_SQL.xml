@@ -13,6 +13,8 @@
            END AS defined_name
          , IFNULL(he.korean_name,'') as korean_name -- 이름
          , IFNULL(he.employee_type,'') as employee_type -- 100 연봉제
+			, CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '100' THEN 0 ELSE 1 END as check_first
+			, CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '201' THEN 1 ELSE 0 END as check_special
          , CASE WHEN he.employee_type = '100' THEN (IFNULL(hdcs.basic_salary,0) -- as basic_amount -- 기본금
                                                    + IFNULL(hdcs.attribute03,0) -- as overtime_allowance02 -- 연장2 수당(년봉제 전용)
                                                    + IFNULL(hdcs.attribute05,0) -- as night_allowance02 -- 야간2 수당(년봉제 전용)
@@ -127,15 +129,23 @@
       AND hdcs.employee_id = he.employee_id 
       AND hdcs.yyyymm = he.attribute1 
       -- 직급
-      INNER JOIN fnd_code fc02
+		LEFT JOIN fnd_code fc02
       ON fc02.company_id  = he.company_id 
       AND fc02.code_field = 'HR_A0003'
-      INNER JOIN fnd_code_detail fcd02
+		LEFT JOIN fnd_code_detail fcd02
       ON fcd02.company_id  = he.company_id 
       AND fcd02.code_id = fc02.code_id 
       AND fcd02.defined_cd = he.position_code 
+		-- 직위순서
+		LEFT JOIN fnd_code fc07
+		ON fc07.company_id  = he.company_id
+		AND fc07.code_field = 'HR_A0007'
+		LEFT JOIN fnd_code_detail fcd07
+		ON fcd07.company_id  = fc07.company_id 
+		AND fcd07.code_id = fc07.code_id
+		AND fcd07.defined_cd = he.position_code
       -- 직군
-      INNER JOIN fnd_code fc06
+		LEFT JOIN fnd_code fc06
       ON fc06.company_id  = he.company_id 
       AND fc06.code_field = 'HR_A0006'
       LEFT JOIN fnd_code_detail fcd06
@@ -151,12 +161,13 @@
       <if test="estId !=999 and estId != null">
       	AND   he.est_id = #{estId}
       </if>
-      ORDER BY IFNULL(fcd06.defined_cd, '99999') -- 임원 부터 (직군)
-      , he.employee_type -- 년봉제/시급제
-      , he.est_id -- 사업장
-      , he.department_id -- 부서 아이디 (부서 등록시 비고 1로 변경 예정)
-      , fcd02.defined_cd -- 직급 (직위 등록시 관련 1로 변경 예정)
-      , he.employee_number -- 사번
+		ORDER BY check_first -- 임원
+		, he.est_id -- 사업장
+		, IFNULL(hd.order_index,'99999') -- 부서정렬
+		, check_special
+		, IFNULL(fcd07.value01, '99999') -- 직급정렬
+		, hdcs.employee_id -- 사번
+		, he.employee_number -- 사번
 	</select>
 	
 </mapper>

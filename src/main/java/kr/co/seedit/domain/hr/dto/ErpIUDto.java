@@ -34,6 +34,7 @@ public class ErpIUDto {
         private String endDate;
         private String yyyymm;
         private Integer loginUserId;
+        private String orderIndex;
     }
 
     @AllArgsConstructor

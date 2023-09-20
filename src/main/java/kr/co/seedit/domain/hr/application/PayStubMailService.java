@@ -194,18 +194,7 @@ public class PayStubMailService {
 				String attachmentName = "securityMail.html";
 				String attachmentBody = getAttachmentBodyDH(data);
 
-				// TODO:: remove test code - start
-				if (0 < Arrays.binarySearch(environment.getActiveProfiles(), "local")) {
-					address.add("lhkyu@naver.com");
-					content = content + "<br>" + data.getKoreanName() + "<br>" + data.getResidentRegistrationNumber();
-				} else
-					System.out.println(" ************************************************************************\n"
-							+" ********  address.add(data.getEmailAddress());  ************************\n"
-							+" ************************************************************************\n");
-				// TODO:: remove test code - end
-
-				// TODO:: add underline
-				//address.add(data.getEmailAddress());
+				address.add(data.getEmailAddress());
 
 				// 메일전송
 				String errMsg = this.runJavaMailSender(
@@ -216,7 +205,7 @@ public class PayStubMailService {
 						attachmentName,
 						attachmentBody
 						);
-	
+
 				if ("".equals(errMsg)) {
 					paystubmailHistDto.setLastStatus(DH_MAIL_STATUS_SUCCESS);
 					Date today = new Date();
