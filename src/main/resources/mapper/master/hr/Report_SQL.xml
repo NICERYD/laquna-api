@@ -149,7 +149,7 @@
 		, IFNULL(hd.order_index,'99999') -- 부서정렬
 		, check_special
 		, IFNULL(fcd07.value01, '99999') -- 직급정렬
-		, hdcs.employee_id -- 사번
+		, hdcs.employee_number -- 사번
 	</select>
 	
 	<select id="findEstPayrollData" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.ReportPayrollDto">
