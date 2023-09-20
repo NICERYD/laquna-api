@@ -163,9 +163,9 @@
       </if>
 		ORDER BY check_first -- 임원
 		, he.est_id -- 사업장
-		, IFNULL(hd.order_index,'99999') -- 부서정렬
+		, LPAD(IFNULL(hd.order_index,'9999999999'), '10' , '0') -- 부서정렬
 		, check_special
-		, IFNULL(fcd07.value01, '99999') -- 직급정렬
+		, LPAD(IFNULL(fcd07.value01,'9999999999'), '10' , '0') -- 직급정렬
 		, hdcs.employee_id -- 사번
 		, he.employee_number -- 사번
 	</select>
