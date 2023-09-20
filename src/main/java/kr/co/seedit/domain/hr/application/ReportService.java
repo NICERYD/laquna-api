@@ -1425,7 +1425,7 @@ public class ReportService {
 		printSetup.setPaperSize(XSSFPrintSetup.A4_PAPERSIZE);
         printSetup.setLandscape(false);		//인쇄방향 세로
 		printSetup.setFitWidth((short) 1);
-		printSetup.setBottomMargin((double)6.889764);
+		printSetup.setBottomMargin((double)6.496063);
 		printSetup.setScale((short)85);
 
 		// Style Setting
@@ -1906,7 +1906,7 @@ public class ReportService {
 		InputStream fis = resource.getInputStream();
 	
 		XSSFWorkbook workbook = new XSSFWorkbook(fis);
-		
+
 		// Style Setting
 		Font font = workbook.createFont();
 		font.setFontName("맑은 고딕");
@@ -1966,6 +1966,10 @@ public class ReportService {
 			
 			if(employeeType == 100) {	//연봉제
 				sheet = workbook.cloneSheet(0,e.getKoreanName());
+				// Print Setting
+				XSSFPrintSetup printSetup = sheet.getPrintSetup();
+				printSetup.setPaperSize(XSSFPrintSetup.A4_PAPERSIZE);
+				printSetup.setLandscape(true); // 인쇄방향 가로
 				rowindex = 2;
 				row = sheet.getRow(rowindex++);
 				row.getCell(cell01).setCellValue(e.getAnnualLeaveUsedCnt());
