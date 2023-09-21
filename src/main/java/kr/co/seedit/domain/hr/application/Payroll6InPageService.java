@@ -121,7 +121,8 @@ public class Payroll6InPageService {
 
 		// set format
 		SeedXSSFUtil.copyHeadlineCubeFormat(workbook, sheetNumber, countHeadLine, list.size(), dataCountInRow, dataOffsetCell);
-		
+
+		Payroll6InPageDto sum = new Payroll6InPageDto();
 		int curRow = 0, curCol = 0;
 		XSSFSheet sheet = workbook.getSheetAt(sheetNumber);
 		for (int no=0;no<list.size();no++)
@@ -129,9 +130,79 @@ public class Payroll6InPageService {
 			Payroll6InPageDto data = list.get(no);
 			curRow = Math.floorDiv(no, dataCountInRow) * countHeadLine;
 			curCol = Math.floorMod(no, dataCountInRow)*dataOffsetCell;
-			
+
+			data.setTotalAmt(data.getBasicAmount()
+					+data.getOvertimeAllowance01()
+					+data.getOvertimeAllowance02()
+					+data.getNtDayAllowance01()
+					+data.getNtNightAllowance01()
+					+data.getNtNightAllowance02()
+					+data.getHolidaySatAllowance01()
+					+data.getHolidaySunAllowance01()
+					+data.getHolidayAllowance02()
+					+data.getAttribute01()
+					+data.getAttribute15()
+					+data.getAttribute13()
+					+data.getAttribute14()
+					+data.getAttribute17()
+					+data.getAttribute16()
+					+data.getAttribute11()
+					+data.getAttribute12());
+
 			setValuePayrollTableForm(sheet, data, no, curRow, curCol, styleLightGreen, styleLemonChiffon);
+
+			// sum
+			sum.setSalaryAmt(sum.getSalaryAmt() + data.getSalaryAmt());
+			sum.setSalaryAmt2(sum.getSalaryAmt2() + data.getSalaryAmt2());
+			sum.setTotalTime(sum.getTotalTime() + data.getTotalTime());
+			sum.setBasicAmount(sum.getBasicAmount() + data.getBasicAmount());
+
+			sum.setOvertimeDaytime01(sum.getOvertimeDaytime01() + data.getOvertimeDaytime01());
+			sum.setOvertimeAllowance01(sum.getOvertimeAllowance01() + data.getOvertimeAllowance01());
+			sum.setOvertimeDaytime02(sum.getOvertimeDaytime02() + data.getOvertimeDaytime02());
+			sum.setOvertimeAllowance02(sum.getOvertimeAllowance02() + data.getOvertimeAllowance02());
+
+			sum.setNtDaytime01(sum.getNtDaytime01() + data.getNtDaytime01());
+			sum.setNtDayAllowance01(sum.getNtDayAllowance01() + data.getNtDayAllowance01());
+			sum.setNtNighttime01(sum.getNtNighttime01() + data.getNtNighttime01());
+			sum.setNtNightAllowance01(sum.getNtNightAllowance01() + data.getNtNightAllowance01());
+			sum.setNtNighttime02(sum.getNtNighttime02() + data.getNtNighttime02());
+			sum.setNtNightAllowance02(sum.getNtNightAllowance02() + data.getNtNightAllowance02());
+
+			sum.setHolidaySatTime01(sum.getHolidaySatTime01() + data.getHolidaySatTime01());
+			sum.setHolidaySatAllowance01(sum.getHolidaySatAllowance01() + data.getHolidaySatAllowance01());
+			sum.setHolidaySunTime01(sum.getHolidaySunTime01() + data.getHolidaySunTime01());
+			sum.setHolidaySunAllowance01(sum.getHolidaySunAllowance01() + data.getHolidaySunAllowance01());
+			sum.setHolidayTime02(sum.getHolidayTime02() + data.getHolidayTime02());
+			sum.setHolidayAllowance02(sum.getHolidayAllowance02() + data.getHolidayAllowance02());
+
+			sum.setAnnualLeaveUsed(sum.getAnnualLeaveUsed() + data.getAnnualLeaveUsed());
+			sum.setAttribute01(sum.getAttribute01() + data.getAttribute01());
+
+			sum.setAttribute24(sum.getAttribute24() + data.getAttribute24());
+
+			sum.setHalfLeaveUsed(sum.getHalfLeaveUsed() + data.getHalfLeaveUsed());
+			sum.setAttribute15(sum.getAttribute15() + data.getAttribute15());
+
+			sum.setEarlyLeaveTime(sum.getEarlyLeaveTime() + data.getEarlyLeaveTime());
+			sum.setAttribute13(sum.getAttribute13() + data.getAttribute13());
+
+			sum.setLateTime(sum.getLateTime() + data.getLateTime());
+			sum.setAttribute14(sum.getAttribute14() + data.getAttribute14());
+
+			sum.setOuterTime(sum.getOuterTime() + data.getOuterTime());
+			sum.setAttribute17(sum.getAttribute17() + data.getAttribute17());
+
+			sum.setOther02Used(sum.getOther02Used() + data.getOther02Used());
+			sum.setAttribute16(sum.getAttribute16() + data.getAttribute16());
+
+			sum.setAttribute11(sum.getAttribute11() + data.getAttribute11());
+			sum.setAttribute12(sum.getAttribute12() + data.getAttribute12());
+
+			sum.setTotalAmt(sum.getTotalAmt() + data.getTotalAmt());
 		}
+		
+		setSumPayrollTable(sheet, sum, 0, dataCountInRow*dataOffsetCell);
 		
 		return true;
 	}
@@ -148,9 +219,6 @@ public class Payroll6InPageService {
 	public static void setValuePayrollTableForm(XSSFSheet sheet, Payroll6InPageDto data, int no, int curRow, int curCol,
 			XSSFCellStyle retireHivediv, XSSFCellStyle newHivediv)
 	{
-		////////////////////////////////////////////
-		// data setting - start
-		
 		//NO.
 		if (no >= 0) {
 			sheet.getRow(curRow+0).getCell(curCol+1).setCellValue(no+1);
@@ -322,32 +390,185 @@ public class Payroll6InPageService {
 			sheet.getRow(curRow+21).getCell(curCol+3).setCellValue(data.getAttribute12());
 		}
 		//합 계
-		if (null != data.getSalaryAmt()) {
-			sheet.getRow(curRow+22).getCell(curCol+3).setCellValue(
-					data.getBasicAmount()
-					+data.getOvertimeAllowance01()
-					+data.getOvertimeAllowance02()
-					+data.getNtDayAllowance01()
-					+data.getNtNightAllowance01()
-					+data.getNtNightAllowance02()
-					+data.getHolidaySatAllowance01()
-					+data.getHolidaySunAllowance01()
-					+data.getHolidayAllowance02()
-					+data.getAttribute01()
-					+data.getAttribute15()
-					+data.getAttribute13()
-					+data.getAttribute14()
-					+data.getAttribute17()
-					+data.getAttribute16()
-					+data.getAttribute11()
-					+data.getAttribute12()
-					);
+		if (null != data.getTotalAmt()) {
+			sheet.getRow(curRow+22).getCell(curCol+3).setCellValue(data.getTotalAmt());
 		}
-		
-		// data setting - end
-		////////////////////////////////////////////
 	}
 
+	/**
+	 * 엑셀 시트 급여표(6쪽의 테이블 양식) 전체 숫자 합계 
+	 * @param sheet 입력할 시트정보
+	 * @param data 값을 설정할 data
+	 * @param no 순번 칸에 입력될 값 (빈칸으로 남겨두려면 음수를 넣으면된다)
+	 * @param curRow excel start row point number
+	 * @param curCol excel start column point number 
+	 * @return
+	 */
+	public static void setSumPayrollTable(XSSFSheet sheet, Payroll6InPageDto data, int startRow, int startCol)
+	{
+		int curRow = startRow;
+		int curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("NO.");
+		curCol++;
+		curCol++;
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getSalaryAmt());
+		curRow++;
+		curCol = startCol;
+		curCol++;
+		curCol++;
+		curCol++;
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getSalaryAmt2());
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("기본급");
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getTotalTime());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getBasicAmount());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("연장1");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("연봉/시급");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getOvertimeDaytime01());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getOvertimeAllowance01());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("연장2");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("연봉/포괄");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getOvertimeDaytime02());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getOvertimeAllowance02());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("야간수당");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("주간(시급)");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getNtDaytime01());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getNtDayAllowance01());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("야간(연봉/시급)");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getNtNighttime01());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getNtNightAllowance01());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("야간2");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("연봉/포괄");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getNtNighttime02());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getNtNightAllowance02());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("휴일1");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("토요(연봉/시급)");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getHolidaySatTime01());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getHolidaySatAllowance01());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("일요(연봉/시급)");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getHolidaySunTime01());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getHolidaySunAllowance01());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("휴일2");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("연봉/포괄");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getHolidayTime02());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getHolidayAllowance02());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("연차사용");
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAnnualLeaveUsed());
+		curCol++;
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("연차수당");
+		curCol++;
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAttribute01());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("연차정산");
+		curCol++;
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAttribute24());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("반차");
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getHalfLeaveUsed());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAttribute15());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("조퇴");
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getEarlyLeaveTime());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAttribute13());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("지각");
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getLateTime());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAttribute14());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("외출");
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getOuterTime());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAttribute17());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("초과수당");
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getOther02Used());
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAttribute16());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		curCol++;
+		curCol++;
+		curCol++;
+		curCol++;
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("보조금");
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("교통비");
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAttribute11());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("식대");
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAttribute12());
+		curCol++;
+		curRow++;
+		curCol = startCol;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue("합 계");
+		curCol++;
+		curCol++;
+		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getTotalAmt());
+		curCol++;
+
+	}
 
 //	@Transactional
 	public Resource createPayroll6InPageLocalTest(Map<String, Object> in, HttpServletResponse response)
