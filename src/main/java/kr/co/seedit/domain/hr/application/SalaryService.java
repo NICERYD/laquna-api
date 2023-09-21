@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
@@ -53,7 +54,7 @@ public class SalaryService {
 
     @Transactional
     public ResponseDto getCompanyList() throws Exception {
-    	ResponseDto responseDto = ResponseDto.builder().build();
+        ResponseDto responseDto = ResponseDto.builder().build();
         CompanyDto companyDto = new CompanyDto();
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userName = ((UserDetails) principal).getUsername();
@@ -61,12 +62,12 @@ public class SalaryService {
         CompanyDto info = companyDao.selectTokenInfo(companyDto);
         Integer companyId = info.getCompanyId();
         try {
-        	List<SelectListDto> result = salaryDao.findCompanyList(companyId);
+            List<SelectListDto> result = salaryDao.findCompanyList(companyId);
             responseDto.setData(result);
-        }catch (Exception e) {
-        	logger.error("Exception", e);
+        } catch (Exception e) {
+            logger.error("Exception", e);
             responseDto.setSuccess(false);
-            responseDto.setMessage("오류가 발생했습니다. ("+ e.getMessage()+")");
+            responseDto.setMessage("오류가 발생했습니다. (" + e.getMessage() + ")");
         }
 
         return responseDto;
@@ -74,7 +75,7 @@ public class SalaryService {
 
     @Transactional
     public ResponseDto getBusinessList() throws Exception {
-    	ResponseDto responseDto = ResponseDto.builder().build();
+        ResponseDto responseDto = ResponseDto.builder().build();
         CompanyDto companyDto = new CompanyDto();
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userName = ((UserDetails) principal).getUsername();
@@ -82,12 +83,12 @@ public class SalaryService {
         CompanyDto info = companyDao.selectTokenInfo(companyDto);
         Integer companyId = info.getCompanyId();
         try {
-        	List<SelectListDto> result = salaryDao.findBusinessList(companyId);
+            List<SelectListDto> result = salaryDao.findBusinessList(companyId);
             responseDto.setData(result);
-        }catch (Exception e) {
-        	logger.error("Exception", e);
+        } catch (Exception e) {
+            logger.error("Exception", e);
             responseDto.setSuccess(false);
-            responseDto.setMessage("오류가 발생했습니다. ("+ e.getMessage()+")");
+            responseDto.setMessage("오류가 발생했습니다. (" + e.getMessage() + ")");
         }
 
         return responseDto;
@@ -95,29 +96,29 @@ public class SalaryService {
 
     @Transactional
     public ResponseDto getAdtList(EmployeeInformationDto employeeInformationDto) throws Exception {
-    	ResponseDto responseDto = ResponseDto.builder().build();
-    	try {
-	    	List<EmployeeInformationDto> result = salaryDao.findAdtList(employeeInformationDto);
-	    	responseDto.setData(result);
-    	} catch (Exception e) {
-    		logger.error("Exception", e);
+        ResponseDto responseDto = ResponseDto.builder().build();
+        try {
+            List<EmployeeInformationDto> result = salaryDao.findAdtList(employeeInformationDto);
+            responseDto.setData(result);
+        } catch (Exception e) {
+            logger.error("Exception", e);
             responseDto.setSuccess(false);
-            responseDto.setMessage("조회 중 오류가 발생했습니다. ("+ e.getMessage()+")");
-    	}
+            responseDto.setMessage("조회 중 오류가 발생했습니다. (" + e.getMessage() + ")");
+        }
         return responseDto;
     }
 
     @Transactional
     public ResponseDto getCalcSalaryList(BasicSalaryDto basicSalaryDto) throws Exception {
-    	ResponseDto responseDto = ResponseDto.builder().build();
-    	try {
-    			List<BasicSalaryDto> result = salaryDao.getCalcSalaryList(basicSalaryDto);
-    			responseDto.setData(result);
-    		} catch (Exception e) {
-	            logger.error("Exception", e);
-	            responseDto.setSuccess(false);
-	            responseDto.setMessage("조회 중 오류가 발생했습니다. ("+ e.getMessage()+")");
-    		}
+        ResponseDto responseDto = ResponseDto.builder().build();
+        try {
+            List<BasicSalaryDto> result = salaryDao.getCalcSalaryList(basicSalaryDto);
+            responseDto.setData(result);
+        } catch (Exception e) {
+            logger.error("Exception", e);
+            responseDto.setSuccess(false);
+            responseDto.setMessage("조회 중 오류가 발생했습니다. (" + e.getMessage() + ")");
+        }
         return responseDto;
     }
 
@@ -132,14 +133,14 @@ public class SalaryService {
         CompanyDto info = companyDao.selectTokenInfo(companyDto);
 
         try {
-	        for (BasicSalaryDto b : basicSalaryDtoList) {
-	            b.setLoginUserId(info.getUserId());
-	            salaryDao.updateSalaryList(b);
-	        }
+            for (BasicSalaryDto b : basicSalaryDtoList) {
+                b.setLoginUserId(info.getUserId());
+                salaryDao.updateSalaryList(b);
+            }
         } catch (Exception e) {
-        	logger.error("Exception", e);
+            logger.error("Exception", e);
             responseDto.setSuccess(false);
-            responseDto.setMessage("오류가 발생했습니다. ("+ e.getMessage()+")");
+            responseDto.setMessage("오류가 발생했습니다. (" + e.getMessage() + ")");
         }
         return responseDto;
 
@@ -154,7 +155,7 @@ public class SalaryService {
         String userName = ((UserDetails) principal).getUsername();
         companyDto.setEmailId(userName);
         CompanyDto info = companyDao.selectTokenInfo(companyDto);
-        
+
         OPCPackage opcPackage = null;
         XSSFWorkbook workbook = null;
 
@@ -207,19 +208,19 @@ public class SalaryService {
                 salaryDao.upadateOtherAllowance(item);
             }
 
-        } catch(IllegalStateException e) {
-        	logger.error("IllegalStateException", e.getMessage());
-        	responseDto.setSuccess(false);
-        	responseDto.setMessage("엑셀 처리 중 오류가 발생했습니다. ("+ e.getMessage()+")"); 
+        } catch (IllegalStateException e) {
+            logger.error("IllegalStateException", e.getMessage());
+            responseDto.setSuccess(false);
+            responseDto.setMessage("엑셀 처리 중 오류가 발생했습니다. (" + e.getMessage() + ")");
         } catch (Exception e) {
             logger.error("Exception", e);
             responseDto.setSuccess(false);
-            responseDto.setMessage("엑셀 처리 중 오류가 발생했습니다. ("+ e.getMessage()+")");
+            responseDto.setMessage("엑셀 처리 중 오류가 발생했습니다. (" + e.getMessage() + ")");
         } finally {
-        	if(opcPackage != null)
-        		opcPackage.close();
-        	if(workbook != null)
-        		workbook.close();
+            if (opcPackage != null)
+                opcPackage.close();
+            if (workbook != null)
+                workbook.close();
         }
 
         return responseDto;
@@ -240,7 +241,7 @@ public class SalaryService {
 
         List<ADTExcelDto> listADT = new ArrayList<>();
         List<ADTExcelDto> OutlistADT = new ArrayList<>();
-        
+
         OPCPackage opcPackage = null;
         XSSFWorkbook workbook = null;
         OPCPackage outOpcPackage = null;
@@ -319,7 +320,7 @@ public class SalaryService {
                 }
                 listADT.add(adtExcelDto);
             }
-            
+
             salaryDao.deleteADTData(erpIUDto);
             salaryDao.deleteCalcSalary(erpIUDto);
             salaryDao.insetADTData(listADT);
@@ -366,29 +367,29 @@ public class SalaryService {
                     }
                 }
                 logger.info("outAdtExcelDto : {}", OutlistADT.toString());
-                
+
 
                 for (ADTExcelDto item : OutlistADT) {
                     salaryDao.upadateOutAdTData(item);
                 }
             }
-        } catch(IllegalStateException e) {
-        	logger.error("IllegalStateException", e.getMessage());
-        	responseDto.setSuccess(false);
-        	responseDto.setMessage("엑셀 처리 중 오류가 발생했습니다. ("+ e.getMessage()+")"); 
+        } catch (IllegalStateException e) {
+            logger.error("IllegalStateException", e.getMessage());
+            responseDto.setSuccess(false);
+            responseDto.setMessage("엑셀 처리 중 오류가 발생했습니다. (" + e.getMessage() + ")");
         } catch (Exception e) {
             logger.error("Exception", e);
             responseDto.setSuccess(false);
-            responseDto.setMessage("엑셀 처리 중 오류가 발생했습니다. ("+ e.getMessage()+")");
+            responseDto.setMessage("엑셀 처리 중 오류가 발생했습니다. (" + e.getMessage() + ")");
         } finally {
-        	if(opcPackage != null)
-        		opcPackage.close();
-        	if(workbook != null)
-        		workbook.close();
-        	if(outOpcPackage != null)
-        		outOpcPackage.close();
-        	if(outWorkbook != null)
-        		outWorkbook.close();
+            if (opcPackage != null)
+                opcPackage.close();
+            if (workbook != null)
+                workbook.close();
+            if (outOpcPackage != null)
+                outOpcPackage.close();
+            if (outWorkbook != null)
+                outWorkbook.close();
         }
         return responseDto;
     }
@@ -752,11 +753,26 @@ public class SalaryService {
                     // 연차수당 - 연차
                     if (adtDataDto.getWorkStatus().equals("연차")) {
                         rtAnnualLeaveUsed++;
-                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+                        String dayOfMonth = "";
+                        try {
+                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         if (rtAnnualLeaveUsedDay.isEmpty()) {
                             rtAnnualLeaveUsedDay = adtDataDto.getWorkDate();
+                            try {
+                                // 입력 문자열을 Date 객체로 파싱
+                                Date date = inputFormat.parse(rtAnnualLeaveUsedDay);
+                                rtAnnualLeaveUsedDay = outputFormat.format(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                         } else {
-                            rtAnnualLeaveUsedDay = rtAnnualLeaveUsedDay + ", " + dayOfMonth;
+                            rtAnnualLeaveUsedDay = rtAnnualLeaveUsedDay + "," + dayOfMonth;
                         }
                     }
                     if (Arrays.asList("오전반차", "오후반차").contains(adtDataDto.getWorkStatus())) {
@@ -782,11 +798,27 @@ public class SalaryService {
                         double minutes = duration.toMinutes() % 60;
                         rtLateUsed = rtLateUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                         rtLatecnt++;
-                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+
+                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+                        String dayOfMonth = "";
+                        try {
+                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         if (rtLateDay.isEmpty()) {
                             rtLateDay = adtDataDto.getWorkDate();
+                            try {
+                                // 입력 문자열을 Date 객체로 파싱
+                                Date date = inputFormat.parse(rtLateDay);
+                                rtLateDay = outputFormat.format(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                         } else {
-                            rtLateDay = rtLateDay + ", " + dayOfMonth;
+                            rtLateDay = rtLateDay + "," + dayOfMonth;
                         }
                     }
 
@@ -864,11 +896,26 @@ public class SalaryService {
                     // 연차수당 - 연차
                     if (adtDataDto.getWorkStatus().equals("연차")) {
                         rtAnnualLeaveUsed++;
-                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+                        String dayOfMonth = "";
+                        try {
+                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         if (rtAnnualLeaveUsedDay.isEmpty()) {
                             rtAnnualLeaveUsedDay = adtDataDto.getWorkDate();
+                            try {
+                                // 입력 문자열을 Date 객체로 파싱
+                                Date date = inputFormat.parse(rtAnnualLeaveUsedDay);
+                                rtAnnualLeaveUsedDay = outputFormat.format(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                         } else {
-                            rtAnnualLeaveUsedDay = rtAnnualLeaveUsedDay + ", " + dayOfMonth;
+                            rtAnnualLeaveUsedDay = rtAnnualLeaveUsedDay + "," + dayOfMonth;
                         }
                     }
                     // 연차수당 - 반차
@@ -881,13 +928,28 @@ public class SalaryService {
                             rtHalfLeaverUsed = rtHalfLeaverUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                         }
                         rtHalfLeaveCnt++;
-                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+
+                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+                        String dayOfMonth = "";
+                        try {
+                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         if (rtHalfLeaveUseDay.isEmpty()) {
                             rtHalfLeaveUseDay = adtDataDto.getWorkDate();
+                            try {
+                                // 입력 문자열을 Date 객체로 파싱
+                                Date date = inputFormat.parse(rtHalfLeaveUseDay);
+                                rtHalfLeaveUseDay = outputFormat.format(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                         } else {
-                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + ", " + dayOfMonth;
+                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + "," + dayOfMonth;
                         }
-
                     } else if (adtDataDto.getWorkStatus().contains("오후반차")) {
                         if (!workEndDateTime.isAfter(workEndDateTime.with(LocalTime.of(13, 00)))) {
                             rtHalfLeaverUsed = rtHalfLeaverUsed + 4.0;
@@ -897,11 +959,27 @@ public class SalaryService {
                             rtHalfLeaverUsed = rtHalfLeaverUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                         }
                         rtHalfLeaveCnt++;
-                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+
+                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+                        String dayOfMonth = "";
+                        try {
+                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         if (rtHalfLeaveUseDay.isEmpty()) {
                             rtHalfLeaveUseDay = adtDataDto.getWorkDate();
+                            try {
+                                // 입력 문자열을 Date 객체로 파싱
+                                Date date = inputFormat.parse(rtHalfLeaveUseDay);
+                                rtHalfLeaveUseDay = outputFormat.format(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                         } else {
-                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + ", " + dayOfMonth;
+                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + "," + dayOfMonth;
                         }
                     }
                     // 연장수당1
@@ -913,7 +991,8 @@ public class SalaryService {
                             }
                         } else {
                             if (adtDataDto.getOutStatus().equals("연장근무")) {
-                                duration = Duration.between(workEndDateTime.with(LocalTime.of(18, 00)), workEndDateTime).toMinutes() >= 60 ? Duration.between(workEndDateTime.with(LocalTime.of(18, 00)), workEndDateTime) : Duration.ofMinutes(0);;
+                                duration = Duration.between(workEndDateTime.with(LocalTime.of(18, 00)), workEndDateTime).toMinutes() >= 60 ? Duration.between(workEndDateTime.with(LocalTime.of(18, 00)), workEndDateTime) : Duration.ofMinutes(0);
+                                ;
                             } else if (adtDataDto.getOutStatus().equals("연장/야간근무") && workStartDate.equals(workEndDate)) {
                                 duration = Duration.ofHours(4);
                             } else if (adtDataDto.getOutStatus().equals("연장/야간근무") && !workStartDate.equals(workEndDate)) {
@@ -992,7 +1071,7 @@ public class SalaryService {
                             duration = Duration.between(workStartDateTime.with(LocalTime.of(22, 00)), workStartDateTime);
                         } else {
                             if (adtDataDto.getWorkStatus().contains("오전반차")) {
-                                duration = Duration.between(workStartDateTime.with(LocalTime.of(13, 30)),workStartDateTime);
+                                duration = Duration.between(workStartDateTime.with(LocalTime.of(13, 30)), workStartDateTime);
                             } else {
                                 duration = Duration.between(workStartDateTime.with(LocalTime.of(8, 30)), workStartDateTime);
                             }
@@ -1000,11 +1079,26 @@ public class SalaryService {
                         double minutes = duration.toMinutes() % 60;
                         rtLateUsed = rtLateUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                         rtLatecnt++;
-                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+                        String dayOfMonth = "";
+                        try {
+                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         if (rtLateDay.isEmpty()) {
                             rtLateDay = adtDataDto.getWorkDate();
+                            try {
+                                // 입력 문자열을 Date 객체로 파싱
+                                Date date = inputFormat.parse(rtLateDay);
+                                rtLateDay = outputFormat.format(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                         } else {
-                            rtLateDay = rtLateDay + ", " + dayOfMonth;
+                            rtLateDay = rtLateDay + "," + dayOfMonth;
                         }
                     }
                     // 기타수당 - 조퇴
@@ -1017,11 +1111,26 @@ public class SalaryService {
                         }
                         double minutes = duration.toMinutes() % 60;
                         rtEarlyLeaveUsed = rtEarlyLeaveUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
-                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+                        String dayOfMonth = "";
+                        try {
+                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         if (rtEarlyLeaveDay.isEmpty()) {
                             rtEarlyLeaveDay = adtDataDto.getWorkDate();
+                            try {
+                                // 입력 문자열을 Date 객체로 파싱
+                                Date date = inputFormat.parse(rtEarlyLeaveDay);
+                                rtEarlyLeaveDay = outputFormat.format(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                         } else {
-                            rtEarlyLeaveDay = rtEarlyLeaveDay + ", " + dayOfMonth;
+                            rtEarlyLeaveDay = rtEarlyLeaveDay + "," + dayOfMonth;
                         }
                     }
                     // 기타수당 - 외출
@@ -1072,12 +1181,28 @@ public class SalaryService {
                         }
                         double minutes = duration.toMinutes() % 60;
                         rtOuterUsed = rtOuterUsed + duration.toHours() + ((minutes > 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
-                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+//                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
                         if (rtOuterUsed > 0) {
+                            DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                            DateFormat outputFormat = new SimpleDateFormat("M/d");
+                            DateFormat outputFormat2 = new SimpleDateFormat("d");
+                            String dayOfMonth = "";
+                            try {
+                                dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                             if (rtOuterDay.isEmpty()) {
                                 rtOuterDay = adtDataDto.getWorkDate();
+                                try {
+                                    // 입력 문자열을 Date 객체로 파싱
+                                    Date date = inputFormat.parse(rtOuterDay);
+                                    rtOuterDay = outputFormat.format(date);
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
                             } else {
-                                rtOuterDay = rtOuterDay + ", " + dayOfMonth;
+                                rtOuterDay = rtOuterDay + "," + dayOfMonth;
                             }
                         }
                     }
@@ -1119,7 +1244,7 @@ public class SalaryService {
                 }
                 // 휴일수당1
                 if (holidayMinite != 0) {
-                    holidayAllowance01 = holidayAllowance01.add(BigDecimal.valueOf(holidayMinite/8).multiply(hourlyPay.multiply(BigDecimal.valueOf(8))).multiply(BigDecimal.valueOf(1.5)));
+                    holidayAllowance01 = holidayAllowance01.add(BigDecimal.valueOf(holidayMinite / 8).multiply(hourlyPay.multiply(BigDecimal.valueOf(8))).multiply(BigDecimal.valueOf(1.5)));
                 }
                 // 휴일수당1(야간조 5일근무 +1)
                 if (nightTeamPlus != 0) {
