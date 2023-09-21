@@ -487,7 +487,7 @@ public class Payroll6InPageService {
 		curCol = startCol;
 		sheet.getRow(curRow).createCell(curCol++).setCellValue("연차사용");
 		curCol++;
-		sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAnnualLeaveUsed());
+		curCol++; // sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAnnualLeaveUsed());
 		curCol++;
 		curCol++;
 		curRow++;
