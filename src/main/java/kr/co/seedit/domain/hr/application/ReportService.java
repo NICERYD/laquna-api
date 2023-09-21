@@ -2502,28 +2502,6 @@ public class ReportService {
 //		formulaEvaluator.evaluateAll(); // 수식 전체 실행
 //		return workbook;
 //	}
-	
-	@Transactional
-	public void createEmailFile() throws Exception {
-		try {
-			// Open Sample File
-			File emailForm = new File("C:/Users/admin/Documents/GitHub/laquna-api/src/main/resources/hr/emailForm.html");
-//			Resource resource = resourceLoader.getResource("classpath:hr/22020.html");
-//			InputStream emailForm = resource.getInputStream();
-			
-			Document doc = Jsoup.parse(emailForm, "UTF-8");
-			doc.title().replace("yyyy년 mm월", "2023년 7월");
-			
-			Element ele = doc.getElementById("header");
-			ele.text("2023년 7월 급여 명세서");
-			System.out.println("Document Title: "+doc.title());
-
-			System.out.println("Ater Content Text: "+ele.text());
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-
-	}
 
 // 예전 급여대장
 //    @Transactional

@@ -39,11 +39,6 @@ public class ReportApi {
                 .body(reportService.downloadFile(reportParamsDto));
     }
     
-    @PostMapping("/hr/createEmailFile")
-    public void email(HttpServletResponse response) throws Exception {
-    	reportService.createEmailFile();
-    }
-    
 //    @PostMapping("/hr/monthlyKeunTaeReport")
 //    public ResponseEntity<ResponseDto> monthlyKeunTaeReport(@RequestBody MonthlyKeunTaeDto monthlyKeunTaeDto, HttpServletResponse response) throws Exception {
 //        ResponseDto responseDto = reportService.monthlyKeunTaeReport(monthlyKeunTaeDto, response);
