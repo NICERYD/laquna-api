@@ -30,30 +30,25 @@ public class SalaryApi {
 
     @PostMapping("hr/getCompanyList")
     public ResponseEntity<ResponseDto> getCompanyList() throws Exception{
+    	ResponseDto responseDto = salaryService.getCompanyList();
+        
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     	
-    	return new ResponseEntity<>(ResponseDto
-    			.builder()
-    			.code("200")
-    			.data(salaryService.getCompanyList()).build(), HttpStatus.OK);
     }
     
     @PostMapping("hr/getBusinessList")
     public ResponseEntity<ResponseDto> getBusinessList() throws Exception{
-    	
-    	return new ResponseEntity<>(ResponseDto
-    			.builder()
-    			.code("200")
-    			.data(salaryService.getBusinessList()).build(), HttpStatus.OK);
+    	ResponseDto responseDto = salaryService.getBusinessList();
+        
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     @PostMapping("hr/getAdtList")
     public ResponseEntity<ResponseDto> getAdtList(@RequestBody EmployeeInformationDto employeeInformationDto) throws Exception{
         log.info("employeeInformationDto : {}", employeeInformationDto.toString());
-
-    	return new ResponseEntity<>(ResponseDto
-    			.builder()
-    			.code("200")
-    			.data(salaryService.getAdtList(employeeInformationDto)).build(), HttpStatus.OK);
+        ResponseDto responseDto = salaryService.getAdtList(employeeInformationDto);
+        
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     /**
@@ -65,19 +60,15 @@ public class SalaryApi {
     @PostMapping("hr/getCalcSalaryList")
     public ResponseEntity<ResponseDto> getCalcSalaryList(@RequestBody BasicSalaryDto basicSalaryDto) throws Exception{
         log.info("basicSalaryDto : {}", basicSalaryDto.toString());
-
-        return new ResponseEntity<>(ResponseDto
-                .builder()
-                .code("200")
-                .data(salaryService.getCalcSalaryList(basicSalaryDto)).build(), HttpStatus.OK);
+        ResponseDto responseDto = salaryService.getCalcSalaryList(basicSalaryDto);
+        
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
     
     @PostMapping("hr/updateSalaryList")
     public ResponseEntity<ResponseDto> updateSalaryList(@RequestBody List<BasicSalaryDto> basicSalaryDtoList) throws Exception{
-        return new ResponseEntity<>(ResponseDto
-                .builder()
-                .code("200")
-                .data(salaryService.updateSalaryList(basicSalaryDtoList)).build(), HttpStatus.OK);
+    	ResponseDto responseDto = salaryService.updateSalaryList(basicSalaryDtoList);
+    	return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
     
     @PostMapping("/hr/uploadOtherAllowance")
@@ -97,9 +88,7 @@ public class SalaryApi {
     @PostMapping("/hr/calcSalary")
     public ResponseEntity<ResponseDto> calcSalary(@RequestBody RequestDto requestDto, HttpServletRequest request ) throws IOException, InvalidFormatException {
         ResponseDto responseDto = salaryService.calcSalary(requestDto);
-        return new ResponseEntity<>(responseDto
-                .builder()
-                .code("200").build(), HttpStatus.OK);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
     
 }
