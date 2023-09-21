@@ -100,7 +100,9 @@ public class ReportService {
 			workbook.write(byteArrayOutputStream);
 		} catch (IOException e) {
 			;
-		} finally {
+		} catch (NullPointerException e) {
+			;
+		}finally {
 			if (null != workbook)
 				workbook.close();
 		}
