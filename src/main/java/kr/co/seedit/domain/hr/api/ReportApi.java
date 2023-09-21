@@ -28,15 +28,9 @@ public class ReportApi {
     
     @PostMapping("/hr/downloadReport")
     public ResponseEntity<Resource> downloadERPIU(@RequestBody ReportParamsDto reportParamsDto, HttpServletResponse response) throws Exception {
-    	String fileName = reportParamsDto.getYyyymm()+"_"+reportParamsDto.getReportType();
-    	if("Payroll".equals(reportParamsDto.getReportType())){
-    		fileName += "_"+reportParamsDto.getSort();
-    	}
-        return ResponseEntity.ok()
-                .header("Content-Transfer-Encoding", "binary")
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8")+".xlsx")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(reportService.downloadFile(reportParamsDto));
+    	ResponseEntity<Resource> result = reportService.downloadFile(reportParamsDto);
+    	
+        return result;
     }
     
 //    @PostMapping("/hr/monthlyKeunTaeReport")
