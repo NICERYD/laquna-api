@@ -52,37 +52,73 @@ public class SalaryService {
 
 
     @Transactional
-    public List<SelectListDto> getCompanyList() throws Exception {
+    public ResponseDto getCompanyList() throws Exception {
+    	ResponseDto responseDto = ResponseDto.builder().build();
         CompanyDto companyDto = new CompanyDto();
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userName = ((UserDetails) principal).getUsername();
         companyDto.setEmailId(userName);
         CompanyDto info = companyDao.selectTokenInfo(companyDto);
         Integer companyId = info.getCompanyId();
+        try {
+        	List<SelectListDto> result = salaryDao.findCompanyList(companyId);
+            responseDto.setData(result);
+        }catch (Exception e) {
+        	logger.error("Exception", e);
+            responseDto.setSuccess(false);
+            responseDto.setMessage("오류가 발생했습니다. ("+ e.getMessage()+")");
+        }
 
-        return salaryDao.findCompanyList(companyId);
+        return responseDto;
     }
 
     @Transactional
-    public List<SelectListDto> getBusinessList() throws Exception {
+    public ResponseDto getBusinessList() throws Exception {
+    	ResponseDto responseDto = ResponseDto.builder().build();
         CompanyDto companyDto = new CompanyDto();
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userName = ((UserDetails) principal).getUsername();
         companyDto.setEmailId(userName);
         CompanyDto info = companyDao.selectTokenInfo(companyDto);
         Integer companyId = info.getCompanyId();
-        return salaryDao.findBusinessList(companyId);
+        try {
+        	List<SelectListDto> result = salaryDao.findBusinessList(companyId);
+            responseDto.setData(result);
+        }catch (Exception e) {
+        	logger.error("Exception", e);
+            responseDto.setSuccess(false);
+            responseDto.setMessage("오류가 발생했습니다. ("+ e.getMessage()+")");
+        }
+
+        return responseDto;
     }
 
     @Transactional
-    public List<EmployeeInformationDto> getAdtList(EmployeeInformationDto employeeInformationDto) throws Exception {
-        return salaryDao.findAdtList(employeeInformationDto);
+    public ResponseDto getAdtList(EmployeeInformationDto employeeInformationDto) throws Exception {
+    	ResponseDto responseDto = ResponseDto.builder().build();
+    	try {
+	    	List<EmployeeInformationDto> result = salaryDao.findAdtList(employeeInformationDto);
+	    	responseDto.setData(result);
+    	} catch (Exception e) {
+    		logger.error("Exception", e);
+            responseDto.setSuccess(false);
+            responseDto.setMessage("조회 중 오류가 발생했습니다. ("+ e.getMessage()+")");
+    	}
+        return responseDto;
     }
 
     @Transactional
-    public List<BasicSalaryDto> getCalcSalaryList(BasicSalaryDto basicSalaryDto) throws Exception {
-
-        return salaryDao.getCalcSalaryList(basicSalaryDto);
+    public ResponseDto getCalcSalaryList(BasicSalaryDto basicSalaryDto) throws Exception {
+    	ResponseDto responseDto = ResponseDto.builder().build();
+    	try {
+    			List<BasicSalaryDto> result = salaryDao.getCalcSalaryList(basicSalaryDto);
+    			responseDto.setData(result);
+    		} catch (Exception e) {
+	            logger.error("Exception", e);
+	            responseDto.setSuccess(false);
+	            responseDto.setMessage("조회 중 오류가 발생했습니다. ("+ e.getMessage()+")");
+    		}
+        return responseDto;
     }
 
     @Transactional
@@ -95,11 +131,16 @@ public class SalaryService {
         companyDto.setEmailId(userName);
         CompanyDto info = companyDao.selectTokenInfo(companyDto);
 
-        for (BasicSalaryDto b : basicSalaryDtoList) {
-            b.setLoginUserId(info.getUserId());
-            salaryDao.updateSalaryList(b);
+        try {
+	        for (BasicSalaryDto b : basicSalaryDtoList) {
+	            b.setLoginUserId(info.getUserId());
+	            salaryDao.updateSalaryList(b);
+	        }
+        } catch (Exception e) {
+        	logger.error("Exception", e);
+            responseDto.setSuccess(false);
+            responseDto.setMessage("오류가 발생했습니다. ("+ e.getMessage()+")");
         }
-
         return responseDto;
 
     }

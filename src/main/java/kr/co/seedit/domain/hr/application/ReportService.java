@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,6 +42,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,8 +75,8 @@ public class ReportService {
 
 	@SuppressWarnings("resource")
 	@Transactional
-	public Resource downloadFile(ReportParamsDto reportParamsDto) throws Exception {
-
+	public ResponseEntity<Resource> downloadFile(ReportParamsDto reportParamsDto) throws Exception {
+		
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		XSSFWorkbook workbook = null;
 
@@ -98,13 +103,24 @@ public class ReportService {
 
 		try {
 			workbook.write(byteArrayOutputStream);
-		} catch (IOException e) {
-			;
+		}catch (Exception e) {
+			logger.error(e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		} finally {
 			if (null != workbook)
 				workbook.close();
 		}
-		return new ByteArrayResource(byteArrayOutputStream.toByteArray());
+		
+		String fileName = reportParamsDto.getYyyymm()+"_"+reportParamsDto.getReportType();
+    	if("Payroll".equals(reportParamsDto.getReportType())){
+    		fileName += "_"+reportParamsDto.getSort();
+    	}
+    	
+    	return ResponseEntity.ok()
+                .header("Content-Transfer-Encoding", "binary")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8")+".xlsx")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(new ByteArrayResource(byteArrayOutputStream.toByteArray()));
 
 	}
 
@@ -2502,28 +2518,6 @@ public class ReportService {
 //		formulaEvaluator.evaluateAll(); // 수식 전체 실행
 //		return workbook;
 //	}
-	
-	@Transactional
-	public void createEmailFile() throws Exception {
-		try {
-			// Open Sample File
-			File emailForm = new File("C:/Users/admin/Documents/GitHub/laquna-api/src/main/resources/hr/emailForm.html");
-//			Resource resource = resourceLoader.getResource("classpath:hr/22020.html");
-//			InputStream emailForm = resource.getInputStream();
-			
-			Document doc = Jsoup.parse(emailForm, "UTF-8");
-			doc.title().replace("yyyy년 mm월", "2023년 7월");
-			
-			Element ele = doc.getElementById("header");
-			ele.text("2023년 7월 급여 명세서");
-			System.out.println("Document Title: "+doc.title());
-
-			System.out.println("Ater Content Text: "+ele.text());
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-
-	}
 
 // 예전 급여대장
 //    @Transactional

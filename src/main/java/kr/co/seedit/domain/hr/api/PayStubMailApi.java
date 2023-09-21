@@ -23,22 +23,6 @@ public class PayStubMailApi {
 
 	private final PayStubMailService payStubMailService;
 	
-	@PostMapping(value = "/hr/testLocalMail", produces = "text/plain;charset=UTF-8")
-	public String sendEmail(@RequestBody ReportParamsDto reportParamsDto /*Map<String, Object> in*/) {
-//		MailDto mailDto = new MailDto();
-//		mailDto.setAddress(in.get("address"));
-//		mailDto.setCcAddress(in.get("ccaddress"));
-//		mailDto.setContent(in.get("content").toString());
-//		mailDto.setTemplate(in.get("template").toString());
-//		mailDto.setFrom(in.get("from").toString());
-//		mailDto.setTo(in.get("to").toString());
-		
-//		payStubMailService.runEemailSender(mailDto);
-//		payStubMailService.sendMailLocalTest(mailDto);
-		
-		return "do nothing";
-	}
-
     @PostMapping("/hr/sendPayStubMailDH")
     public ResponseEntity<ResponseDto> sendPayStubMailDH(@RequestBody ReportParamsDto reportParamsDto, HttpServletResponse response) throws Exception {
 
