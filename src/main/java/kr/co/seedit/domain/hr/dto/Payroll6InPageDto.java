@@ -131,8 +131,7 @@ public class Payroll6InPageDto implements Serializable {
 	*/
 	@Builder.Default
 	private Double annualLeaveUsedCnt = 0d; //연차횟수
-	@Builder.Default
-	private Double halfLeaveCnt = 0d; //반차횟수 
+	private String halfLeaveCnt; //반차횟수
 	@Builder.Default
 	private Double lateCntNum = 0d; //지각횟수
 	@Builder.Default

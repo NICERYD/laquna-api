@@ -777,6 +777,29 @@ public class SalaryService {
                     }
                     if (Arrays.asList("오전반차", "오후반차").contains(adtDataDto.getWorkStatus())) {
                         rtHalfLeaveCnt++;
+
+                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+                        String dayOfMonth = "";
+                        try {
+                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        if (rtHalfLeaveUseDay.isEmpty()) {
+                            rtHalfLeaveUseDay = adtDataDto.getWorkDate();
+                            try {
+                                // 입력 문자열을 Date 객체로 파싱
+                                Date date = inputFormat.parse(rtHalfLeaveUseDay);
+                                rtHalfLeaveUseDay = outputFormat.format(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + "," + dayOfMonth;
+                        }
+
                     }
                     // 결근처리 count
                     if (adtDataDto.getInStatus().equals("결근")) {
@@ -1206,7 +1229,6 @@ public class SalaryService {
                             }
                         }
                     }
-
                     // 결근처리 count
                     if (adtDataDto.getInStatus().equals("결근")) {
                         rtAbsence++;
@@ -1249,6 +1271,14 @@ public class SalaryService {
                 // 휴일수당1(야간조 5일근무 +1)
                 if (nightTeamPlus != 0) {
                     holidayAllowance01 = holidayAllowance01.add(BigDecimal.valueOf(nightTeamPlus).multiply(hourlyPay).multiply(BigDecimal.valueOf(8)).multiply(BigDecimal.valueOf(1.5)));
+                }
+                // 휴일수당(토요일)
+                if (rtHolidaySaturdayUsed != 0) {
+                    holidayAllowanceSat = holidayAllowanceSat.add(BigDecimal.valueOf(rtHolidaySaturdayUsed).multiply(hourlyPay).multiply(BigDecimal.valueOf(1.5)));
+                }
+                // 휴일수당(일요일)
+                if (rtHolidaySundayUsed != 0) {
+                    holidayAllowanceSun = holidayAllowanceSun.add(BigDecimal.valueOf(rtHolidaySundayUsed).multiply(hourlyPay).multiply(BigDecimal.valueOf(1.5)));
                 }
 
                 // 기타수당

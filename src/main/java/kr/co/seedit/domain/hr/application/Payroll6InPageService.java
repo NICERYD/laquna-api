@@ -183,6 +183,7 @@ public class Payroll6InPageService {
 
 			sum.setHalfLeaveUsed(sum.getHalfLeaveUsed() + data.getHalfLeaveUsed());
 			sum.setAttribute15(sum.getAttribute15() + data.getAttribute15());
+			sum.setHalfLeaveCnt(sum.getHalfLeaveCnt());
 
 			sum.setEarlyLeaveTime(sum.getEarlyLeaveTime() + data.getEarlyLeaveTime());
 			sum.setAttribute13(sum.getAttribute13() + data.getAttribute13());
@@ -337,8 +338,8 @@ public class Payroll6InPageService {
 		if (null != data.getHalfLeaveUsedDay()) {
 			sheet.getRow(curRow+14).getCell(curCol+1).setCellValue(data.getHalfLeaveUsedDay());
 		}
-		if (0 != data.getHalfLeaveUsed()) {
-			sheet.getRow(curRow+14).getCell(curCol+2).setCellValue(data.getHalfLeaveUsed());
+		if (null != data.getHalfLeaveCnt()) {
+			sheet.getRow(curRow+14).getCell(curCol+2).setCellValue(data.getHalfLeaveCnt());
 		}
 		if (null != data.getAttribute15()) {
 			sheet.getRow(curRow+14).getCell(curCol+3).setCellValue(data.getAttribute15());
