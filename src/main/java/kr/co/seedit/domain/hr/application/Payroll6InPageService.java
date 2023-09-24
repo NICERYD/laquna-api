@@ -316,14 +316,20 @@ public class Payroll6InPageService {
 			sheet.getRow(curRow+10).getCell(curCol+3).setCellValue(data.getHolidayAllowance02());
 		}
 		//연차사용
-		if (null != data.getAnnualLeaveUsedDay()) {
+		if (null != data.getAnnualLeaveUsedDay() && data.getEmployeeType() == 100.0d) {
 			sheet.getRow(curRow+11).getCell(curCol+1).setCellValue(data.getAnnualLeaveUsedDay());
 		}
-		if (null != data.getAnnualLeaveUsed()) {
+		if (null != data.getAnnualLeaveUsed() && data.getEmployeeType() == 100.0d)  {
 			sheet.getRow(curRow+11).getCell(curCol+2).setCellValue(data.getAnnualLeaveUsed());
 		}
 		//연차수당
-		if (null != data.getAttribute01()) {
+		if (null != data.getAnnualLeaveUsedDay() && data.getEmployeeType() == 200.0d) {
+			sheet.getRow(curRow+12).getCell(curCol+1).setCellValue(data.getAnnualLeaveUsedDay());
+		}
+		if (null != data.getAnnualLeaveUsed() && data.getEmployeeType()== 200.0d)  {
+			sheet.getRow(curRow+12).getCell(curCol+2).setCellValue(data.getAnnualLeaveUsed());
+		}
+		if (null != data.getAttribute01() && data.getEmployeeType()== 200.0d) {
 			sheet.getRow(curRow+12).getCell(curCol+3).setCellValue(data.getAttribute01());
 		}
 		//연차정산

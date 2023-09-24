@@ -87,7 +87,7 @@
 --          , IFNULL(hdmkt.half_leave_cnt,0) as half_leave_cnt -- 반차횟수(개인급여)
         , CASE hdmkt.half_leave_cnt WHEN NULL THEN '' WHEN 0 THEN ''
             ELSE CONCAT(hdmkt.half_leave_cnt, '회')
-            END as half_leave_cnt -- 연차사용
+            END as half_leave_cnt -- 반차사용
          -- 조퇴
          , IFNULL(hdmkt.early_leave_day,'') as early_leave_day -- 조퇴사용일자 
          , IFNULL(hdmkt.early_leave_time,0) as early_leave_time -- 조퇴사용
