@@ -314,20 +314,20 @@ public class Payroll6InPageService {
             sheet.getRow(curRow + 10).getCell(curCol + 3).setCellValue(data.getHolidayAllowance02());
         }
         //연차사용
-        if (null != data.getAnnualLeaveUsedDay() && data.getEmployeeType() == 100.0d) {
+        if (null != data.getAnnualLeaveUsedDay() && data.getEmployeeType().equals("100")) {
             sheet.getRow(curRow + 11).getCell(curCol + 1).setCellValue(data.getAnnualLeaveUsedDay());
         }
-        if (null != data.getAnnualLeaveUsed() && data.getEmployeeType() == 100.0d) {
+        if (null != data.getAnnualLeaveUsed() && data.getEmployeeType().equals("100")) {
             sheet.getRow(curRow + 11).getCell(curCol + 2).setCellValue(data.getAnnualLeaveUsed());
         }
         //연차수당
-        if (null != data.getAnnualLeaveUsedDay() && data.getEmployeeType() == 200.0d) {
+        if (null != data.getAnnualLeaveUsedDay() && data.getEmployeeType().equals("200")) {
             sheet.getRow(curRow + 12).getCell(curCol + 1).setCellValue(data.getAnnualLeaveUsedDay());
         }
-        if (null != data.getAnnualLeaveUsed() && data.getEmployeeType() == 200.0d) {
+        if (null != data.getAnnualLeaveUsed() && data.getEmployeeType().equals("200")) {
             sheet.getRow(curRow + 12).getCell(curCol + 2).setCellValue(data.getAnnualLeaveUsed());
         }
-        if (null != data.getAttribute01() && data.getEmployeeType() == 200.0d) {
+        if (null != data.getAttribute01() && data.getEmployeeType().equals("200")) {
             sheet.getRow(curRow + 12).getCell(curCol + 3).setCellValue(data.getAttribute01());
         }
         //연차정산
@@ -352,9 +352,9 @@ public class Payroll6InPageService {
         if (null != data.getEarlyLeaveDay()) {
             sheet.getRow(curRow + 15).getCell(curCol + 1).setCellValue(data.getEarlyLeaveDay());
         }
-        if (0 != data.getEarlyLeaveTime() && data.getEmployeeType() == 100.0d) {
+        if (0 != data.getEarlyLeaveTime() && data.getEmployeeType().equals("100")) {
             sheet.getRow(curRow + 15).getCell(curCol + 2).setCellValue(data.getEarlyLeaveTime());
-        } else if (0 != data.getLateTime() && data.getEmployeeType() == 200.0d) {
+        } else if (0 != data.getLateTime() && data.getEmployeeType().equals("200")) {
             sheet.getRow(curRow + 15).getCell(curCol + 2).setCellValue(data.getEarlyLeaveUsedCnt());
         }
         if (null != data.getAttribute13()) {
@@ -364,9 +364,9 @@ public class Payroll6InPageService {
         if (null != data.getLateDay()) {
             sheet.getRow(curRow + 16).getCell(curCol + 1).setCellValue(data.getLateDay());
         }
-        if (0 != data.getLateTime() && data.getEmployeeType() == 100.0d) {
+        if (0 != data.getLateTime() && data.getEmployeeType().equals("100")) {
             sheet.getRow(curRow + 16).getCell(curCol + 2).setCellValue(data.getLateCnt());
-        } else if (0 != data.getLateTime() && data.getEmployeeType() == 200.0d) {
+        } else if (0 != data.getLateTime() && data.getEmployeeType().equals("200")) {
             sheet.getRow(curRow + 16).getCell(curCol + 2).setCellValue(data.getLateTime());
         }
         if (null != data.getAttribute14()) {

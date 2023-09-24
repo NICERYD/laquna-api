@@ -26,8 +26,7 @@ public class Payroll6InPageDto implements Serializable {
 	private String departmentId; // 부서 아이디 //NOT USED
 	private String departmentName; // 시급제 부서(ex.머시닝) //NOT USED
 	private String koreanName; // 이름
-	@Builder.Default
-	private Double employeeType = 0d; // 100 연봉제
+	private String employeeType; // 100 연봉제
 	@Builder.Default
 	private Double salaryAmt = 0d; // 월급/시급
 	@Builder.Default
