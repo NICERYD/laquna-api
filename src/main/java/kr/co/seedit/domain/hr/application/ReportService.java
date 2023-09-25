@@ -2070,38 +2070,26 @@ public class ReportService {
                 cell.setCellValue(p.getWorkDate());
 
                 cell = row.getCell(cellindex++);
-                if("오전반차_정상".equals(p.getWorkStatus()) || "오전반차_생산".equals(p.getWorkStatus())) {
-                	cell.setCellValue("오전반차");
-                }else {
-                	cell.setCellValue(p.getWorkStatus());
+                String workStatus = p.getWorkStatus();
+                if("오전반차_정상".equals(workStatus) || "오전반차_생산".equals(workStatus)) {
+                	workStatus = "오전반차";
                 }
-                switch (p.getWorkStatus()) {
-                    case "연차":
-                    case "오후반차":
-                    case "오전반차_정상":
-                    case "오전반차_생산":
-                    case "휴가":
-                        cell.setCellStyle(GreenStyle);
-                        break;
-                    case "야간":
-                        cell.setCellStyle(YellowStyle);
-                        break;
-                    case "토요_정상":
-                    case "토요_생산":
-                    	for(int i = 0; i<12 ; i++) {
-                    		row.getCell(i).setCellStyle(SkyBlueStyle);
-                    	}
-                    	break;
-                    case "휴일_정상":
-                    case "휴일_생산":
-                    case "공휴일_정상":
-                    case "공휴일_생산":
-                    	for(int i = 0; i<12 ; i++) {
-                    		row.getCell(i).setCellStyle(RoseStyle);
-                    	}
-                    	break;
+                cell.setCellValue(workStatus);
+                
+                if(workStatus.matches("(.*)반차|휴가|연차|무급(.*)")) {
+                	cell.setCellStyle(GreenStyle);
+                } else if(workStatus.matches("(.*)야간(.*)")) {
+                	cell.setCellStyle(YellowStyle);
+                } else if(workStatus.matches("(.*)토요(.*)")) {
+                	for(int i = 0; i<12 ; i++) {
+                		row.getCell(i).setCellStyle(SkyBlueStyle);
+                	}
+                } else if(workStatus.matches("(.*)휴일(.*)")) {
+                	for(int i = 0; i<12 ; i++) {
+                		row.getCell(i).setCellStyle(RoseStyle);
+                	}
                 }
-
+                
                 cell = row.getCell(cellindex++);
                 cell.setCellValue(p.getWorkStartDate());
 
