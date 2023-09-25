@@ -684,6 +684,10 @@ public class SalaryService {
                         Period period = Period.between(workStartDate, workEndDate);
                         if (adtDataDto.getWorkStatus().equals("야간")) {
                             if (!workEndTime.isBefore(LocalTime.parse("08:30", DateTimeFormatter.ofPattern("HH:mm")))) {
+//                                Duration duration = null;
+//                                duration = Duration.between(workEndDateTime.with(LocalTime.of(8, 30)), workEndDateTime);
+////                                rtOverTimeUsed01 = (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
+//                                rtOverTimeUsed01 = rtOverTimeUsed01 + (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
                                 overtimeAllowance01 = overtimeAllowance01.add(overtimeBaseAmount);
                                 rtOverTimeDay4H3MCnt++;
                             }
@@ -691,7 +695,8 @@ public class SalaryService {
                             if (!workEndTime.isBefore(LocalTime.parse("20:30", DateTimeFormatter.ofPattern("HH:mm"))) || period.getDays() >= 1) {
 //                                Duration duration = null;
 //                                duration = Duration.between(workEndDateTime.with(LocalTime.of(20, 30)), workEndDateTime);
-//                                rtOverTimeUsed01 = (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
+////                                rtOverTimeUsed01 = (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
+//                                rtOverTimeUsed01 = rtOverTimeUsed01 + (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
                                 overtimeAllowance01 = overtimeAllowance01.add(overtimeBaseAmount);
                                 rtOverTimeDay2HCnt++;
                             }
@@ -775,7 +780,7 @@ public class SalaryService {
                             rtAnnualLeaveUsedDay = rtAnnualLeaveUsedDay + "," + dayOfMonth;
                         }
                     }
-                    if (Arrays.asList("오전반차", "오후반차").contains(adtDataDto.getWorkStatus())) {
+                    if (Arrays.asList("오전반차", "오후반차", "오전반차_정상", "오후반차_정상").contains(adtDataDto.getWorkStatus())) {
                         rtHalfLeaveCnt++;
 
                         DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
