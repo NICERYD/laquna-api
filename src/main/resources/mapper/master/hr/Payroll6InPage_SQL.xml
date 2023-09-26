@@ -95,9 +95,11 @@
 --             ELSE CONCAT(hdmkt.half_leave_cnt, '회')
 --             END as half_leave_cnt -- 반차사용
         , CASE WHEN NULL THEN '' WHEN 0 THEN ''
-               WHEN he.employee_type = '100' THEN CONCAT(hdmkt.half_leave_cnt, '회')
-               WHEN he.employee_type = '200' THEN half_leave_used
-               ELSE 0
+               WHEN he.employee_type = '100' THEN
+                 CASE hdmkt.half_leave_cnt WHEN NULL THEN '' WHEN 0 THEN '' ELSE CONCAT(hdmkt.half_leave_cnt, '회') END
+               WHEN he.employee_type = '200' THEN
+                 CASE half_leave_used WHEN NULL THEN '' WHEN 0 THEN '' ELSE format(half_leave_used,2) END
+               ELSE ''
           END as half_leave_cnt -- 휴일수당02 수당
         -- 조퇴
          , IFNULL(hdmkt.early_leave_day,'') as early_leave_day -- 조퇴사용일자 
