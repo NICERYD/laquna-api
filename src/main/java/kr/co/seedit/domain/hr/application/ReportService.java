@@ -1919,6 +1919,28 @@ public class ReportService {
         GreenStyle.setAlignment(HorizontalAlignment.CENTER);
         GreenStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
         GreenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        
+        CellStyle SkyBlueStyle = workbook.createCellStyle();
+        SkyBlueStyle.setBorderTop(BorderStyle.THIN);
+        SkyBlueStyle.setBorderBottom(BorderStyle.THIN);
+        SkyBlueStyle.setBorderLeft(BorderStyle.THIN);
+        SkyBlueStyle.setBorderRight(BorderStyle.THIN);
+        SkyBlueStyle.setFont(font);
+        SkyBlueStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        SkyBlueStyle.setAlignment(HorizontalAlignment.CENTER);
+        SkyBlueStyle.setFillForegroundColor(IndexedColors.LIGHT_TURQUOISE.getIndex());
+        SkyBlueStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        
+        XSSFCellStyle RoseStyle = workbook.createCellStyle();
+        RoseStyle.setBorderTop(BorderStyle.THIN);
+        RoseStyle.setBorderBottom(BorderStyle.THIN);
+        RoseStyle.setBorderLeft(BorderStyle.THIN);
+        RoseStyle.setBorderRight(BorderStyle.THIN);
+        RoseStyle.setFont(font);
+        RoseStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        RoseStyle.setAlignment(HorizontalAlignment.CENTER);
+        RoseStyle.setFillForegroundColor(IndexedColors.ROSE.getIndex());
+        RoseStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         XSSFCellStyle styleLightGreen = workbook.createCellStyle();
         styleLightGreen.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());  // 배경색
@@ -2018,10 +2040,10 @@ public class ReportService {
 
                 row = sheet.getRow(rowindex++);
                 row.getCell(cell01).setCellValue(e.getAnnualLeaveUsedCnt());
-//				row.getCell(cell02).setCellValue(e.getHalfLeaveUsedCnt());		//반차횟수
+				row.getCell(cell02).setCellValue(e.getHalfLeaveCnt());		//반차횟수
 
                 row = sheet.getRow(rowindex++);
-//				row.getCell(cell01).setCellValue(e.getEarlyLeaveUsedCnt());		//조퇴횟수
+				row.getCell(cell01).setCellValue(Math.round(e.getEarlyLeaveTime()));		//조퇴횟수 (반올림)
                 row.getCell(cell02).setCellValue(determineTimeFormat(e.getLateTime()));
 
                 row = sheet.getRow(rowindex++);
@@ -2048,20 +2070,26 @@ public class ReportService {
                 cell.setCellValue(p.getWorkDate());
 
                 cell = row.getCell(cellindex++);
-                cell.setCellValue(p.getWorkStatus());
-                switch (p.getWorkStatus()) {
-                    case "연차":
-                    case "오후반차":
-                    case "오전반차_정상":
-                    case "오전반차_생산":
-                    case "휴가":
-                        cell.setCellStyle(GreenStyle);
-                        break;
-                    case "야간":
-                        cell.setCellStyle(YellowStyle);
-                        break;
+                String workStatus = p.getWorkStatus();
+                if("오전반차_정상".equals(workStatus) || "오전반차_생산".equals(workStatus)) {
+                	workStatus = "오전반차";
                 }
-
+                cell.setCellValue(workStatus);
+                
+                if(workStatus.matches("(.*)반차|휴가|연차|무급(.*)")) {
+                	cell.setCellStyle(GreenStyle);
+                } else if(workStatus.matches("(.*)야간(.*)")) {
+                	cell.setCellStyle(YellowStyle);
+                } else if(workStatus.matches("(.*)토요(.*)")) {
+                	for(int i = 0; i<12 ; i++) {
+                		row.getCell(i).setCellStyle(SkyBlueStyle);
+                	}
+                } else if(workStatus.matches("(.*)휴일(.*)")) {
+                	for(int i = 0; i<12 ; i++) {
+                		row.getCell(i).setCellStyle(RoseStyle);
+                	}
+                }
+                
                 cell = row.getCell(cellindex++);
                 cell.setCellValue(p.getWorkStartDate());
 
