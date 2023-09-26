@@ -228,7 +228,7 @@ public class Payroll6InPageService {
         if (null != data.getKoreanName()) {
             sheet.getRow(curRow + 0).getCell(curCol + 3).setCellValue(data.getKoreanName());
         }
-			if (null != data.getSalaryAmt() && 0 != data.getSalaryAmt()) {
+			if (null != data.getSalaryAmt()) {
             sheet.getRow(curRow + 0).getCell(curCol + 4).setCellValue(data.getSalaryAmt());
         }
         if (null != data.getHireDate()) {
@@ -245,10 +245,10 @@ public class Payroll6InPageService {
             sheet.getRow(curRow + 1).getCell(curCol + 4).setCellValue(data.getSalaryAmt2());
         }
         //기본급
-			if (null != data.getTotalTime() && 0 != data.getTotalTime()) {
+		if (null != data.getTotalTime()) {
             sheet.getRow(curRow + 2).getCell(curCol + 2).setCellValue(data.getTotalTime());
         }
-			if (null != data.getBasicAmount() && 0 != data.getBasicAmount()) {
+		if (null != data.getBasicAmount() && 0 != data.getBasicAmount()) {
             sheet.getRow(curRow + 2).getCell(curCol + 3).setCellValue(data.getBasicAmount());
         }
         //연장1 //연봉/시급
