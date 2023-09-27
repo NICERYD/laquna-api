@@ -223,7 +223,7 @@
 	    AND hdt.tp_pay = '001'
 		WHERE he.company_id = #{companyId}
 		AND he.attribute1  = #{yyyymm}
-		GROUP BY fbe.est_name
+		GROUP BY fbe.est_name, hdt.DT_PAY
 		ORDER BY fbe.est_id
 	</select>
 	
