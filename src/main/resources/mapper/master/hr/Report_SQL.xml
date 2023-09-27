@@ -139,6 +139,7 @@
         ON he.company_id = hdt.company_id
         AND he.employee_id = hdt.employee_id
         AND he.attribute1 = hdt.yyyymm
+		AND hdt.tp_type = '100'
         WHERE  he.company_id = #{companyId}
         <if test="estId !=999 and estId != null">
             AND   he.est_id = #{estId}
@@ -219,6 +220,7 @@
 		ON he.company_id = hdt.company_id
 		AND he.employee_id = hdt.employee_id
 		AND he.attribute1 = hdt.yyyymm
+	    AND hdt.tp_type = '100'
 		WHERE he.company_id = #{companyId}
 		AND he.attribute1  = #{yyyymm}
 		GROUP BY fbe.est_name
