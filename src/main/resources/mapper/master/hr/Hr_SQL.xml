@@ -1097,6 +1097,7 @@
         , half_leave_cnt
         , early_leave_day
         , early_leave_time
+        , early_leave_cnt
         , late_day
         , late_cnt
         , late_time
@@ -1137,6 +1138,7 @@
             , #{item.halfLeaveCnt}
             , #{item.earlyLeaveDay}
             , #{item.earlyLeaveTime}
+            , #{item.earlyLeaveCnt}
             , #{item.lateDay}
             , #{item.latecnt}
             , #{item.lateTime}

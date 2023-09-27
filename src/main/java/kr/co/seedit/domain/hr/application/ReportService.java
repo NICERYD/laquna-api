@@ -2043,7 +2043,7 @@ public class ReportService {
 				row.getCell(cell02).setCellValue(e.getHalfLeaveCnt());		//반차횟수
 
                 row = sheet.getRow(rowindex++);
-				row.getCell(cell01).setCellValue(Math.round(e.getEarlyLeaveTime()));		//조퇴횟수 (반올림)
+				row.getCell(cell01).setCellValue(e.getEarlyLeaveTime());		//조퇴시간/횟수
                 row.getCell(cell02).setCellValue(determineTimeFormat(e.getLateTime()));
 
                 row = sheet.getRow(rowindex++);

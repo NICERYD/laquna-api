@@ -490,6 +490,7 @@ public class SalaryService {
 
         String rtEarlyLeaveDay;          // 조퇴일자
         Double rtEarlyLeaveUsed;         // 조퇴시간
+        Integer rtEarlyLeaveCnt;         // 조퇴횟수
         String rtLateDay;                // 지각일자
         Double rtLateUsed;               // 지각시간
         Integer rtLatecnt;               // 지각횟수
@@ -589,6 +590,7 @@ public class SalaryService {
 
             rtEarlyLeaveDay = "";           // 조퇴일자
             rtEarlyLeaveUsed = 0.0;         // 조퇴시간
+            rtEarlyLeaveCnt = 0;            // 조퇴횟수
             rtLateDay = "";                 // 지각일자
             rtLateUsed = 0.0;               // 지각시간
             rtLatecnt = 0;                  // 지각횟수
@@ -1139,6 +1141,7 @@ public class SalaryService {
                         }
                         double minutes = duration.toMinutes() % 60;
                         rtEarlyLeaveUsed = rtEarlyLeaveUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                        rtEarlyLeaveCnt++;
                         DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
                         DateFormat outputFormat = new SimpleDateFormat("M/d");
                         DateFormat outputFormat2 = new SimpleDateFormat("d");
@@ -1330,6 +1333,7 @@ public class SalaryService {
 
             monthlyKeunTaeDto.setEarlyLeaveTime(rtEarlyLeaveUsed);
             monthlyKeunTaeDto.setEarlyLeaveDay(rtEarlyLeaveDay);
+            monthlyKeunTaeDto.setEarlyLeaveCnt(rtEarlyLeaveCnt);
             monthlyKeunTaeDto.setOuterTime(rtOuterUsed);
             monthlyKeunTaeDto.setOuterDay(rtOuterDay);
             monthlyKeunTaeDto.setAbsence(rtAbsence);

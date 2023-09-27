@@ -353,11 +353,11 @@ public class Payroll6InPageService {
             sheet.getRow(curRow + 15).getCell(curCol + 1).setCellValue(data.getEarlyLeaveDay());
         }
         if (data.getEmployeeType().equals("100")) {
-        	if (0 != data.getEarlyLeaveTime())
-        		sheet.getRow(curRow + 15).getCell(curCol + 2).setCellValue(data.getEarlyLeaveTime());
-        } else if (data.getEmployeeType().equals("200")) {
-        	if (0 != data.getEarlyLeaveUsedCnt())
+        	if (null != data.getEarlyLeaveUsedCnt() && 0.0 != data.getEarlyLeaveUsedCnt() )
         		sheet.getRow(curRow + 15).getCell(curCol + 2).setCellValue(data.getEarlyLeaveUsedCnt());
+        } else if (data.getEmployeeType().equals("200")) {
+        	if (null != data.getEarlyLeaveTime() && 0.0 != data.getEarlyLeaveTime()  )
+        		sheet.getRow(curRow + 15).getCell(curCol + 2).setCellValue(data.getEarlyLeaveTime());
         }
         if (null != data.getAttribute13() && 0 != data.getAttribute13()) {
             sheet.getRow(curRow + 15).getCell(curCol + 3).setCellValue(data.getAttribute13());
