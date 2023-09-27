@@ -820,7 +820,14 @@
                                AND he.attribute1 = hb.yyyymm
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
-          AND fcd03.defined_cd IN ('100', '910')
+          AND (fcd03.defined_cd IN ('100', '910')
+                or he.employee_number IN (SELECT fcd.defined_cd
+                                          FROM   fnd_code fc
+                                                 INNER JOIN fnd_code_detail fcd
+                                                 ON  fc.company_id = fcd.company_id
+                                                 AND fc.code_id = fcd.code_id
+                                          WHERE  fc.company_id = 5
+                                          AND    fc.code_field = 'HR_A0008'))
     </select>
 
     <insert id="insertCalcSalary" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
