@@ -111,6 +111,7 @@
         SELECT  pay.no_emp as employeeNumber
                 , pay.ym as yyyymm
                 , pay.cd_company
+                , '002' AS TP_PAY
                 , SUM(PAY.AM_DEDUCT01) AS amDeduct01 -- 국민연금
                 , SUM(AM_DEDUCT02)     AS amDeduct02 -- 건강보험
                 , SUM(AM_DEDUCT03)     AS amDeduct03 -- 장기요양보험료
@@ -125,17 +126,46 @@
                 , SUM(AM_DEDUCT12)     AS amDeduct12 -- (미정) 연차수당
                 , SUM(AM_INCOMTAX)     AS amIncomTax -- 소득세
                 , SUM(AM_RESIDTAX)     AS amResidTax -- 지방소득세
-                , hpt.DT_PAY
+                ,	(SELECT	TOP 1
+						    DT_PAY
+                      FROM	HR_PTITLE
+                      WHERE	CD_COMPANY	= '1000' AND CD_EMP = '001' AND TP_PAY = '002' AND YM = #{yyyymm} AND NO_SEQ = 1
+                      ORDER BY CD_BIZAREA ASC, TP_EMP ASC) AS DT_PAY
                 , #{loginUserId} AS loginUserId
         FROM    hr_pcalcpay pay
-                inner join (select dt_pay, cd_company, ym
-                            from HR_PTITLE HPT
-                            where no_seq = 1
-                            group by dt_pay, cd_company, ym ) HPT
-                           on pay.cd_company = HPT.cd_company
-                               and pay.ym = hpt.ym
         WHERE   pay.cd_company = '1000'
         AND     pay.ym = #{yyyymm}
-        GROUP BY pay.ym, pay.no_emp, pay.cd_company,hpt.DT_PAY
+        AND     TP_PAY = '002'
+        GROUP BY pay.ym, pay.no_emp, pay.cd_company
+        union all
+        SELECT  pay.no_emp as employeeNumber
+             , pay.ym as yyyymm
+             , pay.cd_company
+             , '001' AS TP_PAY
+             , SUM(PAY.AM_DEDUCT01) AS amDeduct01 -- 국민연금
+             , SUM(AM_DEDUCT02)     AS amDeduct02 -- 건강보험
+             , SUM(AM_DEDUCT03)     AS amDeduct03 -- 장기요양보험료
+             , SUM(AM_DEDUCT04)     AS amDeduct04 -- 고용보험
+             , SUM(AM_DEDUCT05)     AS amDeduct05 -- 가불금
+             , SUM(AM_DEDUCT06)     AS amDeduct06 -- 기타공제
+             , SUM(AM_DEDUCT07)     AS amDeduct07 -- 경조비
+             , SUM(AM_DEDUCT08)     AS amDeduct08 -- 연말정산소득세
+             , SUM(AM_DEDUCT09)     AS amDeduct09 -- (미정)연말정산지방소득세
+             , SUM(AM_DEDUCT10)     AS amDeduct10 -- (미정) 건강보험정산
+             , SUM(AM_DEDUCT11)     AS amDeduct11 -- (미정) 장기요양보험정산
+             , SUM(AM_DEDUCT12)     AS amDeduct12 -- (미정) 연차수당
+             , SUM(AM_INCOMTAX)     AS amIncomTax -- 소득세
+             , SUM(AM_RESIDTAX)     AS amResidTax -- 지방소득세
+             ,	(SELECT	TOP 1
+						DT_PAY
+                   FROM	HR_PTITLE
+                   WHERE	CD_COMPANY	= '1000' AND CD_EMP = '001' AND TP_PAY = '001' AND YM = #{yyyymm} AND NO_SEQ = 1
+                   ORDER BY CD_BIZAREA ASC, TP_EMP ASC) AS DT_PAY
+             , #{loginUserId} AS loginUserId
+        FROM    hr_pcalcpay pay
+        WHERE   pay.cd_company = '1000'
+          AND   pay.ym = #{yyyymm}
+          AND   TP_PAY = '001'
+        GROUP BY pay.ym, pay.no_emp, pay.cd_company
     </select>
 </mapper>

@@ -1192,6 +1192,7 @@
         , am_incomtax
         , am_residtax
         , dt_pay
+        , tp_pay
         , created_by
         , creation_date
         , last_updated_by
@@ -1219,6 +1220,7 @@
             , #{item.amIncomTax}
             , #{item.amResidTax}
             , #{item.dtPay}
+            , #{item.tpPay}
             , #{item.loginUserId}
             , now()
             , #{item.loginUserId}
