@@ -1397,8 +1397,12 @@ public class ReportService {
 
         // Get Data
         List<ReportPayrollDto> reportPayrollDtoList = new ArrayList<>();
-        reportPayrollDtoList = reportDao.findPayrollData(reportParamsDto);
 
+        if (reportParamsDto.getSort().equals("Salary")) {
+            reportPayrollDtoList = reportDao.findPayrollData(reportParamsDto);
+        } else if (reportParamsDto.getSort().equals("Bonus")) {
+            reportPayrollDtoList = reportDao.findPayrollBonusData(reportParamsDto);
+        }
         String[] payArr = {"기본급", "연차수당", "연장수당1", "연장수당2", "야간수당1", "야간수당2", "휴일수당1", "휴일수당2", "직책수당", "기타수당", "보조금",
                 "교통비", "식대"};
         String[] taxArr = {"국민연금", "건강보험", "고용보험", "장기요양보험료", "소득세", "지방소득세", "가불금", "기타공제", "경조비", "연말정산", "건강보험정산",
