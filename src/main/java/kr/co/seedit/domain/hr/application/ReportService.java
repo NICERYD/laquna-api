@@ -197,8 +197,11 @@ public class ReportService {
 
         // Get Data
         List<ReportPayrollDto> reportPayrollDtoList = new ArrayList<>();
-        reportPayrollDtoList = reportDao.findPayrollData(reportParamsDto);
-
+        if (reportParamsDto.getSort().equals("Salary")) {
+            reportPayrollDtoList = reportDao.findPayrollData(reportParamsDto);
+        } else if (reportParamsDto.getSort().equals("Bonus")) {
+            reportPayrollDtoList = reportDao.findPayrollBonusData(reportParamsDto);
+        }
         // Open Sample Excel
         Resource resource = resourceLoader.getResource("classpath:hr/payrollSample.xlsx");
         InputStream fis = resource.getInputStream();
@@ -794,8 +797,11 @@ public class ReportService {
 
         // Get Data
         List<ReportPayrollDto> reportPayrollDtoList = new ArrayList<>();
-        reportPayrollDtoList = reportDao.findEstPayrollData(reportParamsDto);
-
+        if (reportParamsDto.getSort().equals("Salary")) {
+            reportPayrollDtoList = reportDao.findEstPayrollData(reportParamsDto);
+        } else if (reportParamsDto.getSort().equals("Bonus")) {
+            reportPayrollDtoList = reportDao.findEstPayrollBonusData(reportParamsDto);
+        }
         // Open Sample Excel
         Resource resource = resourceLoader.getResource("classpath:hr/payrollSample.xlsx");
         InputStream fis = resource.getInputStream();
@@ -1919,7 +1925,7 @@ public class ReportService {
         GreenStyle.setAlignment(HorizontalAlignment.CENTER);
         GreenStyle.setFillForegroundColor(IndexedColors.LIME.getIndex());
         GreenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        
+
         CellStyle SkyBlueStyle = workbook.createCellStyle();
         SkyBlueStyle.setBorderTop(BorderStyle.THIN);
         SkyBlueStyle.setBorderBottom(BorderStyle.THIN);
@@ -1930,7 +1936,7 @@ public class ReportService {
         SkyBlueStyle.setAlignment(HorizontalAlignment.CENTER);
         SkyBlueStyle.setFillForegroundColor(IndexedColors.LIGHT_TURQUOISE.getIndex());
         SkyBlueStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        
+
         XSSFCellStyle RoseStyle = workbook.createCellStyle();
         RoseStyle.setBorderTop(BorderStyle.THIN);
         RoseStyle.setBorderBottom(BorderStyle.THIN);
@@ -2040,10 +2046,10 @@ public class ReportService {
 
                 row = sheet.getRow(rowindex++);
                 row.getCell(cell01).setCellValue(e.getAnnualLeaveUsedCnt());
-				row.getCell(cell02).setCellValue(e.getHalfLeaveCnt());		//반차횟수
+                row.getCell(cell02).setCellValue(e.getHalfLeaveCnt());        //반차횟수
 
                 row = sheet.getRow(rowindex++);
-				row.getCell(cell01).setCellValue(e.getEarlyLeaveTime());		//조퇴시간/횟수
+                row.getCell(cell01).setCellValue(e.getEarlyLeaveTime());        //조퇴시간/횟수
                 row.getCell(cell02).setCellValue(determineTimeFormat(e.getLateTime()));
 
                 row = sheet.getRow(rowindex++);
@@ -2071,25 +2077,25 @@ public class ReportService {
 
                 cell = row.getCell(cellindex++);
                 String workStatus = p.getWorkStatus();
-                if("오전반차_정상".equals(workStatus) || "오전반차_생산".equals(workStatus)) {
-                	workStatus = "오전반차";
+                if ("오전반차_정상".equals(workStatus) || "오전반차_생산".equals(workStatus)) {
+                    workStatus = "오전반차";
                 }
                 cell.setCellValue(workStatus);
-                
-                if(workStatus.matches("(.*)반차|휴가|연차|무급(.*)")) {
-                	cell.setCellStyle(GreenStyle);
-                } else if(workStatus.matches("(.*)야간(.*)")) {
-                	cell.setCellStyle(YellowStyle);
-                } else if(workStatus.matches("(.*)토요(.*)")) {
-                	for(int i = 0; i<12 ; i++) {
-                		row.getCell(i).setCellStyle(SkyBlueStyle);
-                	}
-                } else if(workStatus.matches("(.*)휴일(.*)")) {
-                	for(int i = 0; i<12 ; i++) {
-                		row.getCell(i).setCellStyle(RoseStyle);
-                	}
+
+                if (workStatus.matches("(.*)반차|휴가|연차|무급(.*)")) {
+                    cell.setCellStyle(GreenStyle);
+                } else if (workStatus.matches("(.*)야간(.*)")) {
+                    cell.setCellStyle(YellowStyle);
+                } else if (workStatus.matches("(.*)토요(.*)")) {
+                    for (int i = 0; i < 12; i++) {
+                        row.getCell(i).setCellStyle(SkyBlueStyle);
+                    }
+                } else if (workStatus.matches("(.*)휴일(.*)")) {
+                    for (int i = 0; i < 12; i++) {
+                        row.getCell(i).setCellStyle(RoseStyle);
+                    }
                 }
-                
+
                 cell = row.getCell(cellindex++);
                 cell.setCellValue(p.getWorkStartDate());
 

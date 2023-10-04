@@ -24,8 +24,10 @@ public interface ReportDao {
 	List<SalaryExcelDto> findERPIUData(ReportParamsDto reportParamsDto);
 	
 	List<ReportPayrollDto> findPayrollData(ReportParamsDto reportParamsDto);
+	List<ReportPayrollDto> findPayrollBonusData(ReportParamsDto reportParamsDto);
 	
 	List<ReportPayrollDto> findEstPayrollData(ReportParamsDto reportParamsDto);
+	List<ReportPayrollDto> findEstPayrollBonusData(ReportParamsDto reportParamsDto);
 	
 	List<EmployeeInformationDto> findPersonalPayroll(ReportParamsDto reportParamsDto);
 	

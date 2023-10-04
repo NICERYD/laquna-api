@@ -152,7 +152,109 @@
 		, LPAD(IFNULL(fcd07.value01,'9999999999'), '10' , '0') -- 직급정렬
 		, he.employee_number -- 사번
 	</select>
-	
+
+	<select id="findPayrollBonusData" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.ReportPayrollDto">
+	SELECT he.employee_id
+	, he.employee_number
+	, he.korean_name
+	, fbe.est_name
+	, hd.department_name
+	, fcd02.defined_name
+	, CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '100' THEN 0 ELSE 1 END as check_first
+	, CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '201' THEN 1 ELSE 0 END as check_special
+	, he.employee_type
+	, he.hire_date
+	, IF(he.retire_date != '9999-12-31', he.retire_date, null)
+	, IFNULL(hb.bonus_amount ,0) AS basic_salary
+	, 0 AS annual_allowance
+	, 0 AS overtime_allowance01
+	, 0 AS overtime_allowance02
+	, 0 AS night_allowance01
+	, 0 AS night_allowance02
+	, 0 AS holiday_allowance01
+	, 0 AS holiday_allowance02
+	, 0 AS position_allowance
+	, 0 AS other_allowances
+	, 0 AS subsidies
+	, 0 AS transportation_expenses
+	, 0 AS meals_expenses
+	, 0 AS bonus_amount
+	, IFNULL(hb.bonus_amount,0)  AS salary_sum
+	, IFNULL(hdt.AM_DEDUCT01,0) AS national_pension
+	, IFNULL(hdt.AM_DEDUCT02,0) AS health_insurance
+	, IFNULL(hdt.AM_DEDUCT03,0) AS care_insurance
+	, IFNULL(hdt.AM_DEDUCT04,0) AS employment_insurance
+	, IFNULL(hdt.AM_DEDUCT05,0) AS advance
+	, IFNULL(hdt.AM_DEDUCT06,0) AS other_tax
+	, IFNULL(hdt.AM_DEDUCT07,0) AS gyeongjobi
+	, IFNULL(hdt.AM_DEDUCT08,0) + IFNULL(hdt.AM_DEDUCT09,0) AS yearend
+	, IFNULL(hdt.AM_DEDUCT10,0) AS health_insurance_settlement
+	, IFNULL(hdt.AM_DEDUCT11,0) AS care_insurance_settlement
+	, IFNULL(hdt.AM_DEDUCT12,0) AS holiday_tax
+	, IFNULL(hdt.AM_INCOMTAX,0) AS incomtax
+	, IFNULL(hdt.AM_RESIDTAX,0) AS residtax
+	, IFNULL(hdt.AM_DEDUCT01,0) + IFNULL(hdt.AM_DEDUCT02,0) + IFNULL(hdt.AM_DEDUCT03,0) + IFNULL(hdt.AM_DEDUCT04,0)
+	+ IFNULL(hdt.AM_DEDUCT05,0) + IFNULL(hdt.AM_DEDUCT06,0) + IFNULL(hdt.AM_DEDUCT07,0) + IFNULL(hdt.AM_DEDUCT08,0)
+	+ IFNULL(hdt.AM_DEDUCT09,0) + IFNULL(hdt.AM_DEDUCT10,0) + IFNULL(hdt.AM_DEDUCT11,0) + IFNULL(hdt.AM_DEDUCT12,0)
+	+ IFNULL(hdt.AM_INCOMTAX,0) + IFNULL(hdt.AM_RESIDTAX,0) AS tax_sum
+	, IFNULL(hdt.DT_PAY,'00000000') AS dt_pay
+	FROM   hr_bonus hb
+	INNER JOIN fnd_business_est fbe
+	ON hb.company_id = fbe.company_id
+	INNER JOIN hr_employee he
+	ON hb.company_id  = he.company_id
+	AND hb.employee_id  = he.employee_id
+	AND hb.yyyymm  = he.attribute1
+	AND he.est_id = fbe.est_id
+	-- 부서
+	INNER JOIN hr_department  hd
+	ON he.company_id = hd.company_id
+	AND he.department_id = hd.department_id
+	AND he.attribute1  = hd.attribute2
+	-- 직급
+	INNER JOIN fnd_code fc02
+	ON fc02.company_id  = he.company_id
+	AND fc02.code_field = 'HR_A0003'
+	INNER JOIN fnd_code_detail fcd02
+	ON fcd02.company_id  = he.company_id
+	AND fcd02.code_id = fc02.code_id
+	AND fcd02.defined_cd = he.position_code
+	-- 직위순서
+	LEFT JOIN fnd_code fc07
+	ON fc07.company_id  = he.company_id
+	AND fc07.code_field = 'HR_A0007'
+	INNER JOIN fnd_code_detail fcd07
+	ON fcd07.company_id  = fc07.company_id
+	AND fcd07.code_id = fc07.code_id
+	AND fcd07.defined_cd = he.position_code
+	-- 직군
+	LEFT JOIN fnd_code fc06
+	ON fc06.company_id  = he.company_id
+	AND fc06.code_field = 'HR_A0006'
+	LEFT JOIN fnd_code_detail fcd06
+	ON fcd06.company_id  = he.company_id
+	AND fcd06.code_id = fc06.code_id
+	AND fcd06.defined_cd = he.duty_type
+	-- AND fcd06.defined_cd = 100 -- 임원
+	-- 세금
+	LEFT JOIN hr_dh_tax hdt
+	ON he.company_id = hdt.company_id
+	AND he.employee_id = hdt.employee_id
+	AND he.attribute1 = hdt.yyyymm
+	AND hdt.tp_pay = '002'
+	WHERE  he.company_id = #{companyId}
+		<if test="estId !=999 and estId != null">
+			AND   he.est_id = #{estId}
+		</if>
+		AND   he.attribute1  = #{yyyymm}
+	ORDER BY check_first -- 임원
+	, he.est_id -- 사업장
+	, LPAD(IFNULL(hd.order_index,'9999999999'), '10' , '0') -- 부서정렬
+	, check_special
+	, LPAD(IFNULL(fcd07.value01,'9999999999'), '10' , '0') -- 직급정렬
+	, he.employee_number -- 사번
+	</select>
+
 	<select id="findEstPayrollData" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.ReportPayrollDto">
 		/*ReportDao.findEstPayrollData*/
 		SELECT fbe.est_name
@@ -226,7 +328,71 @@
 		GROUP BY fbe.est_id, fbe.est_name, hdt.DT_PAY
 		ORDER BY fbe.est_id
 	</select>
-	
+
+	<select id="findEstPayrollBonusData" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.ReportPayrollDto">
+	SELECT fbe.est_name
+	  , count(*) AS cnt
+	  , sum(IFNULL(hb.bonus_amount,0)) AS basic_salary
+	  , 0 AS annual_allowance
+	  , 0 AS overtime_allowance01
+	  , 0 AS overtime_allowance02
+	  , 0 AS night_allowance01
+	  , 0 AS night_allowance02
+	  , 0 AS holiday_allowance01
+	  , 0 AS holiday_allowance02
+	  , 0 AS position_allowance
+	  , 0 AS other_allowances
+	  , 0 AS subsidies
+	  , 0 AS transportation_expenses
+	  , 0 AS meals_expenses
+	  , 0 AS bonus_amount
+	  , sum(IFNULL(hb.bonus_amount,0)) AS salary_sum
+	  , sum(IFNULL(hdt.AM_DEDUCT01,0)) AS national_pension
+	  , sum(IFNULL(hdt.AM_DEDUCT02,0)) AS health_insurance
+	  , sum(IFNULL(hdt.AM_DEDUCT03,0)) AS care_insurance
+	  , sum(IFNULL(hdt.AM_DEDUCT04,0)) AS employment_insurance
+	  , sum(IFNULL(hdt.AM_DEDUCT05,0)) AS advance
+	  , sum(IFNULL(hdt.AM_DEDUCT06,0)) AS other_tax
+	  , sum(IFNULL(hdt.AM_DEDUCT07,0)) AS gyeongjobi
+	  , sum(IFNULL(hdt.AM_DEDUCT08,0)) + sum(IFNULL(hdt.AM_DEDUCT09,0)) AS yearend
+	  , sum(IFNULL(hdt.AM_DEDUCT10,0)) AS health_insurance_settlement
+	  , sum(IFNULL(hdt.AM_DEDUCT11,0)) AS care_insurance_settlement
+	  , sum(IFNULL(hdt.AM_DEDUCT12,0)) AS holiday_tax
+	  , sum(IFNULL(hdt.AM_INCOMTAX,0)) AS incomtax
+	  , sum(IFNULL(hdt.AM_RESIDTAX,0)) AS residtax
+	  , sum(IFNULL(hdt.AM_DEDUCT01,0)) + sum(IFNULL(hdt.AM_DEDUCT02,0)) + sum(IFNULL(hdt.AM_DEDUCT03,0)) + sum(IFNULL(hdt.AM_DEDUCT04,0))
+			+ sum(IFNULL(hdt.AM_DEDUCT05,0)) + sum(IFNULL(hdt.AM_DEDUCT06,0)) + sum(IFNULL(hdt.AM_DEDUCT07,0)) + sum(IFNULL(hdt.AM_DEDUCT08,0))
+			+ sum(IFNULL(hdt.AM_DEDUCT09,0)) + sum(IFNULL(hdt.AM_DEDUCT10,0)) + sum(IFNULL(hdt.AM_DEDUCT11,0)) + sum(IFNULL(hdt.AM_DEDUCT12,0))
+			+ sum(IFNULL(hdt.AM_INCOMTAX,0)) + sum(IFNULL(hdt.AM_RESIDTAX,0)) AS tax_sum
+		  , IFNULL(hdt.DT_PAY,'00000000') AS dt_pay
+	 FROM hr_bonus hb
+			  INNER JOIN fnd_business_est fbe
+						 ON hb.company_id = fbe.company_id
+			  INNER JOIN hr_employee he
+						 ON hb.company_id = he.company_id
+							 AND hb.employee_id = he.employee_id
+							 AND hb.yyyymm = he.attribute1
+							 AND he.est_id = fbe.est_id
+			  INNER JOIN hr_department hd
+						 ON he.company_id = hd.company_id
+							 AND he.department_id = hd.department_id
+							 AND he.attribute1 = hd.attribute2
+			  INNER JOIN fnd_code fc02
+						 ON fc02.company_id = he.company_id
+							 AND fc02.code_field = 'HR_A0003'
+			  INNER JOIN fnd_code_detail fcd02
+						 ON fcd02.company_id = he.company_id
+							 AND fcd02.code_id = fc02.code_id
+							 AND fcd02.defined_cd = he.position_code
+			  LEFT JOIN hr_dh_tax hdt
+						ON he.company_id = hdt.company_id
+							AND he.employee_id = hdt.employee_id
+							AND he.attribute1 = hdt.yyyymm
+							AND hdt.tp_pay = '002'
+	WHERE he.company_id = #{companyId}
+	  AND he.attribute1  = #{yyyymm}
+	 GROUP BY fbe.est_id, fbe.est_name, hdt.DT_PAY
+	</select>
 <!--	<select id="findEmployees" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.PersonalPayrollParamsDto">
 		/*ReportDao.findEmployees*/
 		SELECT DISTINCT(he.employee_id)
