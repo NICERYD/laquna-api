@@ -112,7 +112,12 @@ public class SalaryService {
     public ResponseDto getCalcSalaryList(ReportParamsDto reportParamsDto) throws Exception {
         ResponseDto responseDto = ResponseDto.builder().build();
         try {
-            List<BasicSalaryDto> result = salaryDao.getCalcSalaryList(reportParamsDto);
+            List<BasicSalaryDto> result = null;
+            if (reportParamsDto.getSort().equals("Salary")) {
+               result = salaryDao.getCalcSalaryList(reportParamsDto);
+            } else if (reportParamsDto.getSort().equals("Bonus")) {
+               result = salaryDao.getCalcBonusList(reportParamsDto);
+            }
             responseDto.setData(result);
         } catch (Exception e) {
             logger.error("Exception", e);
