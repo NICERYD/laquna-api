@@ -109,10 +109,10 @@ public class SalaryService {
     }
 
     @Transactional
-    public ResponseDto getCalcSalaryList(BasicSalaryDto basicSalaryDto) throws Exception {
+    public ResponseDto getCalcSalaryList(ReportParamsDto reportParamsDto) throws Exception {
         ResponseDto responseDto = ResponseDto.builder().build();
         try {
-            List<BasicSalaryDto> result = salaryDao.getCalcSalaryList(basicSalaryDto);
+            List<BasicSalaryDto> result = salaryDao.getCalcSalaryList(reportParamsDto);
             responseDto.setData(result);
         } catch (Exception e) {
             logger.error("Exception", e);

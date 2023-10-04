@@ -55,9 +55,9 @@ public class ReportService {
                 workbook = createERPIU(reportParamsDto);
                 break;
             case "Payroll":        //급여대장
-                if ("All".equals(reportParamsDto.getSort()))
+                if ("All".equals(reportParamsDto.getPayrollSort()))
                     workbook = createPayroll(reportParamsDto);    //개인별
-                else if ("Est".equals(reportParamsDto.getSort()))
+                else if ("Est".equals(reportParamsDto.getPayrollSort()))
                     workbook = createPayrollEst(reportParamsDto);    //지사별
                 break;
             case "Paystub":        //급여명세서

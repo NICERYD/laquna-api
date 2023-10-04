@@ -20,7 +20,10 @@ public class ReportParamsDto {
     private String employeeNumber;
     private Integer employeeType;
     
+    private String koreanName;
+    
     private String reportType;
+    private String payrollSort;
     private String sort;
     
     private List<String> employeeNumberList;
