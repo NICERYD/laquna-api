@@ -282,7 +282,13 @@ public class SalaryService {
                             adtExcelDto.setWorkDate(value);
                             break;
                         case 3:
-                            adtExcelDto.setEmployeeNumber(value);
+                        	if (cell.getCellType() == CellType.FORMULA) {
+                        		throw new Exception("사번을 확인해주세요. (수식 포함)");
+                        	} else if ("".equals(value)) {
+                        		throw new Exception("사번을 확인해주세요. (빈 값 포함)");
+                        	} else {
+                        		adtExcelDto.setEmployeeNumber(value);
+                        	}
                             break;
                         case 7:
                             adtExcelDto.setWorkStatus(value);
@@ -358,7 +364,13 @@ public class SalaryService {
                                 outAdtExcelDto.setWorkDate(new SimpleDateFormat(YYYY_MM_DD).format(outCell.getDateCellValue()));
                                 break;
                             case 6:
-                                outAdtExcelDto.setEmployeeNumber(outCell.getStringCellValue());
+                            	if (outCell.getCellType() == CellType.FORMULA) {
+                            		throw new Exception("사번을 확인해주세요. (수식 포함)");
+                            	} else if ("".equals(outCell.getStringCellValue())) {
+                            		throw new Exception("사번을 확인해주세요. (빈 값 포함)");
+                            	} else {
+                            		outAdtExcelDto.setEmployeeNumber(outCell.getStringCellValue());
+                            	}
                                 break;
                             case 10:
                                 outAdtExcelDto.setEventType(outCell.getStringCellValue());
