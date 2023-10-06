@@ -68,11 +68,11 @@
         , IFNULL(hdcs.attribute10,0) AS subsidies
         , IFNULL(hdcs.attribute11,0) AS transportation_expenses
         , IFNULL(hdcs.attribute12,0) AS meals_expenses
-        , IFNULL(hb.bonus_amount,0) AS bonus_amount
+        , 0 AS bonus_amount
         , IFNULL(hdcs.basic_salary,0) + ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)  + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
 		  + ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0)
 		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
-		  + IFNULL(hdcs.attribute12,0) + IFNULL(hb.bonus_amount,0)	AS salary_sum
+		  + IFNULL(hdcs.attribute12,0)	AS salary_sum
 		, IFNULL(hdt.AM_DEDUCT01,0) AS national_pension
 		, IFNULL(hdt.AM_DEDUCT02,0) AS health_insurance
 		, IFNULL(hdt.AM_DEDUCT03,0) AS care_insurance
@@ -129,11 +129,11 @@
 		AND fcd06.code_id = fc06.code_id
 		AND fcd06.defined_cd = he.duty_type
 		-- AND fcd06.defined_cd = 100 -- 임원
-        -- 상여
-        LEFT JOIN hr_bonus hb
-        ON he.company_id = hb.company_id
-        AND he.employee_id = hb.employee_id
-        AND he.attribute1 = hb.yyyymm
+--         -- 상여
+--         LEFT JOIN hr_bonus hb
+--         ON he.company_id = hb.company_id
+--         AND he.employee_id = hb.employee_id
+--         AND he.attribute1 = hb.yyyymm
         -- 세금
         LEFT JOIN hr_dh_tax hdt 
         ON he.company_id = hdt.company_id
@@ -272,11 +272,11 @@
 		, sum(IFNULL(hdcs.attribute10,0)) AS subsidies
 		, sum(IFNULL(hdcs.attribute11,0)) AS transportation_expenses
 		, sum(IFNULL(hdcs.attribute12,0)) AS meals_expenses
-		, sum(IFNULL(hb.bonus_amount,0)) AS bonus_amount
+		, 0 AS bonus_amount
 		, sum(IFNULL(hdcs.basic_salary,0)) + sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0))
 			+ sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) + sum(IFNULL(hdcs.attribute05,0)) + sum(IFNULL(hdcs.attribute06,0)) + sum(IFNULL(hdcs.attribute07,0))
 			+ sum(IFNULL(hdcs.attribute08,0)) + sum(IFNULL(hdcs.attribute09,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0))
-			+ sum(IFNULL(hdcs.attribute12,0)) + sum(IFNULL(hb.bonus_amount,0)) AS salary_sum
+			+ sum(IFNULL(hdcs.attribute12,0)) ) AS salary_sum
 		, sum(IFNULL(hdt.AM_DEDUCT01,0)) AS national_pension
 		, sum(IFNULL(hdt.AM_DEDUCT02,0)) AS health_insurance
 		, sum(IFNULL(hdt.AM_DEDUCT03,0)) AS care_insurance
@@ -314,10 +314,10 @@
 		ON fcd02.company_id = he.company_id
 		AND fcd02.code_id = fc02.code_id
 		AND fcd02.defined_cd = he.position_code
-		LEFT JOIN hr_bonus hb
-		ON he.company_id = hb.company_id
-		AND he.employee_id = hb.employee_id
-		AND he.attribute1 = hb.yyyymm
+-- 		LEFT JOIN hr_bonus hb
+-- 		ON he.company_id = hb.company_id
+-- 		AND he.employee_id = hb.employee_id
+-- 		AND he.attribute1 = hb.yyyymm
 		LEFT JOIN hr_dh_tax hdt
 		ON he.company_id = hdt.company_id
 		AND he.employee_id = hdt.employee_id
