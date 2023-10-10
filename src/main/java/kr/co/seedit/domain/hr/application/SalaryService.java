@@ -471,6 +471,7 @@ public class SalaryService {
         BigDecimal lateAmount;           // 지각
         BigDecimal earlyLeaverAmount;    // 조퇴
         BigDecimal OuterAmount;    // 조퇴
+        BigDecimal observeHolidayAmount;    // 명절수당
 
         // 리포트 급여항목 항목 변수 선언
         List<MonthlyKeunTaeDto> monthlyKeunTaeDtos = new ArrayList<>();
@@ -573,6 +574,7 @@ public class SalaryService {
             lateAmount = BigDecimal.ZERO;          // 지각
             earlyLeaverAmount = BigDecimal.ZERO;    // 조퇴
             OuterAmount = BigDecimal.ZERO;    // 외출
+            observeHolidayAmount = BigDecimal.ZERO;    // 명정수당
             // 입사일, 퇴사일
             LocalDate hireDate = LocalDate.parse(basicSalaryDto.getHireDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             LocalDate retireDate = LocalDate.parse(basicSalaryDto.getRetireDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -766,6 +768,9 @@ public class SalaryService {
                                 holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount);
                                 rtHolidaySunday4HCnt++;
                             }
+                        }
+                        if (Arrays.asList("추석", "설날").contains(adtDataDto.getDescription())) {
+                            observeHolidayAmount = observeHolidayAmount.add(BigDecimal.valueOf(100000));
                         }
                     }
                     // 무급처리 count
@@ -1381,7 +1386,7 @@ public class SalaryService {
                 basicSalaryDto.setNightAllowance02(nightAllowance02.toString());
 
             if (!holidayAllowance01.equals(BigDecimal.ZERO))
-                basicSalaryDto.setHolidayAllowance01(holidayAllowance01.toString());
+                basicSalaryDto.setHolidayAllowance01(holidayAllowance01.add(observeHolidayAmount).toString());
             if (!holidayAllowanceSat.equals(BigDecimal.ZERO))
                 basicSalaryDto.setHolidayAllowanceSat(holidayAllowanceSat.toString());
             if (!holidayAllowanceSun.equals(BigDecimal.ZERO))
