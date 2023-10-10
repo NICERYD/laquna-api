@@ -949,7 +949,7 @@ public class SalaryService {
 
                     // 주휴수당 count
                     if ((adtDataDto.getDateType().equals("1") && !adtDataDto.getInStatus().equals("결근"))
-                            || (adtDataDto.getDateType().equals("2") && adtDataDto.getWorkStatus().equals("공휴일_생산"))) {
+                            || (Arrays.asList("1", "2", "3", "4", "5").contains(adtDataDto.getDateWeek()) && adtDataDto.getWorkStatus().equals("공휴일_생산"))) {
                         paidHolidayindex++;
                         workcnt++;
                     } else {
