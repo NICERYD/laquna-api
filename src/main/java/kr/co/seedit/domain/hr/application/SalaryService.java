@@ -948,7 +948,8 @@ public class SalaryService {
                     }
 
                     // 주휴수당 count
-                    if (adtDataDto.getDateType().equals("1") || (adtDataDto.getDateType().equals("2") && adtDataDto.getWorkStatus().equals("공휴일_생산"))) {
+                    if ((adtDataDto.getDateType().equals("1") && !adtDataDto.getInStatus().equals("결근"))
+                            || (adtDataDto.getDateType().equals("2") && adtDataDto.getWorkStatus().equals("공휴일_생산"))) {
                         paidHolidayindex++;
                         workcnt++;
                     } else {
