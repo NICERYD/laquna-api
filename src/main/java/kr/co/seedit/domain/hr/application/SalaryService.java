@@ -761,8 +761,12 @@ public class SalaryService {
                         if (Arrays.asList("추석", "설날").contains(adtDataDto.getDescription())) {
                             if (duration.toHours() >= 8) {
                                 observeHolidayAmount = observeHolidayAmount.add(BigDecimal.valueOf(150000));
+                                holidayAllowanceSun = holidayAllowanceSun.add(BigDecimal.valueOf(150000));
+                                rtHolidaySunday8HCnt++;
                             } else if (duration.toHours() >= 4) {
                                 observeHolidayAmount = observeHolidayAmount.add(BigDecimal.valueOf(75000));
+                                holidayAllowanceSun = holidayAllowanceSun.add(BigDecimal.valueOf(75000));
+                                rtHolidaySunday4HCnt++;
                             }
                         } else {
                             if (startyn && endyn && duration.toHours() >= 8) {
