@@ -114,9 +114,9 @@ public class SalaryService {
         try {
             List<BasicSalaryDto> result = null;
             if (reportParamsDto.getSort().equals("Salary")) {
-               result = salaryDao.getCalcSalaryList(reportParamsDto);
+                result = salaryDao.getCalcSalaryList(reportParamsDto);
             } else if (reportParamsDto.getSort().equals("Bonus")) {
-               result = salaryDao.getCalcBonusList(reportParamsDto);
+                result = salaryDao.getCalcBonusList(reportParamsDto);
             }
             responseDto.setData(result);
         } catch (Exception e) {
@@ -282,13 +282,13 @@ public class SalaryService {
                             adtExcelDto.setWorkDate(value);
                             break;
                         case 3:
-                        	if (cell.getCellType() == CellType.FORMULA) {
-                        		throw new Exception("사번을 확인해주세요. (수식 포함)");
-                        	} else if ("".equals(value)) {
-                        		throw new Exception("사번을 확인해주세요. (빈 값 포함)");
-                        	} else {
-                        		adtExcelDto.setEmployeeNumber(value);
-                        	}
+                            if (cell.getCellType() == CellType.FORMULA) {
+                                throw new Exception("사번을 확인해주세요. (수식 포함)");
+                            } else if ("".equals(value)) {
+                                throw new Exception("사번을 확인해주세요. (빈 값 포함)");
+                            } else {
+                                adtExcelDto.setEmployeeNumber(value);
+                            }
                             break;
                         case 7:
                             adtExcelDto.setWorkStatus(value);
@@ -364,13 +364,13 @@ public class SalaryService {
                                 outAdtExcelDto.setWorkDate(new SimpleDateFormat(YYYY_MM_DD).format(outCell.getDateCellValue()));
                                 break;
                             case 6:
-                            	if (outCell.getCellType() == CellType.FORMULA) {
-                            		throw new Exception("사번을 확인해주세요. (수식 포함)");
-                            	} else if ("".equals(outCell.getStringCellValue())) {
-                            		throw new Exception("사번을 확인해주세요. (빈 값 포함)");
-                            	} else {
-                            		outAdtExcelDto.setEmployeeNumber(outCell.getStringCellValue());
-                            	}
+                                if (outCell.getCellType() == CellType.FORMULA) {
+                                    throw new Exception("사번을 확인해주세요. (수식 포함)");
+                                } else if ("".equals(outCell.getStringCellValue())) {
+                                    throw new Exception("사번을 확인해주세요. (빈 값 포함)");
+                                } else {
+                                    outAdtExcelDto.setEmployeeNumber(outCell.getStringCellValue());
+                                }
                                 break;
                             case 10:
                                 outAdtExcelDto.setEventType(outCell.getStringCellValue());
@@ -735,7 +735,8 @@ public class SalaryService {
                     }
                     // 휴일수당1
                     if (Arrays.asList("휴일", "휴일출근").contains(adtDataDto.getInStatus())
-                            && !adtDataDto.getHolidayTime().equals("00:00") && !adtDataDto.getWorkStatus().equals("연차")) {
+                            && (adtDataDto.getWorkStartDate() != null && !adtDataDto.getWorkStartDate().equals("")) && (adtDataDto.getWorkEndDate() != null && !adtDataDto.getWorkEndDate().equals(""))
+                            && !adtDataDto.getWorkStatus().equals("연차")) {
                         System.out.println(adtDataDto.getEmployeeNumber());
                         LocalDateTime workStartTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDateTime workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -746,31 +747,47 @@ public class SalaryService {
                         boolean endyn = (workEndTime.toLocalTime().isAfter(LocalTime.of(17, 30)) || workEndTime.toLocalTime().equals(LocalTime.of(17, 30)));
                         // 출근시간과 퇴근시간 사이에 점심시간이 포함되는지 체크
                         LocalTime localTime = LocalTime.parse(adtDataDto.getHolidayTime(), DateTimeFormatter.ofPattern("HH:mm"));
-                        if (startyn && endyn && localTime.getHour() >= 8) {
-                            holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
-                            if (dataWeek.equals("6")) {
-                                rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + 8.0;
-                                holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
-                                rtHolidaySaturdayDay8HCnt++;
-                            } else if (dataWeek.equals("7")) {
-                                rtHolidaySundayUsed = rtHolidaySundayUsed + 8.0;
-                                holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
-                                rtHolidaySunday8HCnt++;
-                            }
-                        } else if ((startyn || endyn) && localTime.getHour() >= 4) {
-                            holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount);
-                            if (dataWeek.equals("6")) {
-                                rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + 4.0;
-                                holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount);
-                                rtHolidaySaturdayDay4HCnt++;
-                            } else if (dataWeek.equals("7")) {
-                                rtHolidaySundayUsed = rtHolidaySundayUsed + 4.0;
-                                holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount);
-                                rtHolidaySunday4HCnt++;
-                            }
+
+                        Duration duration = Duration.between(workStartTime, workEndTime);
+                        // 점심시간 제외
+                        if (!workStartTime.toLocalTime().isAfter(LocalTime.of(12, 30)) && !workEndTime.toLocalTime().isBefore(LocalTime.of(13, 30))) {
+                            duration = duration.minus(Duration.ofHours(1));
                         }
+                        // 저녁시간 제외
+                        if (!workStartTime.toLocalTime().isBefore(LocalTime.of(13, 30)) && !workEndTime.toLocalTime().isBefore(LocalTime.of(15, 30))) {
+                            duration = duration.minus(Duration.ofMinutes(30));
+                        }
+
                         if (Arrays.asList("추석", "설날").contains(adtDataDto.getDescription())) {
-                            observeHolidayAmount = observeHolidayAmount.add(BigDecimal.valueOf(100000));
+                            if (duration.toHours() >= 8) {
+                                observeHolidayAmount = observeHolidayAmount.add(BigDecimal.valueOf(150000));
+                            } else if (duration.toHours() >= 4) {
+                                observeHolidayAmount = observeHolidayAmount.add(BigDecimal.valueOf(75000));
+                            }
+                        } else {
+                            if (startyn && endyn && duration.toHours() >= 8) {
+                                holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
+                                if (dataWeek.equals("6")) {
+                                    rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + 8.0;
+                                    holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
+                                    rtHolidaySaturdayDay8HCnt++;
+                                } else if (dataWeek.equals("7")) {
+                                    rtHolidaySundayUsed = rtHolidaySundayUsed + 8.0;
+                                    holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
+                                    rtHolidaySunday8HCnt++;
+                                }
+                            } else if ((startyn || endyn) && duration.toHours() >= 4) {
+                                holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount);
+                                if (dataWeek.equals("6")) {
+                                    rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + 4.0;
+                                    holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount);
+                                    rtHolidaySaturdayDay4HCnt++;
+                                } else if (dataWeek.equals("7")) {
+                                    rtHolidaySundayUsed = rtHolidaySundayUsed + 4.0;
+                                    holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount);
+                                    rtHolidaySunday4HCnt++;
+                                }
+                            }
                         }
                     }
                     // 무급처리 count
@@ -1387,7 +1404,7 @@ public class SalaryService {
             if (!nightAllowance02.equals(BigDecimal.ZERO))
                 basicSalaryDto.setNightAllowance02(nightAllowance02.toString());
 
-            if (!holidayAllowance01.equals(BigDecimal.ZERO))
+            if (!holidayAllowance01.equals(BigDecimal.ZERO) || !observeHolidayAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setHolidayAllowance01(holidayAllowance01.add(observeHolidayAmount).toString());
             if (!holidayAllowanceSat.equals(BigDecimal.ZERO))
                 basicSalaryDto.setHolidayAllowanceSat(holidayAllowanceSat.toString());
