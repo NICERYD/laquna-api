@@ -662,10 +662,10 @@ public class SalaryService {
                         .add(nightAllowance)
                         .add(holidayAllowance))
                         .multiply(BigDecimal.valueOf(diff)
-                                .divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP))
-                        .setScale(0, RoundingMode.FLOOR);
+                                .divide(BigDecimal.valueOf(30), 8, RoundingMode.UP))
+                        .setScale(0, RoundingMode.UP);
 
-                basicAmount = new BigDecimal(basicSalaryDto.getBasicSalary()).multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP)).setScale(0, RoundingMode.FLOOR);
+                basicAmount = new BigDecimal(basicSalaryDto.getBasicSalary()).multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, RoundingMode.UP)).setScale(0, RoundingMode.UP);
                 overtimeAllowance02 = Optional.ofNullable(basicSalaryDto.getOvertimeAllowance02())
                         .map(amount -> new BigDecimal(amount)
                                 .multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP)).setScale(0, RoundingMode.FLOOR))
@@ -916,8 +916,9 @@ public class SalaryService {
 
                     if (!(adtDataDto.getWorkStartDate() == null) && !(adtDataDto.getWorkStartDate().equals(""))
                             && !(adtDataDto.getWorkEndDate() == null) && !(adtDataDto.getWorkEndDate().equals(""))) {
-                        workStartDate = LocalDate.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        workEndDate = LocalDate.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+                        workStartDate = LocalDate.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                        workEndDate = LocalDate.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                         workStartDateTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         workEndDateTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                     }
