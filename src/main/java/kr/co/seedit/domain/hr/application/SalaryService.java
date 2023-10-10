@@ -912,6 +912,8 @@ public class SalaryService {
                 // 야간수당1 - 야간도(연장) 지난달 nightTeamDay 값이 있으면 가져와서 count
                 nightTeamDay = salaryDao.selectNightdayindex(info.getCompanyId(), yyyymm, basicSalaryDto.getEmployeeNumber());
 
+                paidHolidayindex = Optional.ofNullable(paidLeaveDay).orElse(paidHolidayindex);
+
                 List<ADTDataDto> adtDataDtos = salaryDao.selectADTData(requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
                 for (ADTDataDto adtDataDto : adtDataDtos) {
                     LocalDate workStartDate = null;
@@ -927,7 +929,7 @@ public class SalaryService {
                         workStartDateTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         workEndDateTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                     }
-                    paidHolidayindex = Optional.ofNullable(paidLeaveDay).orElse(paidHolidayindex);
+
                     // 주휴수당 count
                     if (adtDataDto.getDateType().equals("1")) {
                         paidHolidayindex++;
