@@ -749,22 +749,22 @@ public class SalaryService {
                         if (startyn && endyn && localTime.getHour() >= 8) {
                             holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
                             if (dataWeek.equals("6")) {
-                                rtHolidaySaturdayUsed = 8.0;
+                                rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + 8.0;
                                 holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
                                 rtHolidaySaturdayDay8HCnt++;
                             } else if (dataWeek.equals("7")) {
-                                rtHolidaySundayUsed = 8.0;
+                                rtHolidaySundayUsed = rtHolidaySundayUsed + 8.0;
                                 holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
                                 rtHolidaySunday8HCnt++;
                             }
                         } else if ((startyn || endyn) && localTime.getHour() >= 4) {
                             holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount);
                             if (dataWeek.equals("6")) {
-                                rtHolidaySaturdayUsed = 4.0;
+                                rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + 4.0;
                                 holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount);
                                 rtHolidaySaturdayDay4HCnt++;
                             } else if (dataWeek.equals("7")) {
-                                rtHolidaySundayUsed = 4.0;
+                                rtHolidaySundayUsed = rtHolidaySundayUsed + 4.0;
                                 holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount);
                                 rtHolidaySunday4HCnt++;
                             }
