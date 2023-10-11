@@ -133,7 +133,7 @@
 		, CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '201' THEN 1 ELSE 0 END as check_special
         , he.employee_type
         , hdcs.basic_salary
-        , ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0) AS annual_allowance
+        , ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0) AS annual_allowance
         , hdcs.attribute02 AS overtime_allowance01
         , hdcs.attribute03 AS overtime_allowance02
         , ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) AS night_allowance01
@@ -147,9 +147,9 @@
         , hdcs.attribute11 AS transportation_expenses
         , hdcs.attribute12 AS meals_expenses
         , IFNULL(hb.bonus_amount,0) AS bonus_amount
-        , IFNULL(hdcs.basic_salary,0) + (ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)) + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
+        , IFNULL(hdcs.basic_salary,0) + (ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0)) + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
 		  + (ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0)) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0)
-		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
+		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + ifnull(hdcs.attribute16,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
 		  + IFNULL(hdcs.attribute12,0) + IFNULL(hb.bonus_amount,0)	AS salary_sum
         FROM   hr_dh_calc_salary hdcs
         INNER JOIN hr_employee he
@@ -216,7 +216,7 @@
 		, 0 as check_special
         , "" as employee_type
         , sum(hdcs.basic_salary) as basic_salary
-        , sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) AS annual_allowance
+        , sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(ifnull(hdcs.attribute23,0)) AS annual_allowance
         , sum(hdcs.attribute02) AS overtime_allowance01
         , sum(hdcs.attribute03) AS overtime_allowance02
         , sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) AS night_allowance01
@@ -230,9 +230,10 @@
         , sum(hdcs.attribute11) AS transportation_expenses
         , sum(hdcs.attribute12) AS meals_expenses
         , sum(IFNULL(hb.bonus_amount,0)) AS bonus_amount
-        , sum(IFNULL(hdcs.basic_salary,0)) + sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0))
-        + sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) + sum(IFNULL(hdcs.attribute05,0)) + sum(IFNULL(hdcs.attribute06,0)) + sum(IFNULL(hdcs.attribute07,0))
-        + sum(IFNULL(hdcs.attribute08,0)) + sum(IFNULL(hdcs.attribute09,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0))
+        , sum(IFNULL(hdcs.basic_salary,0)) + sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(ifnull(hdcs.attribute23,0)) 
+        + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0)) + sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) 
+        + sum(IFNULL(hdcs.attribute05,0)) + sum(IFNULL(hdcs.attribute06,0)) + sum(IFNULL(hdcs.attribute07,0)) + sum(IFNULL(hdcs.attribute08,0)) 
+        + sum(IFNULL(hdcs.attribute09,0)) + sum(IFNULL(hdcs.attribute16,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0)) 
         + sum(IFNULL(hdcs.attribute12,0)) + sum(IFNULL(hb.bonus_amount,0))	AS salary_sum
         FROM   hr_dh_calc_salary hdcs
         INNER JOIN hr_employee he
