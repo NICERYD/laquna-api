@@ -746,8 +746,6 @@ public class SalaryService {
                         // 17:30분 이후 퇴근
                         boolean endyn = (workEndTime.toLocalTime().isAfter(LocalTime.of(17, 30)) || workEndTime.toLocalTime().equals(LocalTime.of(17, 30)));
                         // 출근시간과 퇴근시간 사이에 점심시간이 포함되는지 체크
-                        LocalTime localTime = LocalTime.parse(adtDataDto.getHolidayTime(), DateTimeFormatter.ofPattern("HH:mm"));
-
                         Duration duration = Duration.between(workStartTime, workEndTime);
                         // 점심시간 제외
                         if (!workStartTime.toLocalTime().isAfter(LocalTime.of(12, 30)) && !workEndTime.toLocalTime().isBefore(LocalTime.of(13, 30))) {
@@ -1193,11 +1191,65 @@ public class SalaryService {
                         LocalTime localTime = LocalTime.parse(adtDataDto.getHolidayTime(), DateTimeFormatter.ofPattern("HH:mm"));
                         if (adtDataDto.getDateWeek().equals("6")) {
                             rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + (Duration.between(LocalTime.MIN, localTime).toHours() + (Duration.between(LocalTime.MIN, localTime).toMinutes() % 60 >= 30 ? 0.5 : 0));
+                            if (Duration.between(LocalTime.MIN, localTime).toHours() >= 8) {
+                                rtHolidaySaturdayDay8HCnt++;
+                            } else if (Duration.between(LocalTime.MIN, localTime).toHours() >= 4) {
+                                rtHolidaySaturdayDay4HCnt++;
+                            }
                         } else if (adtDataDto.getDateWeek().equals("7") || adtDataDto.getWorkStatus().contains("공휴일")) {
                             rtHolidaySundayUsed = rtHolidaySundayUsed + (Duration.between(LocalTime.MIN, localTime).toHours() + (Duration.between(LocalTime.MIN, localTime).toMinutes() % 60 >= 30 ? 0.5 : 0));
+                            if (Duration.between(LocalTime.MIN, localTime).toHours() >= 8) {
+                                rtHolidaySunday8HCnt++;
+                            } else if (Duration.between(LocalTime.MIN, localTime).toHours() >= 4) {
+                                rtHolidaySunday4HCnt++;
+                            }
                         }
                         holidayMinite = holidayMinite + (Duration.between(LocalTime.MIN, localTime).toHours() + (Duration.between(LocalTime.MIN, localTime).toMinutes() % 60 >= 30 ? 0.5 : 0));
                     }
+
+                    /*
+                    if (Arrays.asList("휴일", "휴일출근").contains(adtDataDto.getInStatus())
+                            && (adtDataDto.getWorkStartDate() != null && !adtDataDto.getWorkStartDate().equals("")) && (adtDataDto.getWorkEndDate() != null && !adtDataDto.getWorkEndDate().equals(""))
+                            && !adtDataDto.getWorkStatus().equals("연차")) {
+                        LocalDateTime workStartTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        LocalDateTime workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        String dataWeek = adtDataDto.getDateWeek();
+                        // 10:30분 이전 출근
+                        boolean startyn = (workStartTime.toLocalTime().isBefore(LocalTime.of(10, 30)) || workStartTime.toLocalTime().equals(LocalTime.of(10, 30)));
+                        // 17:30분 이후 퇴근
+                        boolean endyn = (workEndTime.toLocalTime().isAfter(LocalTime.of(17, 30)) || workEndTime.toLocalTime().equals(LocalTime.of(17, 30)));
+                        // 출근시간과 퇴근시간 사이에 점심시간이 포함되는지 체크
+                        Duration duration = Duration.between(workStartTime, workEndTime);
+                        // 점심시간 제외
+                        if (!workStartTime.toLocalTime().isAfter(LocalTime.of(12, 30)) && !workEndTime.toLocalTime().isBefore(LocalTime.of(13, 30))) {
+                            duration = duration.minus(Duration.ofHours(1));
+                        }
+                        // 저녁시간 제외
+                        if (!workStartTime.toLocalTime().isBefore(LocalTime.of(13, 30)) && !workEndTime.toLocalTime().isBefore(LocalTime.of(15, 30))) {
+                            duration = duration.minus(Duration.ofMinutes(30));
+                        }
+
+                        if (startyn && endyn && duration.toHours() >= 8) {
+                            holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
+                            if (dataWeek.equals("6")) {
+                                rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
+                                rtHolidaySaturdayDay8HCnt++;
+                            } else if (dataWeek.equals("7")) {
+                                rtHolidaySundayUsed = rtHolidaySundayUsed + (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
+                                rtHolidaySunday8HCnt++;
+                            }
+                        } else if ((startyn || endyn) && duration.toHours() >= 4) {
+                            holidayAllowance01 = holidayAllowance01.add(holidayBaseAmount);
+                            if (dataWeek.equals("6")) {
+                                rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
+                                rtHolidaySaturdayDay4HCnt++;
+                            } else if (dataWeek.equals("7")) {
+                                rtHolidaySundayUsed = rtHolidaySundayUsed + (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
+                                rtHolidaySunday4HCnt++;
+                            }
+                        }
+                    }
+                    */
 
                     // 기타수당 - 지각
                     if (adtDataDto.getInStatus().equals("지각")) {
@@ -1354,6 +1406,7 @@ public class SalaryService {
                     basicAmount = basicAmount.add(hourlyPay.multiply(BigDecimal.valueOf(209)));
                 } else {
                     basicAmount = hourlyPay.multiply(BigDecimal.valueOf((workcnt + paidHoliday) * 8L));
+                    rtTotalTime = (double) ((workcnt + paidHoliday) * 8);
                 }
                 // 연차수당
                 annualAllowance = annualAllowance.add(hourlyPay.multiply(BigDecimal.valueOf(8))).setScale(0, RoundingMode.CEILING);

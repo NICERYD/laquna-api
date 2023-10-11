@@ -56,15 +56,9 @@
                 ELSE 0
            END as nt_night_allowance02 -- 야간수당02 수당
          -- 휴일수당
-         , CASE WHEN he.employee_type = '100' THEN IFNULL(hdmkt.holiday_saturday_day4H_cnt,0)/2 + IFNULL(hdmkt.holiday_saturday_day8H_cnt,0)
-                WHEN he.employee_type = '200' THEN IFNULL(hdmkt.holiday_saturday,0)
-                ELSE 0
-           END as holiday_sat_time01 -- 휴일수당01 : 토요일 시간
+         , IFNULL(hdmkt.holiday_saturday_day4H_cnt,0)/2 + IFNULL(hdmkt.holiday_saturday_day8H_cnt,0) as holiday_sat_time01 -- 휴일수당01 : 토요일 시간
          , IFNULL(hdcs.attribute21,0) as holiday_sat_allowance01    -- 휴일수당01 : 토요일 수당
-         , CASE WHEN he.employee_type = '100' THEN IFNULL(hdmkt.holiday_sunday_day4H_cnt,0)/2 + IFNULL(hdmkt.holiday_sunday_day8H_cnt,0)
-                WHEN he.employee_type = '200' THEN IFNULL(hdmkt.holiday_sunday,0)
-                ELSE 0
-           END as holiday_sun_time01 -- 휴일수당01 : 일요일 시간
+         , IFNULL(hdmkt.holiday_sunday_day4H_cnt,0)/2 + IFNULL(hdmkt.holiday_sunday_day8H_cnt,0) as holiday_sun_time01 -- 휴일수당01 : 일요일 시간
          , IFNULL(hdcs.attribute22,0) as holiday_sun_allowance01    -- 휴일수당01 : 일요일 수당
          , CASE WHEN he.employee_type = '100' THEN 0
                 WHEN he.employee_type = '200' THEN 0
