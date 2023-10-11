@@ -1308,7 +1308,9 @@ public class SalaryService {
                     halfAllowance = halfAllowance.subtract(hourlyPay.multiply(BigDecimal.valueOf(rtHalfLeaverUsed))).setScale(0, RoundingMode.CEILING);
                 }
                 // 연차수당 - 해당월입사
-                if (basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
+                // 2023.10.11 김다은 중도입사/퇴사 연차 없음
+                if (basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())
+                    || basicSalaryDto.getRetireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
                     annualAllowance = BigDecimal.ZERO;
                     halfAllowance = BigDecimal.ZERO;
                 }

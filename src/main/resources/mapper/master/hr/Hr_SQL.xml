@@ -1029,6 +1029,7 @@
           AND he.attribute1  = #{yyyymm}
           AND he.employee_id = #{employeeID}
           AND hadt.work_date >= he.hire_date
+          AND hadt.work_date &lt;= he.retire_date
     </select>
 
     <select id="selectCodeValues" parameterType="kr.co.seedit.global.common.dto.RequestDto" resultType="kr.co.seedit.domain.hr.dto.SalaryCodeValuesDto">
