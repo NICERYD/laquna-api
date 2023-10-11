@@ -363,6 +363,9 @@
 		/*SalaryDao.updateSalaryList*/
 		UPDATE hr_dh_calc_salary
 		<set>
+			<if test="basicSalary != null">
+				basic_salary = #{basicSalary},
+			</if> 
 			<if test="annualAllowance != null">
 				attribute01 = #{annualAllowance},
 			</if>
