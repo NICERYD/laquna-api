@@ -85,7 +85,7 @@
          , CASE hdmkt.annual_leave_calc WHEN NULL THEN '' WHEN 0 THEN ''
            ELSE CONCAT(hdmkt.annual_leave_calc, '회')
            END as annual_leave_calc -- 연차정산횟수
-         , IFNULL(hdcs.attribute24,0) as attribute24 -- 연차정산금액
+         , IFNULL(hdcs.attribute23,0) as attribute23 -- 연차정산금액
          -- 반차
          , IFNULL(hdmkt.half_leave_used_day,'') as half_leave_used_day -- 반차사용일자 
          , IFNULL(hdmkt.half_leave_used,0) as half_leave_used -- 반차사용
