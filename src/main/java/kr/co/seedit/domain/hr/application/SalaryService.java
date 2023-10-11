@@ -901,6 +901,64 @@ public class SalaryService {
                 if (!(nonPaycnt == 0)) {
                     annualAllowance = calcNonPay(nonPaycnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
                 }
+                // 01-01. 임원
+            } else if (basicSalaryDto.getEmployeeType().equals("100")
+                    && (Arrays.asList("120", "130", "140", "150").contains(basicSalaryDto.getPositionCode()) //사장, 부사장, 전무, 상무
+                    || Arrays.asList("100", "910").contains(basicSalaryDto.getPositionType()))) { // 대표이사, 고문)
+                List<ADTDataDto> adtDataDtos = salaryDao.selectADTData(requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
+                for (ADTDataDto adtDataDto : adtDataDtos) {
+                    // 연차/반차 count
+                    // 연차수당 - 연차
+                    if (adtDataDto.getWorkStatus().equals("연차")) {
+                        rtAnnualLeaveUsed++;
+                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+                        String dayOfMonth = "";
+                        try {
+                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        if (rtAnnualLeaveUsedDay.isEmpty()) {
+                            rtAnnualLeaveUsedDay = adtDataDto.getWorkDate();
+                            try {
+                                // 입력 문자열을 Date 객체로 파싱
+                                Date date = inputFormat.parse(rtAnnualLeaveUsedDay);
+                                rtAnnualLeaveUsedDay = outputFormat.format(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            rtAnnualLeaveUsedDay = rtAnnualLeaveUsedDay + "," + dayOfMonth;
+                        }
+                    }
+                    if (Arrays.asList("오전반차", "오후반차", "오전반차_정상", "오후반차_정상").contains(adtDataDto.getWorkStatus())) {
+                        rtHalfLeaveCnt++;
+
+                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+                        String dayOfMonth = "";
+                        try {
+                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        if (rtHalfLeaveUseDay.isEmpty()) {
+                            rtHalfLeaveUseDay = adtDataDto.getWorkDate();
+                            try {
+                                // 입력 문자열을 Date 객체로 파싱
+                                Date date = inputFormat.parse(rtHalfLeaveUseDay);
+                                rtHalfLeaveUseDay = outputFormat.format(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            rtHalfLeaveUseDay = rtHalfLeaveUseDay + "," + dayOfMonth;
+                        }
+                    }
+                }
                 // 02. 시급제
             } else if (basicSalaryDto.getEmployeeType().equals("200") && !basicSalaryDto.getDutyType().equals("201") && !(basicSalaryDto.getHourlyPay() == null)) {
 
@@ -1310,7 +1368,7 @@ public class SalaryService {
                 // 연차수당 - 해당월입사
                 // 2023.10.11 김다은 중도입사/퇴사 연차 없음
                 if (basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())
-                    || basicSalaryDto.getRetireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
+                        || basicSalaryDto.getRetireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
                     annualAllowance = BigDecimal.ZERO;
                     halfAllowance = BigDecimal.ZERO;
                 }
