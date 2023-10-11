@@ -177,7 +177,7 @@ public class Payroll6InPageService {
             sum.setAnnualLeaveUsed(sum.getAnnualLeaveUsed() + data.getAnnualLeaveUsed());
             sum.setAttribute01(sum.getAttribute01() + data.getAttribute01());
 
-            sum.setAttribute24(sum.getAttribute24() + data.getAttribute24());
+            sum.setAttribute23(sum.getAttribute23() + data.getAttribute23());
 
             sum.setHalfLeaveUsed(sum.getHalfLeaveUsed() + data.getHalfLeaveUsed());
             sum.setAttribute15(sum.getAttribute15() + data.getAttribute15());
@@ -334,8 +334,8 @@ public class Payroll6InPageService {
         if (null != data.getAnnualLeaveCalc()) {
             sheet.getRow(curRow + 13).getCell(curCol + 2).setCellValue(data.getAnnualLeaveCalc());
         }
-			if (null != data.getAttribute24() && 0 != data.getAttribute24()) {
-            sheet.getRow(curRow + 13).getCell(curCol + 3).setCellValue(data.getAttribute24());
+			if (null != data.getAttribute23() && 0 != data.getAttribute23()) {
+            sheet.getRow(curRow + 13).getCell(curCol + 3).setCellValue(data.getAttribute23());
         }
 
         //반차
@@ -513,7 +513,7 @@ public class Payroll6InPageService {
         sheet.getRow(curRow).createCell(curCol++).setCellValue("연차정산");
         curCol++;
         curCol++;
-        sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAttribute24());
+        sheet.getRow(curRow).createCell(curCol++).setCellValue(data.getAttribute23());
         curCol++;
         curRow++;
         curCol = startCol;

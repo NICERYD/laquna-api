@@ -1187,7 +1187,7 @@ public class SalaryService {
                             duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(17, 30)));
                         }
                         double minutes = duration.toMinutes() % 60;
-                        rtEarlyLeaveUsed = rtEarlyLeaveUsed + duration.toHours() + ((minutes >= 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
+                        rtEarlyLeaveUsed = rtEarlyLeaveUsed + duration.toHours() + ((minutes > 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
                         rtEarlyLeaveCnt++;
                         DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
                         DateFormat outputFormat = new SimpleDateFormat("M/d");
