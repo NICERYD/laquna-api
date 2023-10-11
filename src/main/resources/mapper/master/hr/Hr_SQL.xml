@@ -147,10 +147,13 @@
         , hdcs.attribute11 AS transportation_expenses
         , hdcs.attribute12 AS meals_expenses
         , IFNULL(hb.bonus_amount,0) AS bonus_amount
-        , IFNULL(hdcs.basic_salary,0) + (ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0)) + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
-		  + (ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0)) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0)
-		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + ifnull(hdcs.attribute16,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
-		  + IFNULL(hdcs.attribute12,0) + IFNULL(hb.bonus_amount,0)	AS salary_sum
+        , CASE WHEN #{sort}  = 'Salary' THEN
+            IFNULL(hdcs.basic_salary,0) + (ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0)) + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
+              + (ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0)) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0)
+              + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + ifnull(hdcs.attribute16,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0)
+              + IFNULL(hdcs.attribute12,0)
+            WHEN #{sort} = 'Bonus' THEN
+             IFNULL(hb.bonus_amount,0) END AS salary_sum
         FROM   hr_dh_calc_salary hdcs
         INNER JOIN hr_employee he
         ON hdcs.company_id  = he.company_id
