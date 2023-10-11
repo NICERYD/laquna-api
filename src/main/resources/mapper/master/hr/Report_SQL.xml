@@ -12,19 +12,19 @@
 		      , 001 AS tp_pay -- 급여구분
 		      , 1 AS no_seq -- 순번
 		      , he.employee_number AS no_emp -- 사번
-		      , hdcs.basic_salary  AS am_pay01 -- 기본급
-		      , ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0) AS am_pay02
-		      , hdcs.attribute02 AS am_pay03
-		      , hdcs.attribute03 AS am_pay04
-		      , ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) AS am_pay05
-		      , hdcs.attribute05 AS am_pay06
-		      , hdcs.attribute06 AS am_pay07
-		      , hdcs.attribute07 AS am_pay08
-		      , hdcs.attribute08 AS am_pay09
-		      , hdcs.attribute09 AS am_pay10
-		      , hdcs.attribute10 AS am_pay11
-		      , hdcs.attribute11 AS am_pay12
-		      , hdcs.attribute12 AS am_pay13
+		      , ifnull(hdcs.basic_salary,0)  AS am_pay01 -- 기본급
+		      , ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0) AS am_pay02 -- 연차수당
+		      , ifnull(hdcs.attribute02,0) AS am_pay03	-- 연장수당1
+		      , ifnull(hdcs.attribute03,0) AS am_pay04	-- 연장수당2
+		      , ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) AS am_pay05	-- 야간수당1
+		      , ifnull(hdcs.attribute05,0) AS am_pay06	-- 야간수당2
+		      , ifnull(hdcs.attribute06,0) AS am_pay07	-- 휴일수당1
+		      , ifnull(hdcs.attribute07,0) AS am_pay08	-- 휴일수당2
+		      , ifnull(hdcs.attribute08,0) AS am_pay09	-- 직책수당
+		      , ifnull(hdcs.attribute09,0)+ifnull(hdcs.attribute16,0) AS am_pay10	-- 기타수당
+		      , ifnull(hdcs.attribute10,0) AS am_pay11	-- 보조금
+		      , ifnull(hdcs.attribute11,0) AS am_pay12	-- 교통비
+		      , ifnull(hdcs.attribute12,0) AS am_pay13	-- 식대
 		FROM    hr_dh_calc_salary hdcs
 		      INNER JOIN fnd_company fc 
 		      ON hdcs.company_id = fc.company_id
@@ -56,7 +56,7 @@
         , he.hire_date
         , IF(he.retire_date != '9999-12-31', he.retire_date, null)
         , IFNULL(hdcs.basic_salary,0) AS basic_salary
-		, ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0) AS annual_allowance
+		, ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0) AS annual_allowance
         , IFNULL(hdcs.attribute02,0) AS overtime_allowance01
         , IFNULL(hdcs.attribute03,0) AS overtime_allowance02
 		, ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) AS night_allowance01
@@ -64,14 +64,14 @@
         , IFNULL(hdcs.attribute06,0) AS holiday_allowance01
         , IFNULL(hdcs.attribute07,0) AS holiday_allowance02
         , IFNULL(hdcs.attribute08,0) AS position_allowance
-        , IFNULL(hdcs.attribute09,0) AS other_allowances
+        , IFNULL(hdcs.attribute09,0)+ifnull(hdcs.attribute16,0) AS other_allowances
         , IFNULL(hdcs.attribute10,0) AS subsidies
         , IFNULL(hdcs.attribute11,0) AS transportation_expenses
         , IFNULL(hdcs.attribute12,0) AS meals_expenses
         , 0 AS bonus_amount
-        , IFNULL(hdcs.basic_salary,0) + ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)  + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
+        , IFNULL(hdcs.basic_salary,0) + ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0)  + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
 		  + ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0)
-		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
+		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0)+ifnull(hdcs.attribute16,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
 		  + IFNULL(hdcs.attribute12,0)	AS salary_sum
 		, IFNULL(hdt.AM_DEDUCT01,0) AS national_pension
 		, IFNULL(hdt.AM_DEDUCT02,0) AS health_insurance
@@ -260,7 +260,7 @@
 		SELECT fbe.est_name
 		, count(*) AS cnt
 		, sum(IFNULL(hdcs.basic_salary,0)) AS basic_salary
-		, sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) AS annual_allowance
+		, sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(ifnull(hdcs.attribute23,0)) AS annual_allowance
 		, sum(IFNULL(hdcs.attribute02,0)) AS overtime_allowance01
 		, sum(IFNULL(hdcs.attribute03,0)) AS overtime_allowance02
 		, sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) AS night_allowance01
@@ -268,14 +268,14 @@
 		, sum(IFNULL(hdcs.attribute06,0)) AS holiday_allowance01
 		, sum(IFNULL(hdcs.attribute07,0)) AS holiday_allowance02
 		, sum(IFNULL(hdcs.attribute08,0)) AS position_allowance
-		, sum(IFNULL(hdcs.attribute09,0)) AS other_allowances
+		, sum(IFNULL(hdcs.attribute09,0))+sum(ifnull(hdcs.attribute16,0)) AS other_allowances
 		, sum(IFNULL(hdcs.attribute10,0)) AS subsidies
 		, sum(IFNULL(hdcs.attribute11,0)) AS transportation_expenses
 		, sum(IFNULL(hdcs.attribute12,0)) AS meals_expenses
 		, 0 AS bonus_amount
-		, sum(IFNULL(hdcs.basic_salary,0)) + sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0))
+		, sum(IFNULL(hdcs.basic_salary,0)) + sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(ifnull(hdcs.attribute23,0)) + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0))
 			+ sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) + sum(IFNULL(hdcs.attribute05,0)) + sum(IFNULL(hdcs.attribute06,0)) + sum(IFNULL(hdcs.attribute07,0))
-			+ sum(IFNULL(hdcs.attribute08,0)) + sum(IFNULL(hdcs.attribute09,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0))
+			+ sum(IFNULL(hdcs.attribute08,0)) + sum(IFNULL(hdcs.attribute09,0)) + sum(ifnull(hdcs.attribute16,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0))
 			+ sum(IFNULL(hdcs.attribute12,0)) ) AS salary_sum
 		, sum(IFNULL(hdt.AM_DEDUCT01,0)) AS national_pension
 		, sum(IFNULL(hdt.AM_DEDUCT02,0)) AS health_insurance
@@ -531,7 +531,7 @@
         , he.hire_date
         , IF(he.retire_date != '9999-12-31', he.retire_date, null)
         , IFNULL(hdcs.basic_salary,0) AS basic_salary
-		, ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0) AS annual_allowance
+		, ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0) AS annual_allowance
         , IFNULL(hdcs.attribute02,0) AS overtime_allowance01
         , IFNULL(hdcs.attribute03,0) AS overtime_allowance02
 		, ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) AS night_allowance01
@@ -539,14 +539,14 @@
         , IFNULL(hdcs.attribute06,0) AS holiday_allowance01
         , IFNULL(hdcs.attribute07,0) AS holiday_allowance02
         , IFNULL(hdcs.attribute08,0) AS position_allowance
-        , IFNULL(hdcs.attribute09,0) AS other_allowances
+        , IFNULL(hdcs.attribute09,0)+ifnull(hdcs.attribute16,0) AS other_allowances
         , IFNULL(hdcs.attribute10,0) AS subsidies
         , IFNULL(hdcs.attribute11,0) AS transportation_expenses
         , IFNULL(hdcs.attribute12,0) AS meals_expenses
         , IFNULL(hb.bonus_amount,0) AS bonus_amount
-        , IFNULL(hdcs.basic_salary,0) + ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)  + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
+        , IFNULL(hdcs.basic_salary,0) + ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0) + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
 		  + ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0)
-		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
+		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) +ifnull(hdcs.attribute16,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
 		  + IFNULL(hdcs.attribute12,0) + IFNULL(hb.bonus_amount,0)	AS salary_sum
 		, IFNULL(hdt.AM_DEDUCT01,0) AS national_pension
 		, IFNULL(hdt.AM_DEDUCT02,0) AS health_insurance
