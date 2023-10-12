@@ -53,6 +53,7 @@ public class Payroll6InPageDto implements Serializable {
 	private Double ntDayAllowance01 = 0d; // 야간수당01 : 주간(시급) 수당
 	@Builder.Default
 	private Double ntNighttime01 = 0d; // 야간수당01 : 야간(연봉/시급) 시간
+	private String ns01DayCnt ; // 야간01 : 연봉제 횟수
 	@Builder.Default
 	private Double ntNightAllowance01 = 0d; // 야간수당01 : 야간(연봉/시급) 수당
 	@Builder.Default

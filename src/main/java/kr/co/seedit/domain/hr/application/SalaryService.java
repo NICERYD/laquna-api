@@ -489,6 +489,7 @@ public class SalaryService {
 //        Double rtOverNightTimeHours;      // 연장1 야간시간
 //        Double rtNightShiftUsed01;      // 야간1 시간
         Double rtNSDayTimeUsed;        // 야간1 시간(주간조)
+        Integer rtNS01DayCnt;        // 야간1 일자
 
 
         Integer rtHolidaySaturdayDay4HCnt; //토요 4H
@@ -594,6 +595,7 @@ public class SalaryService {
             rtOverTimeDay4H3MCnt = 0;           //철야익일 4.5H
 //            rtOverDayTimeHours = 0.0;        // 연장1 주간시간
 //            rtOverNightTimeHours = 0.0;      // 연장1 야간시간
+            rtNS01DayCnt = 0;        // 야간1 일자
 
 //            rtNightShiftUsed01 = 0.0;          // 야간1 일수
             rtNSDayTimeUsed = 0.0;        // 주간조 야간시간
@@ -746,6 +748,7 @@ public class SalaryService {
                             }
                         }
                     }
+
                     // 야간수당1
                     if (adtDataDto.getWorkStatus().equals("야간")) {
                         LocalDate workStartDate = LocalDate.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -754,6 +757,7 @@ public class SalaryService {
                         LocalDateTime workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         if (!workEndTime.toLocalTime().isBefore(LocalTime.of(5, 30))) {
                             nightAllowance01Night = nightAllowance01Night.add(nightBaseAmount);
+                            rtNS01DayCnt++;
                         }
                     }
                     // 휴일수당1
@@ -1528,6 +1532,7 @@ public class SalaryService {
             monthlyKeunTaeDto.setJuhueDay(paidHoliday);
 
             monthlyKeunTaeDto.setTotalTime(rtTotalTime);
+            monthlyKeunTaeDto.setNS01DayCnt(rtNS01DayCnt);
 
             if (!basicAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setBasicSalary(basicAmount.toString());

@@ -880,7 +880,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             'D23734'
+--             'D21754'
 --             )
 --           AND fbe.est_id = 2
         UNION ALL
@@ -1257,6 +1257,7 @@
         , absence
         , total_day
         , juhue_day
+        , ns01_day_cnt
         )
         values
         <foreach item="item" index="index" collection="list" separator=", ">
@@ -1300,6 +1301,7 @@
             , #{item.absence}
             , #{item.totalDay}
             , #{item.juhueDay}
+            , #{item.NS01DayCnt}
             )
         </foreach>
     </insert>

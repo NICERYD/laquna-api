@@ -55,6 +55,7 @@
          , IFNULL(hdmkt.night_daytime,0) AS nt_daytime01   -- 야간수당01 : 주간(시급) 시간
          , IFNULL(hdcs.attribute04,0) as nt_day_allowance01     -- 야간수당01 : 주간(시급) 수당
          , IFNULL(hdmkt.night_nighttime,0) AS  nt_nighttime01   -- 야간수당01 : 야간(연봉/시급) 시간
+         , IFNULL(hdmkt.ns01_day_cnt,0) as ns01_day_cnt         -- 야간01 : 연봉 횟수
          , IFNULL(hdcs.attribute18,0) as nt_night_allowance01   -- 야간수당01 : 야간(연봉/시급) 수당
          , CASE WHEN he.employee_type = '100' AND he.retire_date != '9999-12-31' THEN TRUNCATE(24*(hdmkt.total_day+hdmkt.juhue_day)/30,0)
                 WHEN he.employee_type = '100' AND he.retire_date = '9999-12-31' THEN 24
@@ -66,7 +67,10 @@
                 ELSE 0
            END as nt_night_allowance02 -- 야간수당02 수당
          -- 휴일수당
-         , IFNULL(hdmkt.holiday_saturday_day4H_cnt,0)/2 + IFNULL(hdmkt.holiday_saturday_day8H_cnt,0) as holiday_sat_time01 -- 휴일수당01 : 토요일 시간
+         , CASE WHEN he.employee_type = '100' THEN IFNULL(hdmkt.holiday_saturday_day4H_cnt,0)/2 + IFNULL(hdmkt.holiday_saturday_day8H_cnt,0)
+                WHEN he.employee_type = '200' AND hdmkt.holiday_saturday != 0 THEN floor(hdmkt.holiday_saturday/8) + (hdmkt.holiday_saturday%8 * (1/8))
+                ELSE 0
+           END  as holiday_sat_time01 -- 휴일수당01 : 토요일 시간
          , IFNULL(hdcs.attribute21,0) as holiday_sat_allowance01    -- 휴일수당01 : 토요일 수당
          , IFNULL(hdmkt.holiday_sunday_day4H_cnt,0)/2 + IFNULL(hdmkt.holiday_sunday_day8H_cnt,0) as holiday_sun_time01 -- 휴일수당01 : 일요일 시간
          , IFNULL(hdcs.attribute22,0) as holiday_sun_allowance01    -- 휴일수당01 : 일요일 수당
