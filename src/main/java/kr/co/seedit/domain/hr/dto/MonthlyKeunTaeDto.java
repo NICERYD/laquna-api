@@ -45,4 +45,7 @@ public class MonthlyKeunTaeDto {
     private Integer loginUserId;
     private Integer absence;
     private Double totalTime;
+    private Integer totalDay;
+    private Integer juhueDay;
+
 }

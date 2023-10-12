@@ -517,6 +517,10 @@ public class SalaryService {
         Integer rtAbsence;               // 결근
 
         Double rtTotalTime;             //총근무시간
+        Integer workcnt = 0;
+        Integer paidHoliday = 0;
+        Integer paidHolidayindex = 0;
+
 
         // 기준코드값
         LocalTime overtimeBaseTime = LocalTime.MIN;
@@ -689,7 +693,26 @@ public class SalaryService {
                     && !Arrays.asList("100", "910").contains(basicSalaryDto.getPositionType()))  // 대표이사, 고문
                     || basicSalaryDto.getEmployeeType().equals("200") && basicSalaryDto.getDutyType().equals("201")) {  // 시급제, 별정직
                 List<ADTDataDto> adtDataDtos = salaryDao.selectADTData(requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
+                workcnt = 0;
+                paidHoliday = 0;
                 for (ADTDataDto adtDataDto : adtDataDtos) {
+                    // 주휴수당 count
+                    if ((adtDataDto.getDateType().equals("1") && !adtDataDto.getInStatus().equals("결근"))
+                            || (Arrays.asList("1", "2", "3", "4", "5").contains(adtDataDto.getDateWeek()) && adtDataDto.getWorkStatus().equals("공휴일_생산"))) {
+                        paidHolidayindex++;
+                        workcnt++;
+                    } else {
+                        paidHolidayindex = 0;
+                    }
+                    if (paidHolidayindex == 5) {
+                        paidHoliday++;
+                        paidHolidayindex = 0;
+                    }
+                    // 마지막근무일이면서 마지막주이면서 금요일이 아니면 다음달에 연속하여 주휴수당 count
+                    if ((adtDataDto == adtDataDtos.get(adtDataDtos.size() - 1)) && salaryDao.selectLastWeek(adtDataDto.getWorkDate())
+                            && !adtDataDto.getDateWeek().equals("5")) {
+                        salaryDao.insertNonPayDay(paidHolidayindex, requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
+                    }
                     // 연장수당1
                     DayOfWeek dayOfWeek = LocalDate.parse(adtDataDto.getWorkDate(), DateTimeFormatter.ISO_LOCAL_DATE).getDayOfWeek();
                     if (!Arrays.asList("SATURDAY", "SUNDAY").contains(dayOfWeek.name())
@@ -899,6 +922,10 @@ public class SalaryService {
                 if (!(nonPaycnt == 0)) {
                     annualAllowance = calcNonPay(nonPaycnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
                 }
+                // 연봉제 중도/입사 퇴사자 총시간 조정
+                if (!midStatus.equals("000")) {
+                    rtTotalTime = Math.floor(209*(workcnt + paidHoliday)/30);
+                }
                 // 01-01. 임원
             } else if (basicSalaryDto.getEmployeeType().equals("100")
                     && (Arrays.asList("120", "130", "140", "150").contains(basicSalaryDto.getPositionCode()) //사장, 부사장, 전무, 상무
@@ -966,14 +993,14 @@ public class SalaryService {
                 Integer nightCnt = 0;
                 hourlyPay = new BigDecimal(basicSalaryDto.getHourlyPay());
                 // 주휴수당 count 변수
-                Integer paidHolidayindex = 0;
-                Integer paidHoliday = 0;
+                paidHolidayindex = 0;
+                paidHoliday = 0;
                 Integer paidLeaveDay = 0;
                 // 야간조 count 변수
                 Integer nightTeamDay = 0;
                 Integer nightTeamPlus = 0;
                 // 평일 실근무일수
-                Integer workcnt = 0;
+                workcnt = 0;
                 // 연차/반차 사용 count, 시간 변수
 //                Integer annualLeave = 0;
 //                Integer halfDayLeave = 0;
@@ -1497,6 +1524,8 @@ public class SalaryService {
             monthlyKeunTaeDto.setOuterTime(rtOuterUsed);
             monthlyKeunTaeDto.setOuterDay(rtOuterDay);
             monthlyKeunTaeDto.setAbsence(rtAbsence);
+            monthlyKeunTaeDto.setTotalDay(workcnt);
+            monthlyKeunTaeDto.setJuhueDay(paidHoliday);
 
             monthlyKeunTaeDto.setTotalTime(rtTotalTime);
 
