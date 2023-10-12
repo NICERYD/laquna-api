@@ -2028,7 +2028,7 @@ public class ReportService {
                 row.getCell(cell02).setCellValue(false);    //공휴야간횟수
 
                 row = sheet.getRow(rowindex++);
-//				row.getCell(cell01).setCellValue(determineTimeFormat(e.getNtDaytime01()));	//야간근무시간
+				row.getCell(cell01).setCellValue(determineTimeFormat(e.getNtDaytime01()));	//야간근무시간
                 row.getCell(cell02).setCellValue(false);  //야간일수
 
                 row = sheet.getRow(rowindex++);
@@ -2039,16 +2039,16 @@ public class ReportService {
                 row.getCell(cell02).setCellValue(false);    //토요 시간계수표
 
                 row = sheet.getRow(rowindex++);
-                row.getCell(cell01).setCellValue(false);    //토요출근시간
-                row.getCell(cell02).setCellValue(false);    //토요 시간계수표
+                row.getCell(cell01).setCellValue(determineTimeFormat(e.getHolidaySaturday()));    //토요출근시간
+                row.getCell(cell02).setCellValue(e.getHolidaySaturday()/8);    //토요 시간계수표
 
                 row = sheet.getRow(rowindex++);
                 row.getCell(cell01).setCellValue(false);    //토요출근계
                 row.getCell(cell02).setCellValue(false);    //토요 시간계
 
                 row = sheet.getRow(rowindex++);
-                row.getCell(cell01).setCellValue(false);    //휴일출근시간
-                row.getCell(cell02).setCellValue(false);    //휴일 시간계수표
+                row.getCell(cell01).setCellValue(determineTimeFormat(e.getHolidaySunday()));    //휴일출근시간
+                row.getCell(cell02).setCellValue(e.getHolidaySunday()/8);    //휴일 시간계수표
 
                 row = sheet.getRow(rowindex++);
                 row.getCell(cell01).setCellValue(e.getAnnualLeaveUsedCnt());

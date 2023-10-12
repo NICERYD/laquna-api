@@ -145,9 +145,13 @@ public class Payroll6InPageDto implements Serializable {
 	@Builder.Default
 	private Double overTimeDay4H3MCnt = 0d; //철야익일4.5h
 	@Builder.Default
+	private Double holidaySaturday = 0d; //토요출근시간
+	@Builder.Default
 	private Double holidaySaturdayDay4HCnt = 0d; //토요4h
 	@Builder.Default
 	private Double holidaySaturdayDay8HCnt = 0d; //토요8h
+	@Builder.Default
+	private Double holidaySunday = 0d; //토요출근시간
 	@Builder.Default
 	private Double holidaySundayDay4HCnt = 0d; //일요4h
 	@Builder.Default
