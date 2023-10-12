@@ -123,7 +123,11 @@ public class Payroll6InPageDto implements Serializable {
 
 	// 보조금(교통비, 식대)
 	@Builder.Default
+	private Double transpotation = 0d; // 교통비 횟수
+	@Builder.Default
 	private Double attribute11 = 0d; // 교통비
+	@Builder.Default
+	private Double meal = 0d; // 식대 횟수
 	@Builder.Default
 	private Double attribute12 = 0d; // 식대
 	/**

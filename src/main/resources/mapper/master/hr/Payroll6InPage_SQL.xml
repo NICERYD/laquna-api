@@ -132,7 +132,9 @@
          , IFNULL(hdmkt.other02_used,0) as other02_used -- 초과수당사용
          , IFNULL(hdcs.attribute16,0) as attribute16 -- 초과상여/수당
          -- 보조금(교통비, 식대)
+         , IFNULL(hdmkt.transportation,0) as transpotation
          , IFNULL(hdcs.attribute11,0) as attribute11 -- 교통비
+         , IFNULL(hdmkt.meal,0) as meal
          , IFNULL(hdcs.attribute12,0) as attribute12 -- 식대
          -- 결근
          , IFNULL(hdmkt.absence, 0) as absenceCnt	-- 결근횟수(개인급여)

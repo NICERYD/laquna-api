@@ -402,10 +402,12 @@ public class Payroll6InPageService {
         //보조금
         //교통비
         if (0 != data.getAttribute11()) {
+            sheet.getRow(curRow + 20).getCell(curCol + 2).setCellValue(data.getTranspotation());
             sheet.getRow(curRow + 20).getCell(curCol + 3).setCellValue(data.getAttribute11());
         }
         //식대
         if (0 != data.getAttribute12()) {
+            sheet.getRow(curRow + 21).getCell(curCol + 2).setCellValue(data.getMeal());
             sheet.getRow(curRow + 21).getCell(curCol + 3).setCellValue(data.getAttribute12());
         }
         //합 계
