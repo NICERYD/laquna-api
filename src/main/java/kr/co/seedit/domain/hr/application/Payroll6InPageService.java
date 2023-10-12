@@ -145,7 +145,8 @@ public class Payroll6InPageService {
                     + data.getAttribute17()
                     + data.getAttribute16()
                     + data.getAttribute11()
-                    + data.getAttribute12());
+                    + data.getAttribute12()
+                    + data.getAttribute23());
 
             setValuePayrollTableForm(sheet, data, no, curRow, curCol, styleLightGreen, styleLemonChiffon);
 
