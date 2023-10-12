@@ -243,24 +243,24 @@ public class Payroll6InPageService {
             }
             sheet.getRow(curRow + 0).getCell(curCol + 3).setCellValue(data.getKoreanName());
         }
-			if (null != data.getSalaryAmt()) {
+        if (null != data.getSalaryAmt()) {
             sheet.getRow(curRow + 0).getCell(curCol + 4).setCellValue(data.getSalaryAmt());
         }
         if (null != data.getHireDate()) {
             sheet.getRow(curRow + 1).getCell(curCol + 0).setCellValue(data.getHireDate());
         }
-			if (null != data.getSalaryAmt2() && 0 != data.getSalaryAmt2()) {
+        if (null != data.getSalaryAmt2() && 0 != data.getSalaryAmt2()) {
             sheet.getRow(curRow + 1).getCell(curCol + 4).setCellValue(data.getSalaryAmt2());
         }
         //기본급
-		if (null != data.getTotalTime()) {
+        if (null != data.getTotalTime()) {
             sheet.getRow(curRow + 2).getCell(curCol + 2).setCellValue(data.getTotalTime());
         }
-		if (null != data.getBasicAmount() && 0 != data.getBasicAmount()) {
+        if (null != data.getBasicAmount() && 0 != data.getBasicAmount()) {
             sheet.getRow(curRow + 2).getCell(curCol + 3).setCellValue(data.getBasicAmount());
         }
         //연장1 //연봉/시급
-			if (null != data.getOvertimeDaytime01() && 0 != data.getOvertimeDaytime01()) {
+        if (null != data.getOvertimeDaytime01() && 0 != data.getOvertimeDaytime01()) {
             sheet.getRow(curRow + 3).getCell(curCol + 2).setCellValue(data.getOvertimeDaytime01());
         }
         if (null != data.getOvertimeAllowance01() && 0 != data.getOvertimeAllowance01()) {
@@ -268,56 +268,56 @@ public class Payroll6InPageService {
         }
         //연장2
         //연봉/포괄
-			if (null != data.getOvertimeDaytime02() && 0 != data.getOvertimeDaytime02()) {
+        if (null != data.getOvertimeDaytime02() && 0 != data.getOvertimeDaytime02()) {
             sheet.getRow(curRow + 4).getCell(curCol + 2).setCellValue(data.getOvertimeDaytime02());
         }
-			if (null != data.getOvertimeAllowance02() && 0 != data.getOvertimeAllowance02()) {
+        if (null != data.getOvertimeAllowance02() && 0 != data.getOvertimeAllowance02()) {
             sheet.getRow(curRow + 4).getCell(curCol + 3).setCellValue(data.getOvertimeAllowance02());
         }
         //야간수당
         //주간(시급)
-			if (null != data.getNtDaytime01() && 0 != data.getNtDaytime01()) {
-				sheet.getRow(curRow + 5).getCell(curCol + 2).setCellValue(data.getNtDaytime01());
-			}
-			if (null != data.getNtDayAllowance01() && 0 != data.getNtDayAllowance01()) {
-				sheet.getRow(curRow + 5).getCell(curCol + 3).setCellValue(data.getNtDayAllowance01());
-			}
-			//야간(연봉/시급)
-			if (null != data.getNtNighttime01() && 0 != data.getNtNighttime01() ) {
-                sheet.getRow(curRow + 6).getCell(curCol + 2).setCellValue(data.getNtNighttime01());
-			}
-			if (null != data.getNtNightAllowance01() && 0 != data.getNtNightAllowance01()) {
-				sheet.getRow(curRow + 6).getCell(curCol + 3).setCellValue(data.getNtNightAllowance01());
-			}
-			//야간2
-			//연봉/포괄
-			if (null != data.getNtNighttime02() && 0 != data.getNtNighttime02()) {
-				sheet.getRow(curRow + 7).getCell(curCol + 2).setCellValue(data.getNtNighttime02());
-			}
-			if (null != data.getNtNightAllowance02() && 0 != data.getNtNightAllowance02()) {
-				sheet.getRow(curRow + 7).getCell(curCol + 3).setCellValue(data.getNtNightAllowance02());
-			}
-			//휴일1
-			//토요(연봉/시급)
-			if (null != data.getHolidaySatTime01() && 0 != data.getHolidaySatTime01()) {
-				sheet.getRow(curRow + 8).getCell(curCol + 2).setCellValue(data.getHolidaySatTime01());
-			}
-			if (null != data.getHolidaySatAllowance01() && 0 != data.getHolidaySatAllowance01()) {
-				sheet.getRow(curRow + 8).getCell(curCol + 3).setCellValue(data.getHolidaySatAllowance01());
-			}
-			//일요(연봉/시급)
-			if (null != data.getHolidaySunTime01() && 0 != data.getHolidaySunTime01()) {
-				sheet.getRow(curRow + 9).getCell(curCol + 2).setCellValue(data.getHolidaySunTime01());
-			}
-			if (null != data.getHolidaySunAllowance01() && 0 != data.getHolidaySunAllowance01()) {
-				sheet.getRow(curRow + 9).getCell(curCol + 3).setCellValue(data.getHolidaySunAllowance01());
-			}
-			//휴일2
-			//연봉/포괄
-			if (null != data.getHolidayTime02() && 0 != data.getHolidayTime02()) {
+        if (null != data.getNtDaytime01() && 0 != data.getNtDaytime01()) {
+            sheet.getRow(curRow + 5).getCell(curCol + 2).setCellValue(data.getNtDaytime01());
+        }
+        if (null != data.getNtDayAllowance01() && 0 != data.getNtDayAllowance01()) {
+            sheet.getRow(curRow + 5).getCell(curCol + 3).setCellValue(data.getNtDayAllowance01());
+        }
+        //야간(연봉/시급)
+        if (null != data.getNtNighttime01() && 0 != data.getNtNighttime01()) {
+            sheet.getRow(curRow + 6).getCell(curCol + 2).setCellValue(data.getNtNighttime01());
+        }
+        if (null != data.getNtNightAllowance01() && 0 != data.getNtNightAllowance01()) {
+            sheet.getRow(curRow + 6).getCell(curCol + 3).setCellValue(data.getNtNightAllowance01());
+        }
+        //야간2
+        //연봉/포괄
+        if (null != data.getNtNighttime02() && 0 != data.getNtNighttime02()) {
+            sheet.getRow(curRow + 7).getCell(curCol + 2).setCellValue(data.getNtNighttime02());
+        }
+        if (null != data.getNtNightAllowance02() && 0 != data.getNtNightAllowance02()) {
+            sheet.getRow(curRow + 7).getCell(curCol + 3).setCellValue(data.getNtNightAllowance02());
+        }
+        //휴일1
+        //토요(연봉/시급)
+        if (null != data.getHolidaySatTime01() && 0 != data.getHolidaySatTime01()) {
+            sheet.getRow(curRow + 8).getCell(curCol + 2).setCellValue(data.getHolidaySatTime01());
+        }
+        if (null != data.getHolidaySatAllowance01() && 0 != data.getHolidaySatAllowance01()) {
+            sheet.getRow(curRow + 8).getCell(curCol + 3).setCellValue(data.getHolidaySatAllowance01());
+        }
+        //일요(연봉/시급)
+        if (null != data.getHolidaySunTime01() && 0 != data.getHolidaySunTime01()) {
+            sheet.getRow(curRow + 9).getCell(curCol + 2).setCellValue(data.getHolidaySunTime01());
+        }
+        if (null != data.getHolidaySunAllowance01() && 0 != data.getHolidaySunAllowance01()) {
+            sheet.getRow(curRow + 9).getCell(curCol + 3).setCellValue(data.getHolidaySunAllowance01());
+        }
+        //휴일2
+        //연봉/포괄
+        if (null != data.getHolidayTime02() && 0 != data.getHolidayTime02()) {
             sheet.getRow(curRow + 10).getCell(curCol + 2).setCellValue(data.getHolidayTime02());
         }
-			if (null != data.getHolidayAllowance02() && 0 != data.getHolidayAllowance02()) {
+        if (null != data.getHolidayAllowance02() && 0 != data.getHolidayAllowance02()) {
             sheet.getRow(curRow + 10).getCell(curCol + 3).setCellValue(data.getHolidayAllowance02());
         }
         //연차사용
@@ -342,7 +342,7 @@ public class Payroll6InPageService {
         if (null != data.getAnnualLeaveCalc()) {
             sheet.getRow(curRow + 13).getCell(curCol + 2).setCellValue(data.getAnnualLeaveCalc());
         }
-			if (null != data.getAttribute23() && 0 != data.getAttribute23()) {
+        if (null != data.getAttribute23() && 0 != data.getAttribute23()) {
             sheet.getRow(curRow + 13).getCell(curCol + 3).setCellValue(data.getAttribute23());
         }
 
@@ -361,11 +361,11 @@ public class Payroll6InPageService {
             sheet.getRow(curRow + 15).getCell(curCol + 1).setCellValue(data.getEarlyLeaveDay());
         }
         if (data.getEmployeeType().equals("100")) {
-        	if (null != data.getEarlyLeaveUsedCnt() && 0.0 != data.getEarlyLeaveUsedCnt() )
-        		sheet.getRow(curRow + 15).getCell(curCol + 2).setCellValue(data.getEarlyLeaveUsedCnt());
+            if (null != data.getEarlyLeaveUsedCnt() && 0.0 != data.getEarlyLeaveUsedCnt())
+                sheet.getRow(curRow + 15).getCell(curCol + 2).setCellValue(data.getEarlyLeaveUsedCnt());
         } else if (data.getEmployeeType().equals("200")) {
-        	if (null != data.getEarlyLeaveTime() && 0.0 != data.getEarlyLeaveTime()  )
-        		sheet.getRow(curRow + 15).getCell(curCol + 2).setCellValue(data.getEarlyLeaveTime());
+            if (null != data.getEarlyLeaveTime() && 0.0 != data.getEarlyLeaveTime())
+                sheet.getRow(curRow + 15).getCell(curCol + 2).setCellValue(data.getEarlyLeaveTime());
         }
         if (null != data.getAttribute13() && 0 != data.getAttribute13()) {
             sheet.getRow(curRow + 15).getCell(curCol + 3).setCellValue(data.getAttribute13());
@@ -401,12 +401,12 @@ public class Payroll6InPageService {
         }
         //보조금
         //교통비
-        if (0 != data.getAttribute11()) {
+        if (0 != data.getAttribute11() && null != data.getTranspotation()) {
             sheet.getRow(curRow + 20).getCell(curCol + 2).setCellValue(data.getTranspotation());
             sheet.getRow(curRow + 20).getCell(curCol + 3).setCellValue(data.getAttribute11());
         }
         //식대
-        if (0 != data.getAttribute12()) {
+        if (0 != data.getAttribute12() && null != data.getMeal()) {
             sheet.getRow(curRow + 21).getCell(curCol + 2).setCellValue(data.getMeal());
             sheet.getRow(curRow + 21).getCell(curCol + 3).setCellValue(data.getAttribute12());
         }

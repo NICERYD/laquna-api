@@ -276,7 +276,7 @@
 		, sum(IFNULL(hdcs.basic_salary,0)) + sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(ifnull(hdcs.attribute23,0)) + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0))
 			+ sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) + sum(IFNULL(hdcs.attribute05,0)) + sum(IFNULL(hdcs.attribute06,0)) + sum(IFNULL(hdcs.attribute07,0))
 			+ sum(IFNULL(hdcs.attribute08,0)) + sum(IFNULL(hdcs.attribute09,0)) + sum(ifnull(hdcs.attribute16,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0))
-			+ sum(IFNULL(hdcs.attribute12,0)) ) AS salary_sum
+			+ sum(IFNULL(hdcs.attribute12,0))  AS salary_sum
 		, sum(IFNULL(hdt.AM_DEDUCT01,0)) AS national_pension
 		, sum(IFNULL(hdt.AM_DEDUCT02,0)) AS health_insurance
 		, sum(IFNULL(hdt.AM_DEDUCT03,0)) AS care_insurance
