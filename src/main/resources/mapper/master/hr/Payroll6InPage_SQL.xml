@@ -8,6 +8,11 @@
          , IFNULL(he.employee_number,'') as employee_number
          -- 급여표
          , CONCAT(he.hire_date, CASE WHEN CONCAT(SUBSTRING(he.retire_date,1,4),SUBSTRING(he.retire_date,6,2)) = hdcs.yyyymm THEN CONCAT(' ',he.retire_date) ELSE '' END) as hire_date
+         , CASE
+           WHEN CONCAT(SUBSTRING(he.hire_date,1,4),SUBSTRING(he.hire_date,6,2)) = hdcs.yyyymm THEN 'RETIRE'
+           WHEN CONCAT(SUBSTRING(he.retire_date,1,4),SUBSTRING(he.retire_date,6,2)) = hdcs.yyyymm THEN 'NEW'
+           ELSE ''
+           END as hire_div
          , CASE WHEN (he.employee_type = '100' OR he.duty_type = '201') THEN fcd02.defined_name  -- 직급
                 WHEN he.employee_type = '200' THEN hd.department_name
         END AS defined_name
