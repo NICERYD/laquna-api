@@ -880,7 +880,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             'D18717'
+--             'D23734'
 --             )
 --           AND fbe.est_id = 2
         UNION ALL
@@ -964,6 +964,7 @@
                                AND he.attribute1 = hb.yyyymm
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
+--           AND  1=2
           AND (fcd03.defined_cd IN ('100', '910')
                 or he.employee_number IN (SELECT fcd.defined_cd
                                           FROM   fnd_code fc
@@ -1254,6 +1255,8 @@
         , last_update_date
         , total_time
         , absence
+        , total_day
+        , juhue_day
         )
         values
         <foreach item="item" index="index" collection="list" separator=", ">
@@ -1295,6 +1298,8 @@
             , now()
             , #{item.totalTime}
             , #{item.absence}
+            , #{item.totalDay}
+            , #{item.juhueDay}
             )
         </foreach>
     </insert>
