@@ -36,6 +36,7 @@ public class MonthlyKeunTaeDto {
     private Double other;
     private String earlyLeaveDay;
     private Double earlyLeaveTime;
+    private Integer earlyLeaveCnt;
     private String lateDay;
     private Integer latecnt;
     private Double lateTime;
@@ -44,4 +45,7 @@ public class MonthlyKeunTaeDto {
     private Integer loginUserId;
     private Integer absence;
     private Double totalTime;
+    private Integer totalDay;
+    private Integer juhueDay;
+
 }

@@ -133,7 +133,7 @@
 		, CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '201' THEN 1 ELSE 0 END as check_special
         , he.employee_type
         , hdcs.basic_salary
-        , ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0) AS annual_allowance
+        , ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0) AS annual_allowance
         , hdcs.attribute02 AS overtime_allowance01
         , hdcs.attribute03 AS overtime_allowance02
         , ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) AS night_allowance01
@@ -147,10 +147,10 @@
         , hdcs.attribute11 AS transportation_expenses
         , hdcs.attribute12 AS meals_expenses
         , IFNULL(hb.bonus_amount,0) AS bonus_amount
-        , IFNULL(hdcs.basic_salary,0) + (ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)) + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
-		  + (ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0)) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0)
-		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
-		  + IFNULL(hdcs.attribute12,0) + IFNULL(hb.bonus_amount,0)	AS salary_sum
+        , IFNULL(hdcs.basic_salary,0) + (ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0)) + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
+              + (ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0)) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0)
+              + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + ifnull(hdcs.attribute16,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0)
+              + IFNULL(hdcs.attribute12,0) AS salary_sum
         FROM   hr_dh_calc_salary hdcs
         INNER JOIN hr_employee he
         ON hdcs.company_id  = he.company_id
@@ -216,7 +216,7 @@
 		, 0 as check_special
         , "" as employee_type
         , sum(hdcs.basic_salary) as basic_salary
-        , sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) AS annual_allowance
+        , sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(ifnull(hdcs.attribute23,0)) AS annual_allowance
         , sum(hdcs.attribute02) AS overtime_allowance01
         , sum(hdcs.attribute03) AS overtime_allowance02
         , sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) AS night_allowance01
@@ -230,10 +230,11 @@
         , sum(hdcs.attribute11) AS transportation_expenses
         , sum(hdcs.attribute12) AS meals_expenses
         , sum(IFNULL(hb.bonus_amount,0)) AS bonus_amount
-        , sum(IFNULL(hdcs.basic_salary,0)) + sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0))
-        + sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) + sum(IFNULL(hdcs.attribute05,0)) + sum(IFNULL(hdcs.attribute06,0)) + sum(IFNULL(hdcs.attribute07,0))
-        + sum(IFNULL(hdcs.attribute08,0)) + sum(IFNULL(hdcs.attribute09,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0))
-        + sum(IFNULL(hdcs.attribute12,0)) + sum(IFNULL(hb.bonus_amount,0))	AS salary_sum
+        , sum(IFNULL(hdcs.basic_salary,0)) + sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(ifnull(hdcs.attribute23,0)) 
+        + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0)) + sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) 
+        + sum(IFNULL(hdcs.attribute05,0)) + sum(IFNULL(hdcs.attribute06,0)) + sum(IFNULL(hdcs.attribute07,0)) + sum(IFNULL(hdcs.attribute08,0)) 
+        + sum(IFNULL(hdcs.attribute09,0)) + sum(IFNULL(hdcs.attribute16,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0)) 
+        + sum(IFNULL(hdcs.attribute12,0)) AS salary_sum
         FROM   hr_dh_calc_salary hdcs
         INNER JOIN hr_employee he
         ON hdcs.company_id  = he.company_id
@@ -271,11 +272,154 @@
 					, fcdo -- 직급정렬
 					, employeeNumber -- 사번
     </select>
-    
+
+    <select id="getCalcBonusList" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto" resultType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
+    SELECT he.employee_number employeeNumber
+    , 99999999 AS salary_id
+    , he.email_address
+    , he.resident_registration_number
+    , he.korean_name
+    , he.est_id e
+    , fbe.est_name
+    , hd.department_name
+    , LPAD(IFNULL(hd.order_index,'9999999999'), '10' , '0') hdo
+    , LPAD(IFNULL(fcd07.value01,'9999999999'), '10' , '0') fcdo
+    , fcd02.defined_name
+    , CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '100' THEN 0 ELSE 1 END as check_first
+    , CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '201' THEN 1 ELSE 0 END as check_special
+    , he.employee_type
+    , hb.bonus_amount AS basic_salary
+    , 0 AS annual_allowance
+    , 0 AS overtime_allowance01
+    , 0 AS overtime_allowance02
+    , 0 AS night_allowance01
+    , 0 AS night_allowance02
+    , 0 AS holiday_allowance01
+    , 0 AS holiday_allowance02
+    , 0 AS position_allowance
+    , 0 AS otherAllowance01
+    , 0 AS otherAllowance02
+    , 0 AS subsidies
+    , 0 AS transportation_expenses
+    , 0 AS meals_expenses
+    , 0 AS bonus_amount
+    , IFNULL(hb.bonus_amount,0)  AS salary_sum
+    FROM   hr_bonus hb
+    INNER JOIN hr_employee he
+    ON hb.company_id  = he.company_id
+    AND hb.employee_id  = he.employee_id
+    AND hb.yyyymm  = he.attribute1
+    INNER JOIN fnd_business_est fbe
+    ON hb.company_id = fbe.company_id
+    AND he.est_id = fbe.est_id
+    INNER JOIN hr_department  hd
+    ON he.company_id = hd.company_id
+    AND he.department_id = hd.department_id
+    AND he.attribute1  = hd.attribute2
+    -- 직급
+    INNER JOIN fnd_code fc02
+    ON fc02.company_id  = he.company_id
+    AND fc02.code_field = 'HR_A0003'
+    INNER JOIN fnd_code_detail fcd02
+    ON fcd02.company_id  = he.company_id
+    AND fcd02.code_id = fc02.code_id
+    AND fcd02.defined_cd = he.position_code
+    -- 직위순서
+    LEFT JOIN fnd_code fc07
+    ON fc07.company_id  = he.company_id
+    AND fc07.code_field = 'HR_A0007'
+    INNER JOIN fnd_code_detail fcd07
+    ON fcd07.company_id  = fc07.company_id
+    AND fcd07.code_id = fc07.code_id
+    AND fcd07.defined_cd = he.position_code
+    -- 직군
+    LEFT JOIN fnd_code fc06
+    ON fc06.company_id  = he.company_id
+    AND fc06.code_field = 'HR_A0006'
+    LEFT JOIN fnd_code_detail fcd06
+    ON fcd06.company_id  = he.company_id
+    AND fcd06.code_id = fc06.code_id
+    AND fcd06.defined_cd = he.duty_type
+        WHERE  he.company_id = #{companyId}
+        AND he.attribute1 = #{yyyymm}
+        <if test="estId !=999">
+            AND   he.est_id = #{estId}
+        </if>
+        <if test="koreanName != null and koreanName != ''">
+            AND     he.korean_name LIKE CONCAT('%', #{koreanName}, '%')
+        </if>
+        union all
+        SELECT "합계" as employee_number
+        , 0000 as salary_id
+        , "" as email_address
+        , "" as resident_registration_number
+        , "" as korean_name
+        , 0 as est_id
+        , "" as est_name
+        , "" as department_name
+        , 0 as order_index
+        , 0 as value01
+        , "" as defined_name
+        , 0 as check_first
+        , 0 as check_special
+        , "" as employee_type
+        , sum(IFNULL(hb.bonus_amount,0)) as basic_salary
+        , 0 AS annual_allowance
+        , 0 AS overtime_allowance01
+        , 0 AS overtime_allowance02
+        , 0 AS night_allowance01
+        , 0 AS night_allowance02
+        , 0 AS holiday_allowance01
+        , 0 AS holiday_allowance02
+        , 0 AS position_allowance
+        , 0 AS otherAllowance01
+        , 0 AS otherAllowance02
+        , 0 AS subsidies
+        , 0 AS transportation_expenses
+        , 0 AS meals_expenses
+        , 0 AS bonus_amount
+        , sum(IFNULL(hb.bonus_amount,0)) AS salary_sum
+        FROM   hr_bonus hb
+        INNER JOIN hr_employee he
+        ON hb.company_id  = he.company_id
+        AND hb.employee_id  = he.employee_id
+        AND hb.yyyymm  = he.attribute1
+        INNER JOIN fnd_business_est fbe
+        ON hb.company_id = fbe.company_id
+        AND he.est_id = fbe.est_id
+        WHERE  he.company_id = #{companyId}
+        AND he.attribute1 = #{yyyymm}
+        <if test="estId !=999">
+            AND   he.est_id = #{estId}
+        </if>
+        <if test="koreanName != null and koreanName != ''">
+            AND     he.korean_name LIKE CONCAT('%', #{koreanName}, '%')
+        </if>
+        group by he.company_id, he.attribute1
+        <if test="estId != 999">
+            , fbe.est_id
+        </if>
+        <if test="koreanName != null and koreanName != ''">
+            , he.korean_name LIKE CONCAT('%', #{koreanName}, '%')
+        </if>
+        ORDER BY CASE WHEN salary_id =000 THEN 1
+        ELSE 2
+        END
+        , check_first -- 임원
+        , e -- 사업장
+        , hdo -- 부서정렬
+        , check_special
+        , fcdo -- 직급정렬
+        , employeeNumber -- 사번
+    </select>
+
     <update id="updateSalaryList" parameterType="kr.co.seedit.domain.hr.dto.BasicSalaryDto">
 		/*SalaryDao.updateSalaryList*/
 		UPDATE hr_dh_calc_salary
 		<set>
+			<if test="basicSalary != null">
+				basic_salary = #{basicSalary},
+			</if> 
 			<if test="annualAllowance != null">
 				attribute01 = #{annualAllowance},
 			</if>
@@ -736,7 +880,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '200'
 --           AND he.employee_number in (
---             'D18717'
+--             'D23734'
 --             )
 --           AND fbe.est_id = 2
         UNION ALL
@@ -820,6 +964,7 @@
                                AND he.attribute1 = hb.yyyymm
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
+--           AND  1=2
           AND (fcd03.defined_cd IN ('100', '910')
                 or he.employee_number IN (SELECT fcd.defined_cd
                                           FROM   fnd_code fc
@@ -943,6 +1088,7 @@
           AND he.attribute1  = #{yyyymm}
           AND he.employee_id = #{employeeID}
           AND hadt.work_date >= he.hire_date
+          AND hadt.work_date &lt;= he.retire_date
     </select>
 
     <select id="selectCodeValues" parameterType="kr.co.seedit.global.common.dto.RequestDto" resultType="kr.co.seedit.domain.hr.dto.SalaryCodeValuesDto">
@@ -1097,6 +1243,7 @@
         , half_leave_cnt
         , early_leave_day
         , early_leave_time
+        , early_leave_cnt
         , late_day
         , late_cnt
         , late_time
@@ -1108,6 +1255,8 @@
         , last_update_date
         , total_time
         , absence
+        , total_day
+        , juhue_day
         )
         values
         <foreach item="item" index="index" collection="list" separator=", ">
@@ -1137,6 +1286,7 @@
             , #{item.halfLeaveCnt}
             , #{item.earlyLeaveDay}
             , #{item.earlyLeaveTime}
+            , #{item.earlyLeaveCnt}
             , #{item.lateDay}
             , #{item.latecnt}
             , #{item.lateTime}
@@ -1148,6 +1298,8 @@
             , now()
             , #{item.totalTime}
             , #{item.absence}
+            , #{item.totalDay}
+            , #{item.juhueDay}
             )
         </foreach>
     </insert>
@@ -1192,6 +1344,7 @@
         , am_incomtax
         , am_residtax
         , dt_pay
+        , tp_pay
         , created_by
         , creation_date
         , last_updated_by
@@ -1219,6 +1372,7 @@
             , #{item.amIncomTax}
             , #{item.amResidTax}
             , #{item.dtPay}
+            , #{item.tpPay}
             , #{item.loginUserId}
             , now()
             , #{item.loginUserId}

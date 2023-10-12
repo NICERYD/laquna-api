@@ -4,6 +4,7 @@ import kr.co.seedit.domain.hr.application.SalaryService;
 import kr.co.seedit.domain.hr.dto.BasicSalaryDto;
 import kr.co.seedit.domain.hr.dto.EmployeeInformationDto;
 import kr.co.seedit.domain.hr.dto.ErpIUDto;
+import kr.co.seedit.domain.hr.dto.ReportParamsDto;
 import kr.co.seedit.global.common.dto.RequestDto;
 import kr.co.seedit.global.common.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -58,9 +59,9 @@ public class SalaryApi {
      * @throws Exception
      */
     @PostMapping("hr/getCalcSalaryList")
-    public ResponseEntity<ResponseDto> getCalcSalaryList(@RequestBody BasicSalaryDto basicSalaryDto) throws Exception{
-        log.info("basicSalaryDto : {}", basicSalaryDto.toString());
-        ResponseDto responseDto = salaryService.getCalcSalaryList(basicSalaryDto);
+    public ResponseEntity<ResponseDto> getCalcSalaryList(@RequestBody ReportParamsDto reportParamsDto) throws Exception{
+        log.info("reportParamsDto : {}", reportParamsDto.toString());
+        ResponseDto responseDto = salaryService.getCalcSalaryList(reportParamsDto);
         
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }

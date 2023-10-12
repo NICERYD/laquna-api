@@ -19,7 +19,8 @@ public interface SalaryDao {
     List<SelectListDto> findBusinessList(Integer companyId);
     List<EmployeeInformationDto> findAdtList(EmployeeInformationDto employeeInformationDto);
     void deleteADTData(ErpIUDto.RequestDto erpIUDto);
-    List<BasicSalaryDto> getCalcSalaryList(BasicSalaryDto basicSalaryDto);
+    List<BasicSalaryDto> getCalcSalaryList(ReportParamsDto reportParamsDto);
+    List<BasicSalaryDto> getCalcBonusList(ReportParamsDto reportParamsDto);
     
     void updateSalaryList (BasicSalaryDto basicSalaryDto);
     

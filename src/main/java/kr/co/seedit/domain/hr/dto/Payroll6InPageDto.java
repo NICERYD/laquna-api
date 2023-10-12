@@ -82,7 +82,7 @@ public class Payroll6InPageDto implements Serializable {
 	// 연차정산
 	private String annualLeaveCalc; //연차정산횟수 
 	@Builder.Default
-	private Double attribute24 = 0d; //연차정산금액
+	private Double attribute23 = 0d; //연차정산금액
 	// 연차정산2
 
 	// 반차
