@@ -924,7 +924,7 @@ public class SalaryService {
                 }
                 // 연봉제 중도/입사 퇴사자 총시간 조정
                 if (!midStatus.equals("000")) {
-                    rtTotalTime = Math.floor(209*(workcnt + paidHoliday)/30);
+                    rtTotalTime = Math.floor(209.0/30.0*diff);
                 }
                 // 01-01. 임원
             } else if (basicSalaryDto.getEmployeeType().equals("100")
