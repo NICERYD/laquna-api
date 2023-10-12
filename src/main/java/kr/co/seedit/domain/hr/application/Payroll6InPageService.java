@@ -283,9 +283,7 @@ public class Payroll6InPageService {
 				sheet.getRow(curRow + 5).getCell(curCol + 3).setCellValue(data.getNtDayAllowance01());
 			}
 			//야간(연봉/시급)
-			if (null != data.getNs01DayCnt() && "" != data.getNs01DayCnt() && data.getEmployeeType().equals("100") ) {
-                sheet.getRow(curRow + 6).getCell(curCol + 2).setCellValue(data.getNs01DayCnt() + "회");
-            } else if (null != data.getNtNighttime01() && 0 != data.getNtNighttime01() && data.getEmployeeType().equals("200") ) {
+			if (null != data.getNtNighttime01() && 0 != data.getNtNighttime01() ) {
                 sheet.getRow(curRow + 6).getCell(curCol + 2).setCellValue(data.getNtNighttime01());
 			}
 			if (null != data.getNtNightAllowance01() && 0 != data.getNtNightAllowance01()) {
