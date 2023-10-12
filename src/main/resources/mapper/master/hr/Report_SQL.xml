@@ -469,6 +469,8 @@
 			</if>
 	    AND   he.attribute1  = #{yyyymm}
 	    AND	  he.employee_id = #{employeeId}
+		AND hadt.work_date >= he.hire_date
+		AND hadt.work_date &lt;= he.retire_date
 	    ORDER BY hadt.work_date
 	</select>
 	
