@@ -48,5 +48,5 @@ public class MonthlyKeunTaeDto {
     private Integer totalDay;
     private Integer juhueDay;
     private Integer NS01DayCnt;
-
+    private Double nightTeamPlus;
 }

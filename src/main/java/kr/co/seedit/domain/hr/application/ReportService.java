@@ -2032,11 +2032,11 @@ public class ReportService {
                 row.getCell(cell02).setCellValue(false);  //야간일수
 
                 row = sheet.getRow(rowindex++);
-                row.getCell(cell01).setCellValue(false);    //야간 (0.0시간)
+                row.getCell(cell01).setCellValue(determineTimeFormat(e.getNtNighttime01()));    //야간 (0.0시간)
 
                 row = sheet.getRow(rowindex++);
-                row.getCell(cell01).setCellValue(false);    //토요출근 시간계수표1이면 8:00
-                row.getCell(cell02).setCellValue(false);    //토요 시간계수표
+                row.getCell(cell01).setCellValue(determineTimeFormat(e.getNightTeamPlus()));    //토요출근 시간계수표1이면 8:00
+                row.getCell(cell02).setCellValue(e.getNightTeamPlus()/8);    //토요 시간계수표
 
                 row = sheet.getRow(rowindex++);
                 row.getCell(cell01).setCellValue(determineTimeFormat(e.getHolidaySaturday()));    //토요출근시간

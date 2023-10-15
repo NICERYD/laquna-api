@@ -521,6 +521,7 @@ public class SalaryService {
         Integer workcnt = 0;
         Integer paidHoliday = 0;
         Integer paidHolidayindex = 0;
+        Integer nightTeamPlus = 0;
 
 
         // 기준코드값
@@ -601,6 +602,7 @@ public class SalaryService {
             rtNSDayTimeUsed = 0.0;        // 주간조 야간시간
             rtNSNightTimeUsed = 0.0;      // 야간조 야간시간
 //            rtNightShift02 = 0.0;          // 야간2 일수
+            nightTeamPlus = 0;
 
             rtHolidaySaturdayUsed = 0.0;     // 휴일1 (토요일)
             rtHolidaySaturdayDay4HCnt = 0; //토요 4H
@@ -1002,7 +1004,7 @@ public class SalaryService {
                 Integer paidLeaveDay = 0;
                 // 야간조 count 변수
                 Integer nightTeamDay = 0;
-                Integer nightTeamPlus = 0;
+                nightTeamPlus = 0;
                 // 평일 실근무일수
                 workcnt = 0;
                 // 연차/반차 사용 count, 시간 변수
@@ -1210,7 +1212,6 @@ public class SalaryService {
                     if ((adtDataDto == adtDataDtos.get(adtDataDtos.size() - 1)) && salaryDao.selectLastWeek(adtDataDto.getWorkDate()) && !adtDataDto.getDateWeek().equals("5")) {
                         salaryDao.insertnightTeamDay(nightTeamDay, requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
                     }
-
                     // 야간수당1 - 야간조(연장) 초기화
                     if (nightTeamDay == 5) {
                         nightTeamPlus++;
@@ -1533,6 +1534,7 @@ public class SalaryService {
 
             monthlyKeunTaeDto.setTotalTime(rtTotalTime);
             monthlyKeunTaeDto.setNS01DayCnt(rtNS01DayCnt);
+            monthlyKeunTaeDto.setNightTeamPlus((double)nightTeamPlus*8);
 
             if (!basicAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setBasicSalary(basicAmount.toString());
