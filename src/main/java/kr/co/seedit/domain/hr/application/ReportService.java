@@ -1962,6 +1962,8 @@ public class ReportService {
         styleLightGreen.setBorderLeft(BorderStyle.THIN);
         styleLightGreen.setBorderRight(BorderStyle.THIN);
         styleLightGreen.setShrinkToFit(true);
+        styleLightGreen.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleLightGreen.setAlignment(HorizontalAlignment.CENTER);
 
         XSSFCellStyle styleLemonChiffon = workbook.createCellStyle();
         styleLemonChiffon.setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex());  // 배경색
@@ -1971,6 +1973,14 @@ public class ReportService {
         styleLemonChiffon.setBorderLeft(BorderStyle.THIN);
         styleLemonChiffon.setBorderRight(BorderStyle.THIN);
         styleLemonChiffon.setShrinkToFit(true);
+        styleLemonChiffon.setVerticalAlignment(VerticalAlignment.CENTER);
+        styleLemonChiffon.setAlignment(HorizontalAlignment.CENTER);
+        
+        CellStyle NumberBodyStyle = workbook.createCellStyle();
+        NumberBodyStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        NumberBodyStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0")); // 1000단위 콤마
+        
+        int testSum = 0;
 
         for (Payroll6InPageDto e : employees) {
 
@@ -2066,8 +2076,54 @@ public class ReportService {
             row = sheet.getRow(0);
             cell = row.getCell(cell01);
             cell.setCellValue(e.getKoreanName());
+            
+            e.setTotalAmt(e.getBasicAmount()
+                    + e.getOvertimeAllowance01()
+                    + e.getOvertimeAllowance02()
+                    + e.getNtDayAllowance01()
+                    + e.getNtNightAllowance01()
+                    + e.getNtNightAllowance02()
+                    + e.getHolidaySatAllowance01()
+                    + e.getHolidaySunAllowance01()
+                    + e.getHolidayAllowance02()
+                    + e.getAttribute01()
+                    + e.getAttribute15()
+                    + e.getAttribute13()
+                    + e.getAttribute14()
+                    + e.getAttribute17()
+                    + e.getAttribute16()
+                    + e.getAttribute11()
+                    + e.getAttribute12()
+                    + e.getAttribute23());
+            
+            testSum += e.getTotalAmt();
 
             payroll6InPageService.setValuePayrollTableForm(sheet, e, -1, 11, 12, styleLightGreen, styleLemonChiffon);
+            
+//            System.out.println("CellType>>>>>>>>>>>>START");
+//            System.out.println(sheet.getRow(3).getCell(cell01).getCellType());
+//            System.out.println(sheet.getRow(4).getCell(cell01).getCellType());
+//            System.out.println(sheet.getRow(9).getCell(cell02).getCellType());
+//            System.out.println("CellType>>>>>>>>>>>>END");
+            
+            //0값 빈칸처리
+            for (int i = 1; i < rowindex; i++) {
+                row = sheet.getRow(i);
+                for (int k = cell01; k < cell02+1; k++) {
+                    cell = row.getCell(k);
+                    if (cell != null) {
+                        if (cell.getCellType() == CellType.NUMERIC) {
+                            if (cell.getNumericCellValue() == 0) {
+                                cell.setBlank();
+                            }
+                        }else if(cell.getCellType() == CellType.STRING) {
+                        	if(cell.getStringCellValue().equals("0") || cell.getStringCellValue().equals("0:00")) {
+                        		cell.setBlank();
+                        	}
+                        }
+                    }
+                }
+            }
 
             // Get ADT Data
             reportParamsDto.setEmployeeId(e.getEmployeeId().intValue());
@@ -2146,6 +2202,9 @@ public class ReportService {
         //sample양식 sheet 삭제
         workbook.removeSheetAt(0);
         workbook.removeSheetAt(0);
+        
+        workbook.getSheetAt(0).getRow(0).createCell(18, CellType.NUMERIC).setCellValue(testSum);
+        workbook.getSheetAt(0).getRow(0).getCell(18).setCellStyle(NumberBodyStyle);
 
         return workbook;
     }
