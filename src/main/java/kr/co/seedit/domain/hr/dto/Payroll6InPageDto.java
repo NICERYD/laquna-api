@@ -76,6 +76,7 @@ public class Payroll6InPageDto implements Serializable {
 	private Double holidayTime02 = 0d; // 휴일수당02 시간
 	@Builder.Default
 	private Double holidayAllowance02 = 0d; // 휴일수당02 수당
+	private Integer NSHoliDayCnt;
 
 	// 연차수당
 	private String annualLeaveUsedDay; // 연차사용일자

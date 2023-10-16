@@ -2035,11 +2035,11 @@ public class ReportService {
                 rowindex = 1;
                 row = sheet.getRow(rowindex++);
                 row.getCell(cell01).setCellValue(determineTimeFormat(e.getOvertimeDaytime01()));
-                row.getCell(cell02).setCellValue(false);    //공휴야간횟수
+                row.getCell(cell02).setCellValue(e.getNSHoliDayCnt());    //공휴야간횟수
 
                 row = sheet.getRow(rowindex++);
 				row.getCell(cell01).setCellValue(determineTimeFormat(e.getNtDaytime01()));	//야간근무시간
-                row.getCell(cell02).setCellValue(false);  //야간일수
+                row.getCell(cell02).setCellValue(e.getTranspotation());  //야간일수
 
                 row = sheet.getRow(rowindex++);
                 row.getCell(cell01).setCellValue(determineTimeFormat(e.getNtNighttime01()));    //야간 (0.0시간)

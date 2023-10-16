@@ -492,12 +492,14 @@ public class SalaryService {
         Integer rtNS01DayCnt;        // 야간1 일자
 
 
+
         Integer rtHolidaySaturdayDay4HCnt; //토요 4H
         Integer rtHolidaySaturdayDay8HCnt;//토요 8H
         Double rtNSNightTimeUsed;      // 야간1 시간(야간조)
         Integer rtHolidaySunday4HCnt;   //일요 4H
         Integer rtHolidaySunday8HCnt;   //일요 8H
 //        Double rtNightShift02;          // 야간2 일수
+        Integer rtNSHoliDayCnt;        // 공휴일 야간일자 cnt
 
         Double rtHolidaySaturdayUsed;     // 휴일1 (토요일)
         Double rtHolidaySundayUsed;       // 휴일1 (일요일)
@@ -610,6 +612,7 @@ public class SalaryService {
             rtHolidaySundayUsed = 0.0;       // 휴일1 (일요일)
             rtHolidaySunday4HCnt = 0; //일요 4H
             rtHolidaySunday8HCnt = 0; //일요 8H
+            rtNSHoliDayCnt = 0;
 
             rtTransportation = 0.0;        // 교통비
             rtMeal = 0.0;                  // 식대
@@ -1188,6 +1191,9 @@ public class SalaryService {
 //                        rtNightShift01 = rtNightShift01 + (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
                         nightAllowance01Day = nightAllowance01Day.add(BigDecimal.valueOf(duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0)).multiply(hourlyPay).multiply(BigDecimal.valueOf(2)));
                         rtNSDayTimeUsed = rtNSDayTimeUsed + (duration.toHours() + (duration.toMinutes() % 60 >= 30 ? 0.5 : 0));
+                        if (adtDataDto.getDateType().equals("2")) {
+                            rtNSHoliDayCnt++;
+                        }
                     }
                     // 야간수당1 - 야간조(연장)
                     if (adtDataDto.getWorkStatus().equals("야간")) {
@@ -1535,6 +1541,7 @@ public class SalaryService {
             monthlyKeunTaeDto.setTotalTime(rtTotalTime);
             monthlyKeunTaeDto.setNS01DayCnt(rtNS01DayCnt);
             monthlyKeunTaeDto.setNightTeamPlus((double)nightTeamPlus*8);
+            monthlyKeunTaeDto.setNSHoliDayCnt(rtNSHoliDayCnt);
 
             if (!basicAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setBasicSalary(basicAmount.toString());

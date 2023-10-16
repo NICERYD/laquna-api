@@ -1259,6 +1259,7 @@
         , juhue_day
         , ns01_day_cnt
         , night_team_plus
+        , ns_holi_day_cnt
         )
         values
         <foreach item="item" index="index" collection="list" separator=", ">
@@ -1304,6 +1305,7 @@
             , #{item.juhueDay}
             , #{item.NS01DayCnt}
             , #{item.nightTeamPlus}
+            , #{item.NSHoliDayCnt}
             )
         </foreach>
     </insert>

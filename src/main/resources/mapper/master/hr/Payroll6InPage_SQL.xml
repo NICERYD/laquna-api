@@ -69,6 +69,7 @@
                 ELSE 0
            END as nt_night_allowance02 -- 야간수당02 수당
          , hdmkt.night_team_plus-- 야간5 5일만근시 1+
+         , hdmkt.ns_holi_day_cnt
          -- 휴일수당
          , CASE WHEN he.employee_type = '100' THEN IFNULL(hdmkt.holiday_saturday_day4H_cnt,0)/2 + IFNULL(hdmkt.holiday_saturday_day8H_cnt,0)
                 WHEN he.employee_type = '200' AND hdmkt.holiday_saturday != 0 THEN floor(hdmkt.holiday_saturday/8) + (hdmkt.holiday_saturday%8 * (1/8))
