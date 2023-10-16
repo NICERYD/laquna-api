@@ -2100,11 +2100,6 @@ public class ReportService {
 
             payroll6InPageService.setValuePayrollTableForm(sheet, e, -1, 11, 12, styleLightGreen, styleLemonChiffon);
             
-//            System.out.println("CellType>>>>>>>>>>>>START");
-//            System.out.println(sheet.getRow(3).getCell(cell01).getCellType());
-//            System.out.println(sheet.getRow(4).getCell(cell01).getCellType());
-//            System.out.println(sheet.getRow(9).getCell(cell02).getCellType());
-//            System.out.println("CellType>>>>>>>>>>>>END");
             
             //0값 빈칸처리
             for (int i = 1; i < rowindex; i++) {
@@ -2123,6 +2118,16 @@ public class ReportService {
                         }
                     }
                 }
+            }
+            
+            //sheet 퇴사자 입사자 색지정
+            byte [] lightGreen = DefaultIndexedColorMap.getDefaultRGB(IndexedColors.LIGHT_GREEN.getIndex());
+            byte [] lemonChiffon = DefaultIndexedColorMap.getDefaultRGB(IndexedColors.LEMON_CHIFFON.getIndex());
+            
+            if ("RETIRE".equals(e.getHireDiv())) {
+            	sheet.setTabColor(new XSSFColor(lightGreen, null));
+            } else if ("NEW".equals(e.getHireDiv())) {
+            	sheet.setTabColor(new XSSFColor(lemonChiffon, null));
             }
 
             // Get ADT Data
