@@ -8,7 +8,9 @@
 		      , fbe.attribute1 AS cd_bizarea -- 사업장코드
 		      , hdcs.yyyymm AS ym -- 년월
 		      , he.employment_code AS cd_emp -- 고용형태
-		      , he.employee_type AS tp_emp -- 사원구분
+		      , case when he.duty_type = '201' then '100'
+		             else he.employee_type
+		        end  AS tp_emp -- 사원구분
 		      , 001 AS tp_pay -- 급여구분
 		      , 1 AS no_seq -- 순번
 		      , he.employee_number AS no_emp -- 사번
@@ -34,7 +36,7 @@
 		      ON hdcs.company_id = he.company_id
 		      AND hdcs.employee_id = he.employee_id
 		      AND hdcs.yyyymm = he.attribute1
-		      AND he.est_id = fbe.est_id 
+		      AND he.est_id = fbe.est_id
 		WHERE  fc.company_id  = #{companyId}
 		<if test="estId !=999 and estId != null">
 		AND	he.est_id = #{estId}
