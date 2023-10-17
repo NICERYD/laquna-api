@@ -176,7 +176,13 @@ public class ReportService {
             row.createCell(cellindex++).setCellValue(s.getYm());
             row.createCell(cellindex++).setCellValue(s.getCdEmp());
             row.createCell(cellindex++).setCellValue(s.getTpEmp());
-            row.createCell(cellindex++).setCellValue(s.getTpPay());
+            if(s.getTpPay() == 1) {
+            	row.createCell(cellindex++).setCellValue("001");
+            }else if(s.getTpPay() == 2) {
+            	row.createCell(cellindex++).setCellValue("002");
+            }else {
+            	row.createCell(cellindex++).setBlank();
+            }
             row.createCell(cellindex++).setCellValue(s.getNoSeq());
             row.createCell(cellindex++).setCellValue(s.getNoEmp());
             row.createCell(cellindex++).setCellValue(s.getAmPay01());
