@@ -7,7 +7,9 @@
 		 SELECT  fc.attribute1  AS cd_company -- 회사코드
 		      , fbe.attribute1 AS cd_bizarea -- 사업장코드
 		      , hdcs.yyyymm AS ym -- 년월
-		      , he.employment_code AS cd_emp -- 고용형태
+		      , case when he.employment_code='099' then '001'
+		             else he.employment_code
+		        end  AS cd_emp -- 고용형태
 		      , case when he.duty_type = '201' then '100'
 		             else he.employee_type
 		        end  AS tp_emp -- 사원구분
