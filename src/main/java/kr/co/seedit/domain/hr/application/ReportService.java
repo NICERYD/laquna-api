@@ -133,34 +133,39 @@ public class ReportService {
         List<SalaryExcelDto> salaryExcelDtoList = new ArrayList<>();
         salaryExcelDtoList = reportDao.findERPIUData(reportParamsDto);
 
-        XSSFWorkbook workbook = new XSSFWorkbook();
-        XSSFSheet sheet = workbook.createSheet(reportParamsDto.getYyyymm() + "ERPIU");
-        int rowindex = 0;
+        
+     // Open Sample Excel
+        Resource resource = resourceLoader.getResource("classpath:hr/erpiuSample.xlsx");
+        InputStream fis = resource.getInputStream();
+        
+        XSSFWorkbook workbook = new XSSFWorkbook(fis);
+        XSSFSheet sheet = workbook.getSheetAt(0);
+        int rowindex = 2;
         int cellindex = 0;
 
         // Excel Header Setting
-        XSSFRow headerRow = sheet.createRow(rowindex++);
-        headerRow.createCell(cellindex++).setCellValue("CD_COMPANY");
-        headerRow.createCell(cellindex++).setCellValue("CD_BIZAREA");
-        headerRow.createCell(cellindex++).setCellValue("YM");
-        headerRow.createCell(cellindex++).setCellValue("CD_EMP");
-        headerRow.createCell(cellindex++).setCellValue("TP_EMP");
-        headerRow.createCell(cellindex++).setCellValue("TP_PAY");
-        headerRow.createCell(cellindex++).setCellValue("NO_SEQ");
-        headerRow.createCell(cellindex++).setCellValue("NO_EMP");
-        headerRow.createCell(cellindex++).setCellValue("AM_PAY01");
-        headerRow.createCell(cellindex++).setCellValue("AM_PAY02");
-        headerRow.createCell(cellindex++).setCellValue("AM_PAY03");
-        headerRow.createCell(cellindex++).setCellValue("AM_PAY04");
-        headerRow.createCell(cellindex++).setCellValue("AM_PAY05");
-        headerRow.createCell(cellindex++).setCellValue("AM_PAY06");
-        headerRow.createCell(cellindex++).setCellValue("AM_PAY07");
-        headerRow.createCell(cellindex++).setCellValue("AM_PAY08");
-        headerRow.createCell(cellindex++).setCellValue("AM_PAY09");
-        headerRow.createCell(cellindex++).setCellValue("AM_PAY10");
-        headerRow.createCell(cellindex++).setCellValue("AM_PAY11");
-        headerRow.createCell(cellindex++).setCellValue("AM_PAY12");
-        headerRow.createCell(cellindex).setCellValue("AM_PAY13");
+//        XSSFRow headerRow = sheet.createRow(rowindex++);
+//        headerRow.createCell(cellindex++).setCellValue("CD_COMPANY");
+//        headerRow.createCell(cellindex++).setCellValue("CD_BIZAREA");
+//        headerRow.createCell(cellindex++).setCellValue("YM");
+//        headerRow.createCell(cellindex++).setCellValue("CD_EMP");
+//        headerRow.createCell(cellindex++).setCellValue("TP_EMP");
+//        headerRow.createCell(cellindex++).setCellValue("TP_PAY");
+//        headerRow.createCell(cellindex++).setCellValue("NO_SEQ");
+//        headerRow.createCell(cellindex++).setCellValue("NO_EMP");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY01");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY02");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY03");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY04");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY05");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY06");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY07");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY08");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY09");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY10");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY11");
+//        headerRow.createCell(cellindex++).setCellValue("AM_PAY12");
+//        headerRow.createCell(cellindex).setCellValue("AM_PAY13");
 
         // Data Insert
         for (SalaryExcelDto s : salaryExcelDtoList) {
