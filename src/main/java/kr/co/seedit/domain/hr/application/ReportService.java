@@ -188,8 +188,6 @@ public class ReportService {
             row.createCell(cellindex++).setCellValue(s.getAmPay12());
             row.createCell(cellindex++).setCellValue(s.getAmPay13());
         }
-        
-        //세금부분 미구현, 요청사항 재확인하여 구현해야함
 
         return workbook;
     }
