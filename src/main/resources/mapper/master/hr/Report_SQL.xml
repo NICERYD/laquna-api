@@ -11,7 +11,7 @@
 		      , case when he.duty_type = '201' then '100'
 		             else he.employee_type
 		        end  AS tp_emp -- 사원구분
-		      , 001 AS tp_pay -- 급여구분
+		      , '001' AS tp_pay -- 급여구분
 		      , 1 AS no_seq -- 순번
 		      , he.employee_number AS no_emp -- 사번
 		      , ifnull(hdcs.basic_salary,0)  AS am_pay01 -- 기본급
