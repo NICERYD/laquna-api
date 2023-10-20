@@ -29,6 +29,8 @@
 		      , ifnull(hdcs.attribute10,0) AS am_pay11	-- 보조금
 		      , ifnull(hdcs.attribute11,0) AS am_pay12	-- 교통비
 		      , ifnull(hdcs.attribute12,0) AS am_pay13	-- 식대
+		      , CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '100' THEN 0 ELSE 1 END as check_first
+		 	  , CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '201' THEN 1 ELSE 0 END as check_special
 		FROM    hr_dh_calc_salary hdcs
 		      INNER JOIN fnd_company fc 
 		      ON hdcs.company_id = fc.company_id
@@ -39,11 +41,44 @@
 		      AND hdcs.employee_id = he.employee_id
 		      AND hdcs.yyyymm = he.attribute1
 		      AND he.est_id = fbe.est_id
+		      -- 직급
+				LEFT JOIN fnd_code fc02
+		      ON fc02.company_id  = he.company_id
+		      AND fc02.code_field = 'HR_A0003'
+				LEFT JOIN fnd_code_detail fcd02
+		      ON fcd02.company_id  = he.company_id
+		      AND fcd02.code_id = fc02.code_id
+		      AND fcd02.defined_cd = he.position_code
+			  -- 직위순서
+				LEFT JOIN fnd_code fc07
+			  ON fc07.company_id  = he.company_id
+			  AND fc07.code_field = 'HR_A0007'
+				INNER JOIN fnd_code_detail fcd07
+			  ON fcd07.company_id  = fc07.company_id
+			  AND fcd07.code_id = fc07.code_id
+			  AND fcd07.defined_cd = he.position_code
+		      -- 직군
+				LEFT JOIN fnd_code fc06
+		      ON fc06.company_id  = he.company_id
+		      AND fc06.code_field = 'HR_A0006'
+		        LEFT JOIN fnd_code_detail fcd06
+		      ON fcd06.company_id  = he.company_id
+		      AND fcd06.code_id = fc06.code_id
+		      AND fcd06.defined_cd = he.duty_type
+		       LEFT JOIN hr_department hd
+	          ON hd.department_id = he.department_id
+	          AND hdcs.company_id = hd.company_id
 		WHERE  fc.company_id  = #{companyId}
 		<if test="estId !=999 and estId != null">
-		AND	he.est_id = #{estId}
+			AND	he.est_id = #{estId}
 		</if>
 	    AND hdcs.yyyymm =  #{yyyymm}
+	    ORDER BY check_first -- 임원
+				, he.est_id -- 사업장
+				, LPAD(IFNULL(hd.order_index,'9999999999'), '10' , '0') -- 부서정렬
+				, check_special
+				, LPAD(IFNULL(fcd07.value01,'9999999999'), '10' , '0') -- 직급정렬
+				, he.employee_number -- 사번
 	</select>
 
 	<select id="findPayrollData" parameterType="kr.co.seedit.domain.hr.dto.ReportParamsDto" resultType="kr.co.seedit.domain.hr.dto.ReportPayrollDto">
