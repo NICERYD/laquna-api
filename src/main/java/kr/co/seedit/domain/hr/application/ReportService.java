@@ -81,9 +81,9 @@ public class ReportService {
                 workbook.close();
         }
 
-        String fileName = reportParamsDto.getYyyymm() + "_" + reportParamsDto.getReportType();
+        String fileName = reportParamsDto.getYyyymm() + "_" + reportParamsDto.getReportType() + "_" + reportParamsDto.getSort();
         if ("Payroll".equals(reportParamsDto.getReportType())) {
-            fileName += "_" + reportParamsDto.getSort();
+            fileName += "_" + reportParamsDto.getPayrollSort();
         }
 
         return ResponseEntity.ok()
