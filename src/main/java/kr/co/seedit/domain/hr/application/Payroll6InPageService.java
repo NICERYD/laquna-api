@@ -600,7 +600,7 @@ public class Payroll6InPageService {
             throws Exception {
         ReportParamsDto reportParamsDto = new ReportParamsDto();
         reportParamsDto.setYyyymm(in.get("yyyymm").toString());
-        reportParamsDto.setCompanyId(5);
+        reportParamsDto.setCompanyId(reportParamsDto.getCompanyId());
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         XSSFWorkbook workbook = createPayroll6InPage(reportParamsDto);
@@ -629,7 +629,7 @@ public class Payroll6InPageService {
 
         ReportParamsDto reportParamsDto = new ReportParamsDto();
         reportParamsDto.setYyyymm(in.get("yyyymm").toString());
-        reportParamsDto.setCompanyId(5);
+        reportParamsDto.setCompanyId(reportParamsDto.getCompanyId());
 
 
         XSSFWorkbook workbook = createPayroll6InPage(reportParamsDto);

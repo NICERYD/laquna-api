@@ -971,7 +971,7 @@
                                                  INNER JOIN fnd_code_detail fcd
                                                  ON  fc.company_id = fcd.company_id
                                                  AND fc.code_id = fcd.code_id
-                                          WHERE  fc.company_id = 5
+                                          WHERE  fc.company_id = #{companyId}
                                           AND    fc.code_field = 'HR_A0008'))
     </select>
 
