@@ -139,6 +139,7 @@ public class SalaryService {
 
         try {
             for (BasicSalaryDto b : basicSalaryDtoList) {
+                b.setCompanyId(info.getCompanyId());
                 b.setLoginUserId(info.getUserId());
                 salaryDao.updateSalaryList(b);
             }
