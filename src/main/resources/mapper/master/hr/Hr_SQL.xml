@@ -647,7 +647,7 @@
             , #{item.companyId}
             , #{item.koreanName}
             , (select department_id from hr_department where attribute1 = #{item.departmentCode} AND attribute2 =
-            #{item.yyyymm})
+            #{item.yyyymm} AND company_id = #{item.companyId})
             , #{item.employeeNumber}
             , #{item.positionCode}
             , #{item.positionType}
