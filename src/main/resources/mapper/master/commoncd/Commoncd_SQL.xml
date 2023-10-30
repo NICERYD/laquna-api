@@ -123,10 +123,12 @@
           , last_updated_by = #{lastUpdatedBy}
           , last_update_date = now()
         WHERE code_detail_id = #{codeDetailId}
+          and company_id = #{companyId}
   </update>
     <delete id="codeDetailComDelete" parameterType="kr.co.seedit.domain.commoncd.dto.CommonCodeDetailDto">
     /*commoncdDao.codeDetailComDelete*/
     DELETE FROM fnd_code_detail
          WHERE code_detail_id = #{codeDetailId}
+           and company_id = #{companyId}
     </delete>
 </mapper>
