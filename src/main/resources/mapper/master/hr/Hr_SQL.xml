@@ -463,6 +463,7 @@
 			last_update_date = now()
 		</set>
 		WHERE	salary_id = #{salaryId}
+         AND    company_id = #{companyId}
 	</update>
     
     <update id="upadateOtherAllowance" parameterType="kr.co.seedit.domain.hr.dto.OtherAllowanceDto">
@@ -484,6 +485,7 @@
 			,hdcs.last_update_date = now()
 		WHERE	he.employee_number = #{employeeNumber}
 		AND		hdcs.yyyymm = #{yyyymm}
+        AND    company_id = #{companyId}
 	</update>
 
     <delete id ="deleteADTData" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" >
@@ -563,6 +565,7 @@
 				,last_update_date = now()
 			WHERE	employee_number = #{employeeNumber}
 			AND		work_date = #{workDate}
+            AND     company_id = #{companyId}
 	</update>
 
     <delete id ="deleteDepartment" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" >
