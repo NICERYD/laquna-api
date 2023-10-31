@@ -485,7 +485,7 @@
 			,hdcs.last_update_date = now()
 		WHERE	he.employee_number = #{employeeNumber}
 		AND		hdcs.yyyymm = #{yyyymm}
-        AND    company_id = #{companyId}
+        AND    hdmkt.company_id = #{companyId}
 	</update>
 
     <delete id ="deleteADTData" parameterType ="kr.co.seedit.domain.hr.dto.ErpIUDto$RequestDto" >
