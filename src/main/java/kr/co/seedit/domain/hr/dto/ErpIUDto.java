@@ -117,6 +117,7 @@ public class ErpIUDto {
     @Builder
     @NoArgsConstructor
     public static class CalcTaxDto {
+        private Integer companyId;
         private String cdCompany;
         private String yyyymm;
         private String employeeNumber;

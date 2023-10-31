@@ -132,6 +132,7 @@
                       WHERE	CD_COMPANY	= '1000' AND CD_EMP = '001' AND TP_PAY = '002' AND YM = #{yyyymm} AND NO_SEQ = 1
                       ORDER BY CD_BIZAREA ASC, TP_EMP ASC) AS DT_PAY
                 , #{loginUserId} AS loginUserId
+                , #{companyId} as company_id
         FROM    hr_pcalcpay pay
         WHERE   pay.cd_company = '1000'
         AND     pay.ym = #{yyyymm}
@@ -162,6 +163,7 @@
                    WHERE	CD_COMPANY	= '1000' AND CD_EMP = '001' AND TP_PAY = '001' AND YM = #{yyyymm} AND NO_SEQ = 1
                    ORDER BY CD_BIZAREA ASC, TP_EMP ASC) AS DT_PAY
              , #{loginUserId} AS loginUserId
+             , #{companyId} as company_id
         FROM    hr_pcalcpay pay
         WHERE   pay.cd_company = '1000'
           AND   pay.ym = #{yyyymm}
