@@ -500,7 +500,7 @@ public class SalaryService {
         Integer rtHolidaySunday4HCnt;   //일요 4H
         Integer rtHolidaySunday8HCnt;   //일요 8H
 //        Double rtNightShift02;          // 야간2 일수
-        Integer rtNSHoliDayCnt;        // 공휴일 야간일자 cnt
+        Integer rtNSHoliDayCnt=0;        // 공휴일 야간일자 cnt
 
         Double rtHolidaySaturdayUsed;     // 휴일1 (토요일)
         Double rtHolidaySundayUsed;       // 휴일1 (일요일)
