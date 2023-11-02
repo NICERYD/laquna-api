@@ -138,7 +138,8 @@
         , hdcs.attribute03 AS overtime_allowance02
         , ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) AS night_allowance01
         , hdcs.attribute05 AS night_allowance02
-        , hdcs.attribute06 AS holiday_allowance01
+--         , hdcs.attribute06 AS holiday_allowance01
+        , IFNULL(hdcs.attribute21,0) + IFNULL(hdcs.attribute22,0) AS holiday_allowance01
         , hdcs.attribute07 AS holiday_allowance02
         , hdcs.attribute08 AS position_allowance
         , hdcs.attribute09 AS otherAllowance01
@@ -148,7 +149,7 @@
         , hdcs.attribute12 AS meals_expenses
         , IFNULL(hb.bonus_amount,0) AS bonus_amount
         , IFNULL(hdcs.basic_salary,0) + (ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0)) + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
-              + (ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0)) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute06,0) + IFNULL(hdcs.attribute07,0)
+              + (ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0)) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute21,0) + IFNULL(hdcs.attribute22,0) + IFNULL(hdcs.attribute07,0)
               + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + ifnull(hdcs.attribute16,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0)
               + IFNULL(hdcs.attribute12,0) AS salary_sum
         FROM   hr_dh_calc_salary hdcs
@@ -221,7 +222,8 @@
         , sum(hdcs.attribute03) AS overtime_allowance02
         , sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) AS night_allowance01
         , sum(hdcs.attribute05) AS night_allowance02
-        , sum(hdcs.attribute06) AS holiday_allowance01
+        -- , sum(hdcs.attribute06) AS holiday_allowance01
+        , sum(hdcs.attribute21) + sum(hdcs.attribute22) AS holiday_allowance01
         , sum(hdcs.attribute07) AS holiday_allowance02
         , sum(hdcs.attribute08) AS position_allowance
         , sum(hdcs.attribute09) AS otherAllowance01
@@ -232,7 +234,7 @@
         , sum(IFNULL(hb.bonus_amount,0)) AS bonus_amount
         , sum(IFNULL(hdcs.basic_salary,0)) + sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(ifnull(hdcs.attribute23,0)) 
         + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0)) + sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) 
-        + sum(IFNULL(hdcs.attribute05,0)) + sum(IFNULL(hdcs.attribute06,0)) + sum(IFNULL(hdcs.attribute07,0)) + sum(IFNULL(hdcs.attribute08,0)) 
+        + sum(IFNULL(hdcs.attribute05,0)) + sum(hdcs.attribute21) + sum(hdcs.attribute22) + sum(IFNULL(hdcs.attribute07,0)) + sum(IFNULL(hdcs.attribute08,0))
         + sum(IFNULL(hdcs.attribute09,0)) + sum(IFNULL(hdcs.attribute16,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0)) 
         + sum(IFNULL(hdcs.attribute12,0)) AS salary_sum
         FROM   hr_dh_calc_salary hdcs
@@ -881,10 +883,10 @@
                                AND he.attribute1 = hb.yyyymm
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
---           AND he.employee_type  = '200'
---           AND he.employee_number in (
---             'D23755'
---             )
+--           AND he.employee_type  = '100'
+          AND he.employee_number in (
+            'D21005'
+            )
 --           AND fbe.est_id = 2
         UNION ALL
         SELECT he.employee_id
@@ -967,7 +969,7 @@
                                AND he.attribute1 = hb.yyyymm
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
---           AND  1=2
+          AND  1=2
           AND (fcd03.defined_cd IN ('100', '910')
                 or he.employee_number IN (SELECT fcd.defined_cd
                                           FROM   fnd_code fc
