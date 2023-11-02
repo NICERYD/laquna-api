@@ -1363,8 +1363,8 @@
         <foreach item="item" index="index" collection="list" separator=", ">
             (
             SEEDIT.nextval('hr_dh_tax')
-            , (select company_id from fnd_company where attribute1 = #{item.cdCompany})
-            , (select employee_id from hr_employee where company_id = (select company_id from fnd_company where attribute1 = #{item.cdCompany}) and attribute1 = #{item.yyyymm} and employee_number = #{item.employeeNumber})
+           , #{item.companyId}
+            , (select employee_id from hr_employee where company_id = #{item.companyId} and attribute1 = #{item.yyyymm} and employee_number = #{item.employeeNumber})
             , #{item.yyyymm}
             , #{item.amDeduct01}
             , #{item.amDeduct02}

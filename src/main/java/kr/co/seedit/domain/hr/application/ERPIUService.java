@@ -92,6 +92,7 @@ public class ERPIUService {
         companyDto.setEmailId(userName);
         CompanyDto info = companyDao.selectTokenInfo(companyDto);
         erpIUDto.setLoginUserId(info.getUserId());
+        erpIUDto.setCompanyId(info.getCompanyId());
 
         // DELETE
         salaryDao.deletedhTax(erpIUDto);
