@@ -694,7 +694,12 @@ public class SalaryService {
                         .map(amount -> new BigDecimal(amount)
                                 .multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP)).setScale(0, RoundingMode.FLOOR))
                         .orElse(BigDecimal.ZERO);
-                basicAmount = basicAmount.add(totalAmount.subtract(basicAmount.add(overtimeAllowance02).add(nightAllowance02).add(holidayAllowance02)));
+                // 연봉제 퇴사자.입사자 급여 계산시 ERP 책정임금등록에 입력한 기본급 , 연장2, 야간2 금액에 /30 * 일한 일 수 로 계산하지만
+                // 해당값이 ERP 책정임금등록 탭의 합계액/30 * 일한 일수 보다 작거나 크면 책정임금등록의 /30 * 일한 일수(해당값은 소수점 첫쨰자리에서 올림으로 한다.) 로 금액을 맞춘다
+                if ((totalAmount.compareTo(basicAmount.add(overtimeAllowance02).add(nightAllowance02).add(holidayAllowance02))) > 0 ) {
+                    basicAmount = basicAmount.add(totalAmount.subtract(basicAmount.add(overtimeAllowance02).add(nightAllowance02).add(holidayAllowance02)));
+                }
+
             }
 
             // 01. 연봉제
