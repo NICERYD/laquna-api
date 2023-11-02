@@ -1376,6 +1376,8 @@ public class SalaryService {
                         } else {
                             // 점심시간 제외 12:30~13:30
                             // 점심시간 앞뒤 30분 제외.
+                            // 12:00 ~13:30 급여차감x
+                            // 12:30 ~ 14:00 급여차감x
                             if (!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(12, 30)) && !OutStartDateTime.toLocalTime().isAfter(LocalTime.of(13, 30))
                                     && !OutEndDateTime.toLocalTime().isBefore(LocalTime.of(12, 30)) && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(13, 30))) {
                                 System.out.println("제외");
@@ -1392,7 +1394,7 @@ public class SalaryService {
                             } else if ((!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)))
                                     && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(12, 30))) && (!OutEndDateTime.toLocalTime().isAfter(LocalTime.of(13, 30)))) {
                                 System.out.println("10:00\t12:50");
-                                duration = Duration.between(OutStartDateTime, OutEndDateTime.with(LocalTime.of(12, 30)));
+                                duration = Duration.between(OutStartDateTime, OutEndDateTime.with(LocalTime.of(12, 00)));
                             } else if ((!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30))) && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)))) {
                                 System.out.println("9:00\t15:00");
                                 duration = Duration.between(OutStartDateTime, OutEndDateTime);
