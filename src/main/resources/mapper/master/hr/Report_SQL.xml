@@ -608,6 +608,27 @@
 		  + IFNULL(hdt.AM_INCOMTAX,0) + IFNULL(hdt.AM_RESIDTAX,0) AS tax_sum
 		, IFNULL(hdt.DT_PAY,'00000000') AS dt_pay
 		, hdcs.yyyymm
+		, IFNULL(hdmkt.overtime_daytime, 0) overtime_daytime
+		, IFNULL(hdmkt.night_daytime, 0) night_daytime
+		, IFNULL(hdmkt.holiday_Saturday, 0) holiday_Saturday
+		, IFNULL(hdmkt.holiday_Sunday, 0) holiday_Sunday
+		, IFNULL(hdcs.attribute20, 0) attribute20
+		, IFNULL(hdmkt.total_time,0) total_time          
+		, IFNULL(hdmkt.overtime_day2H_cnt,0) overtime_day2H_cnt  
+		, IFNULL(hdmkt.overTime_day4H3M_cnt
+				+hdmkt.holiday_saturday_day4H_cnt,0) overtime01
+		, IFNULL(hdmkt.holiday_saturday_day4H_cnt
+				+hdmkt.holiday_saturday_day8H_cnt 
+				+hdmkt.holiday_sunday_day4H_cnt 
+				+hdmkt.holiday_sunday_day8H_cnt,0) holiday01
+		, IFNULL(hdmkt.annual_leave_used,0) annual_leave_used
+		, IFNULL(hdmkt.transportation,0) transportation
+		, IFNULL(hdmkt.meal,0) meals
+		, IFNULL(hdcs.attribute01,0) attribute01
+		, IFNULL(hdcs.attribute09,0) attribute09
+		, 0 late_time
+		, 0 outer_time
+		, 0 early_leave_time
         FROM   hr_dh_calc_salary hdcs
         INNER JOIN hr_dh_monthly_keun_tae hdmkt
 	    ON hdcs.company_id = hdmkt.company_id 

@@ -62,4 +62,22 @@ public class ReportPayrollDto {
     private int cnt;
     private String emailAddress;
     private String residentRegistrationNumber;
+    private int totalTime;
+
+	private int overtimeDaytime;
+	private int nightDaytime;
+	private int holidaySaturday;
+	private int holidaySunday;
+	private int attribute20;
+    private int overtime01;
+	private int holiday01;
+	private int annualLeaveUsed;
+	private int transportation;
+	private int meals;
+	private int attribute01;
+	private int attribute09;
+	private int lateTime;
+	private int outerTime;
+	private int earlyLeaveTime;
+
 }
