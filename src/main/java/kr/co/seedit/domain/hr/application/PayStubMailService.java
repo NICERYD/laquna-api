@@ -194,7 +194,13 @@ public class PayStubMailService {
 				String attachmentName = "securityMail.html";
 				String attachmentBody = getAttachmentBodyDH(data);
 
-				address.add(data.getEmailAddress());
+				if ("local".equals("local")) {
+					// 로컬 테스트 시 테스트하는 이메일로만 전송
+					TODO:: 확인
+					address.add("id@mail.com");
+				} else {
+					address.add(data.getEmailAddress());
+				}
 
 				// 메일전송
 				String errMsg = this.runJavaMailSender(
@@ -488,10 +494,10 @@ public class PayStubMailService {
 				.append("	</thead>\r\n")
 				.append("	<tbody>\r\n")
 				.append("		<tr>\r\n")
-				.append("			<td> </td>\r\n")
-				.append("			<td> </td>\r\n")
-				.append("			<td> </td>\r\n")
-				.append("			<td colspan=\"2\"> </td>\r\n")
+				.append("			<td> overtime_daytime                  </td>\r\n")
+				.append("			<td> night_daytime                     </td>\r\n")
+				.append("			<td> holiday_Saturday + holiday_Sunday </td>\r\n")
+				.append("			<td colspan=\"2\"> hr_dh_calc_salary.attribute20 </td>\r\n")
 				.append("		</tr>\r\n")
 				.append("	</tbody>\r\n")
 				.append("</table> <!--지급내역/공제내역 테이블-->\r\n")
@@ -704,18 +710,100 @@ public class PayStubMailService {
 				.append("			<th> 지급액</th>\r\n")
 				.append("		</tr>\r\n")
 				.append("	</thead>\r\n")
-				.append("	<tbody>\r\n")
-				.append("		<tr>\r\n")
-				.append("			<td> 기본급</td>\r\n")
-				.append("			<td> 통상시급 * 209</td>\r\n")
-				.append("			<td> 2,000,000</td>\r\n")
-				.append("		</tr>\r\n")
-				.append("		<tr>\r\n")
-				.append("			<td> 연장수당1</td>\r\n")
-				.append("			<td> 연장근로시간 * 통상시급 * 1.5</td>\r\n")
-				.append("			<td> 20,000</td>\r\n")
-				.append("		</tr>\r\n")
-				.append("	</tbody>\r\n")
+				.append("	<tbody>\r\n");
+
+			if ("100".equals(data.getEmployeeType())) {
+				// employee_type -- 100 연봉제
+				body.append("		<tr>\r\n")
+					.append("			<td> 기본급</td>\r\n")
+					.append("			<td>통상시급 * "
+							+ "총시간 hr_dh_monthly_keun_tae.total_time"
+							+ "</td>\r\n")
+					.append("			<td>"
+							+ "hr_dh_calc_salary.basic_salary"
+							+ "</td>\r\n")
+					.append("		</tr>\r\n")
+					.append("		<tr>\r\n")
+					.append("			<td> 연장수당1</td>\r\n")
+					.append("			<td> 연장근로일수("
+							+ "일자 : hr_dh_monthly_keun_tae.overtime_day2H_cnt + overTime_day4H3M_cnt "
+							+ "일) * 20,000원</td>\r\n")
+					.append("			<td>"
+							+ "hr_dh_calc_salary.attribute2  "
+							+ "</td>\r\n")
+					.append("		</tr>\r\n")
+					.append("		<tr>\r\n")
+					.append("			<td> 연장수당2</td>\r\n")
+					.append("			<td> 포괄임금제(연장시간 * 통산시급 * 1.5)</td>\r\n")
+					.append("			<td>"
+							+ "hr_dh_calc_salary.attribute3  "
+							+ "</td>\r\n")
+					.append("		</tr>\r\n")
+					.append("		<tr>\r\n")
+					.append("			<td> 야간수당2</td>\r\n")
+					.append("			<td> 포괄임금제(야간시간 * 통산시급 * 1.5)</td>\r\n")
+					.append("			<td>"
+							+ "hr_dh_calc_salary.attribute5  "
+							+ "</td>\r\n")
+					.append("		</tr>\r\n")
+					.append("		<tr>\r\n")
+					.append("			<td> 휴일수당1</td>\r\n")
+					.append("			<td> 휴일근로일수(" + "hr_dh_monthly_keun_tae" + "일 * 50,0000원(8시간기준)</td>\r\n")
+					.append("			<td>" + "hr_dh_calc_salary.attribute6" + "</td>\r\n")
+					.append("		</tr>\r\n");
+			} else if ("200".equals(data.getEmployeeType())) {
+				// employee_type -- 200 시급제
+				body.append("		<tr>\r\n")
+					.append("			<td> 기본급</td>\r\n")
+					.append("			<td>통상시급 * " + "hr_dh_monthly_keun_tae.total_time" + "</td>\r\n")
+					.append("			<td>" + "hr_dh_calc_salary.basic_salary" + "</td>\r\n")
+					.append("		</tr>\r\n")
+					.append("		<tr>\r\n")
+					.append("			<td> 연차수당</td>\r\n")
+					.append("			<td> 통상시급 * 근로시간(" + "hr_dh_monthly_keun_tae.annual_leave_used" + "시간) 연/월차 미사용시 8시간(반차 사용시 해당시간 차감)</td>\r\n")
+					.append("			<td>" + "hr_dh_calc_salary.attribute1" + "</td>\r\n")
+					.append("		</tr>\r\n")
+					.append("		<tr>\r\n")
+					.append("			<td> 기타수당</td>\r\n")
+					.append("			<td> 지각·외출·조퇴 사용시 공제 (지작 ");
+
+				boolean addComma = false;
+//				if (data.getLateTime()) {
+					body.append("지각 "
+							+ "late_time"
+							+ "시간");
+					addComma = true;
+//				}
+//				if (data.getOuterTime()) {
+					if (addComma) body.append(" ,");
+					body.append("외출 "
+							+ "outer_time"
+							+ "시간");
+					addComma = true;
+//				}
+//				if (data.getEarlyLeaveTime()) {
+					if (addComma) body.append(" ,");
+					body.append("조퇴 "
+							+ "early_leave_time"
+							+ "시간");
+					addComma = true;
+//				}
+				if (!addComma) body.append("0시간");
+				body.append(" * 통상시급)</td>\r\n")
+					.append("			<td>" + "hr_dh_calc_salary.attribute3" + "</td>\r\n")
+					.append("		</tr>\r\n")
+					.append("		<tr>\r\n")
+					.append("			<td> 교통비 </td>\r\n")
+					.append("			<td> 야근 " + "data.getTransport()" + "회 * 20,000</td>\r\n")
+					.append("			<td>" + data.getTransportationExpenses() + "</td>\r\n")
+					.append("		</tr>\r\n")
+					.append("		<tr>\r\n")
+					.append("			<td> 식대 </td>\r\n")
+					.append("			<td> 야근 " + "data.getMeal()" + "회 * 14,000</td>\r\n")
+					.append("			<td>" + data.getMealsExpenses() + "</td>\r\n")
+					.append("		</tr>\r\n");
+			}
+			body.append("	</tbody>\r\n")
 				.append("</table> <!--하단글-->\r\n")
 				.append("<table width=\"740px\">\r\n")
 				.append("	<tbody>\r\n")
