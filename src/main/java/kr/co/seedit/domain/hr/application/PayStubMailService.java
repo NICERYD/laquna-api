@@ -188,7 +188,7 @@ public class PayStubMailService {
 
 				
 				//TODO:: 로컬 테스트 시 이메일 정보 변경로직 필요
-				check address.add("id@mail.com");
+//				check address.add("id@mail.com");
 				
 				// real logic
 //				address.add(data.getEmailAddress());

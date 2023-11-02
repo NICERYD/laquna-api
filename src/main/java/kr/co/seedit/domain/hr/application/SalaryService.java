@@ -678,7 +678,7 @@ public class SalaryService {
                         .add(nightAllowance)
                         .add(holidayAllowance))
                         .multiply(BigDecimal.valueOf(diff)
-                                .divide(BigDecimal.valueOf(30), 8, RoundingMode.UP))
+                                .divide(BigDecimal.valueOf(30), 4, RoundingMode.HALF_UP))
                         .setScale(0, RoundingMode.UP);
 
                 basicAmount = new BigDecimal(basicSalaryDto.getBasicSalary()).multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, RoundingMode.UP)).setScale(0, RoundingMode.UP);
