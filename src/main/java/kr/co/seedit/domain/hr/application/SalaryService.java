@@ -350,6 +350,7 @@ public class SalaryService {
                 for (outRowindex = 1; outRowindex < outRows; outRowindex++) {
                     ADTExcelDto outAdtExcelDto = new ADTExcelDto();
                     outAdtExcelDto.setLoginUserId(info.getUserId());
+                    outAdtExcelDto.setCompanyId(info.getCompanyId());
                     XSSFRow outRow = outSheet.getRow(outRowindex);
                     int outCells = outRow.getPhysicalNumberOfCells();
 
@@ -482,7 +483,8 @@ public class SalaryService {
         String rtHalfLeaveUseDay;                // 반차일자
         Integer rtHalfLeaveCnt;           // 반차사용횟수
 
-        Double rtOverTimeUsed01;            // 연장1 일수
+        Double rtOverTimeUsed01;            // 연장1 시간
+        Integer rtOverTimeDayCnt;            // 연장1 일수
         Integer rtOverTimeDay2HCnt;        //평일 연장2H
         Integer rtOverTimeDay4H3MCnt;        //철야익일 4.5H
 
