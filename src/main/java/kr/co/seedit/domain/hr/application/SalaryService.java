@@ -699,7 +699,6 @@ public class SalaryService {
                 if ((totalAmount.compareTo(basicAmount.add(overtimeAllowance02).add(nightAllowance02).add(holidayAllowance02))) > 0 ) {
                     basicAmount = basicAmount.add(totalAmount.subtract(basicAmount.add(overtimeAllowance02).add(nightAllowance02).add(holidayAllowance02)));
                 }
-
             }
 
             // 01. 연봉제
@@ -942,7 +941,6 @@ public class SalaryService {
                 // 연봉제 중도/입사 퇴사자 총시간 조정
                 if (!midStatus.equals("000")) {
                     rtTotalTime = Math.floor(209.0/30.0*diff);
-
                 }
                 // 01-01. 임원
             } else if (basicSalaryDto.getEmployeeType().equals("100")
