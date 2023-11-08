@@ -824,7 +824,7 @@ public class SalaryService {
                                     rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + 4.0;
                                     holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount);
                                     rtHolidaySaturdayDay4HCnt++;
-                                } else if (dataWeek.equals("7") || (adtDataDto.getWorkStatus().contains("공휴일") && !Arrays.asList("추석", "설날").contains(adtDataDto.getDescription())) ) {
+                                } else if (dataWeek.equals("7") || ( adtDataDto.getWorkStatus().contains("공휴일") && !Arrays.asList("추석", "설날").contains(adtDataDto.getDescription())) ) {
                                     rtHolidaySundayUsed = rtHolidaySundayUsed + 4.0;
                                     holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount);
                                     rtHolidaySunday4HCnt++;
