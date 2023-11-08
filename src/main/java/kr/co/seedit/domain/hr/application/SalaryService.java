@@ -813,7 +813,7 @@ public class SalaryService {
                                     rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + 8.0;
                                     holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
                                     rtHolidaySaturdayDay8HCnt++;
-                                } else if (dataWeek.equals("7")) {
+                                } else if (dataWeek.equals("7") || (adtDataDto.getWorkStatus().contains("공휴일") && !Arrays.asList("추석", "설날").contains(adtDataDto.getDescription())) ) {
                                     rtHolidaySundayUsed = rtHolidaySundayUsed + 8.0;
                                     holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
                                     rtHolidaySunday8HCnt++;
@@ -824,7 +824,7 @@ public class SalaryService {
                                     rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + 4.0;
                                     holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount);
                                     rtHolidaySaturdayDay4HCnt++;
-                                } else if (dataWeek.equals("7")) {
+                                } else if (dataWeek.equals("7") || (adtDataDto.getWorkStatus().contains("공휴일") && !Arrays.asList("추석", "설날").contains(adtDataDto.getDescription())) ) {
                                     rtHolidaySundayUsed = rtHolidaySundayUsed + 4.0;
                                     holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount);
                                     rtHolidaySunday4HCnt++;
@@ -942,6 +942,7 @@ public class SalaryService {
                 // 연봉제 중도/입사 퇴사자 총시간 조정
                 if (!midStatus.equals("000")) {
                     rtTotalTime = Math.floor(209.0/30.0*diff);
+
                 }
                 // 01-01. 임원
             } else if (basicSalaryDto.getEmployeeType().equals("100")
