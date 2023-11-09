@@ -178,7 +178,7 @@ public class PayStubMailService {
 				List<String> address = new ArrayList<>();
 				List<String> ccAddress = null; //new ArrayList<>();
 
-				String subject = reportParamsDto.getYyyymm().substring(0, 4)+"년 "+reportParamsDto.getYyyymm().substring(5, 6)+"월 급여 명세서 입니다.";
+				String subject = reportParamsDto.getYyyymm().substring(0, 4)+"년 "+reportParamsDto.getYyyymm().substring(4, 6)+"월 급여 명세서 입니다.";
 				String content = "<br>"
 					+ "* 본 보안 메일은 개인정보 보호를 위하여 암호화있습니다.<br>"
 					+ "* 암호화된 첨부파일은 인터넷이 연결된 환경에서 확인이 가능합니다.<br>"
