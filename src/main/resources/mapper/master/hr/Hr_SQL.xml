@@ -885,7 +885,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '100'
 --           AND he.employee_number in (
---             'D21005'
+--             'D23505'
 --             )
 --           AND fbe.est_id = 2
         UNION ALL
@@ -1265,6 +1265,8 @@
         , ns01_day_cnt
         , night_team_plus
         , ns_holi_day_cnt
+        , non_pay_cnt
+        , non_pay_day
         )
         values
         <foreach item="item" index="index" collection="list" separator=", ">
@@ -1311,6 +1313,8 @@
             , #{item.NS01DayCnt}
             , #{item.nightTeamPlus}
             , #{item.NSHoliDayCnt}
+            , #{item.nonPayCnt}
+            , #{item.nonPayDay}
             )
         </foreach>
     </insert>
