@@ -45,10 +45,13 @@
                 ELSE 0
            END as overtime_daytime01 -- 연장시간01
          , IFNULL(hdcs.attribute02,0)  AS  overtime_allowance01     -- 연장수당01
-         , CASE WHEN he.employee_type = '100' AND ((he.retire_date != '9999-12-31') or (CONCAT(SUBSTRING(he.hire_date,1,4),SUBSTRING(he.hire_date,6,2)) = hdcs.yyyymm ) ) THEN TRUNCATE(52*((DATEDIFF(he.retire_date, STR_TO_DATE(CONCAT(hdcs.yyyymm, '01'), '%Y%m%d'))+1)/30),0)
-                WHEN he.employee_type = '100' AND he.retire_date = '9999-12-31' THEN 52
-                WHEN he.employee_type = '200' THEN 0
-                ELSE 0
+        , CASE WHEN he.employee_type = '100' AND he.retire_date != '9999-12-31'
+                    THEN TRUNCATE(52*((DATEDIFF(he.retire_date, STR_TO_DATE(CONCAT(hdcs.yyyymm, '01'), '%Y%m%d'))+1)/30),0)
+               WHEN he.employee_type = '100' AND CONCAT(SUBSTRING(he.hire_date,1,4),SUBSTRING(he.hire_date,6,2)) = hdcs.yyyymm
+                    THEN TRUNCATE(52*((DATEDIFF(LAST_DAY(STR_TO_DATE(CONCAT(hdcs.yyyymm, '01'), '%Y%m%d')), he.hire_date)+1)/30),0)
+               WHEN he.employee_type = '100' AND he.retire_date = '9999-12-31' THEN 52
+               WHEN he.employee_type = '200' THEN 0
+               ELSE 0
            END as overtime_daytime02 -- 연장시간02
          , IFNULL(hdcs.attribute03,0)  AS  overtime_allowance02    -- 연장수당02
          -- 야간수당
@@ -59,10 +62,13 @@
                 ELSE 0
            END AS  nt_nighttime01   -- 야간수당01 : 야간(연봉/시급) 시간
          , IFNULL(hdcs.attribute18,0) as nt_night_allowance01   -- 야간수당01 : 야간(연봉/시급) 수당
-         , CASE WHEN he.employee_type = '100' AND ((he.retire_date != '9999-12-31') or (CONCAT(SUBSTRING(he.hire_date,1,4),SUBSTRING(he.hire_date,6,2)) = hdcs.yyyymm ) )  THEN TRUNCATE(24*((DATEDIFF(he.retire_date, STR_TO_DATE(CONCAT(hdcs.yyyymm, '01'), '%Y%m%d'))+1)/30),0)
-                WHEN he.employee_type = '100' AND he.retire_date = '9999-12-31' THEN 24
-                WHEN he.employee_type = '200' THEN 0
-                ELSE 0
+         , CASE WHEN he.employee_type = '100' AND he.retire_date != '9999-12-31'
+                    THEN TRUNCATE(24*((DATEDIFF(he.retire_date, STR_TO_DATE(CONCAT(hdcs.yyyymm, '01'), '%Y%m%d'))+1)/30),0)
+               WHEN he.employee_type = '100' AND CONCAT(SUBSTRING(he.hire_date,1,4),SUBSTRING(he.hire_date,6,2)) = hdcs.yyyymm
+                    THEN TRUNCATE(24*((DATEDIFF(LAST_DAY(STR_TO_DATE(CONCAT(hdcs.yyyymm, '01'), '%Y%m%d')), he.hire_date)+1)/30),0)
+               WHEN he.employee_type = '100' AND he.retire_date = '9999-12-31' THEN 24
+               WHEN he.employee_type = '200' THEN 0
+               ELSE 0
            END as nt_nighttime02 -- 야간수당02 시간
          , CASE WHEN he.employee_type = '100' THEN IFNULL(hdcs.attribute05,0)
                 WHEN he.employee_type = '200' THEN 0
