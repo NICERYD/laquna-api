@@ -678,21 +678,21 @@ public class SalaryService {
                         .add(nightAllowance)
                         .add(holidayAllowance))
                         .multiply(BigDecimal.valueOf(diff)
-                                .divide(BigDecimal.valueOf(30), 4, RoundingMode.HALF_UP))
-                        .setScale(0, RoundingMode.UP);
+                                .divide(BigDecimal.valueOf(30), 10, RoundingMode.FLOOR))
+                        .setScale(0, RoundingMode.CEILING);
 
-                basicAmount = new BigDecimal(basicSalaryDto.getBasicSalary()).multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, RoundingMode.UP)).setScale(0, RoundingMode.UP);
+                basicAmount = new BigDecimal(basicSalaryDto.getBasicSalary()).multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 10, RoundingMode.FLOOR)).setScale(0, RoundingMode.HALF_UP);
                 overtimeAllowance02 = Optional.ofNullable(basicSalaryDto.getOvertimeAllowance02())
                         .map(amount -> new BigDecimal(amount)
-                                .multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP)).setScale(0, RoundingMode.FLOOR))
+                                .multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 10, RoundingMode.FLOOR)).setScale(0, RoundingMode.HALF_UP))
                         .orElse(BigDecimal.ZERO);
                 nightAllowance02 = Optional.ofNullable(basicSalaryDto.getNightAllowance02())
                         .map(amount -> new BigDecimal(amount)
-                                .multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP)).setScale(0, RoundingMode.FLOOR))
+                                .multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 10, RoundingMode.FLOOR)).setScale(0, RoundingMode.HALF_UP))
                         .orElse(BigDecimal.ZERO);
                 holidayAllowance02 = Optional.ofNullable(basicSalaryDto.getHolidayAllowance02())
                         .map(amount -> new BigDecimal(amount)
-                                .multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 8, BigDecimal.ROUND_UP)).setScale(0, RoundingMode.FLOOR))
+                                .multiply(BigDecimal.valueOf(diff).divide(BigDecimal.valueOf(30), 10, RoundingMode.FLOOR)).setScale(0, RoundingMode.HALF_UP))
                         .orElse(BigDecimal.ZERO);
                 // 연봉제 퇴사자.입사자 급여 계산시 ERP 책정임금등록에 입력한 기본급 , 연장2, 야간2 금액에 /30 * 일한 일 수 로 계산하지만
                 // 해당값이 ERP 책정임금등록 탭의 합계액/30 * 일한 일수 보다 작거나 크면 책정임금등록의 /30 * 일한 일수(해당값은 소수점 첫쨰자리에서 올림으로 한다.) 로 금액을 맞춘다
