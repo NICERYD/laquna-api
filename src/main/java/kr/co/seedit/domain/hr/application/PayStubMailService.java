@@ -187,11 +187,9 @@ public class PayStubMailService {
 				String attachmentBody = getAttachmentBodyDH(data);
 
 				
+				address.add(data.getEmailAddress()); // real logic
 				//TODO:: 로컬 테스트 시 이메일 정보 변경로직 필요
-//				check address.add("id@mail.com");
-				
-				// real logic
-//				address.add(data.getEmailAddress());
+//				address.clear();check address.add("id@mail.com");
 
 				// 메일전송
 				String errMsg = this.runJavaMailSender(
