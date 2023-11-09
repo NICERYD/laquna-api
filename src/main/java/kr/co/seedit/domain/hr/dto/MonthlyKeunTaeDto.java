@@ -50,4 +50,6 @@ public class MonthlyKeunTaeDto {
     private Integer NS01DayCnt;
     private Double nightTeamPlus;
     private Integer NSHoliDayCnt;
+    private Integer nonPayCnt;
+    private String nonPayDay;
 }

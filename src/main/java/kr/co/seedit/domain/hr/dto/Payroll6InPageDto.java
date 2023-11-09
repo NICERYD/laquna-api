@@ -173,5 +173,8 @@ public class Payroll6InPageDto implements Serializable {
 
 	@Builder.Default
 	private Double totalAmt = 0d; // 합계
+
+	private Integer nonPayCnt ; // 무급횟수
+	private String nonPayDay ; // 무급일자
 	
 }
