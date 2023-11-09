@@ -187,9 +187,9 @@ public class PayStubMailService {
 				String attachmentBody = getAttachmentBodyDH(data);
 
 				
-				address.add(data.getEmailAddress()); // real logic
+//				address.add(data.getEmailAddress()); // real logic
 				//TODO:: 로컬 테스트 시 이메일 정보 변경로직 필요
-//				address.clear();check address.add("id@mail.com");
+				address.clear(); address.add("lhkyu@naver.com");
 
 				// 메일전송
 				String errMsg = this.runJavaMailSender(
@@ -525,7 +525,7 @@ public class PayStubMailService {
 				.append("							<th width=\"14%\"> 직책수당</th>\r\n")
 				.append("							<th width=\"14%\"> 기타수당</th>\r\n")
 				.append("							<th width=\"14%\"> 보조금</th>\r\n")
-				.append("							<th width=\"14%\"> 식대</th>\r\n")
+				.append("							<th width=\"14%\"> </th>\r\n")//식대
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
@@ -534,11 +534,11 @@ public class PayStubMailService {
 				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getPositionAllowance()) +"</td>\r\n")
 				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getOtherAllowances()) +"</td>\r\n")
 				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getSubsidies()) +"</td>\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getMealsExpenses()) +"</td>\r\n")
+				.append("							<td> </td>\r\n")//.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getMealsExpenses()) +"</td>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#f7f7f7\" height=\"22px\" align=\"center\"\r\n")
 				.append("							style=\"font-size: 11px;font-family: 돋음, dotum;color: #666677;\">\r\n")
-				.append("							<th width=\"14%\"> 교통비</th>\r\n")
+				.append("							<th> </th>\r\n")//.append("							<th width=\"14%\"> 교통비</th>\r\n")
 				.append("							<th> </th>\r\n")
 				.append("							<th> </th>\r\n")
 				.append("							<th> </th>\r\n")
@@ -546,7 +546,7 @@ public class PayStubMailService {
 				.append("							<th> </th>\r\n")
 				.append("						</tr>\r\n")
 				.append("						<tr bgcolor=\"#ffffff\" height=\"22px\" align=\"center\" style=\"font-size: 12px;font-family: 돋음, dotum;color: #000000;\">\r\n")
-				.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getTransportationExpenses()) +"</td>\r\n")
+				.append("							<td> </td>\r\n")//.append("							<td style=\"border-bottom:1px solid #eee;\">"+ payFormat.format(data.getTransportationExpenses()) +"</td>\r\n")
 				.append("							<td> </td>\r\n")
 				.append("							<td> </td>\r\n")
 				.append("							<td> </td>\r\n")
@@ -719,6 +719,11 @@ public class PayStubMailService {
 					.append("			<td>" + data.getOvertimeAllowance02() + "</td>\r\n")
 					.append("		</tr>\r\n")
 					.append("		<tr>\r\n")
+					.append("			<td> 야간수당1</td>\r\n")
+					.append("			<td> 포괄임금제(야간근로일수 * 30,000원)</td>\r\n")
+					.append("			<td>" + data.getNightAllowance02() + "</td>\r\n")
+					.append("		</tr>\r\n")
+					.append("		<tr>\r\n")
 					.append("			<td> 야간수당2</td>\r\n")
 					.append("			<td> 포괄임금제(야간시간 * 통산시급 * 1.5)</td>\r\n")
 					.append("			<td>" + data.getNightAllowance02() + "</td>\r\n")
@@ -742,36 +747,37 @@ public class PayStubMailService {
 					.append("		</tr>\r\n")
 					.append("		<tr>\r\n")
 					.append("			<td> 기타수당</td>\r\n")
-					.append("			<td> 지각·외출·조퇴 사용시 공제 (지작 ");
+					.append("			<td> 지각·외출·조퇴 사용시 공제 (");
 
-				boolean addComma = false;
-				if (0 < data.getLateTime()) {
-					body.append("지각 " + data.getLateTime() + "시간");
-					addComma = true;
-				}
-				if (0 < data.getOuterTime()) {
-					if (addComma) body.append(" ,");
-					body.append("외출 " + data.getOuterTime() + "시간");
-					addComma = true;
-				}
-				if (0 < data.getEarlyLeaveTime()) {
-					if (addComma) body.append(" ,");
-					body.append("조퇴 " + data.getEarlyLeaveTime() + "시간");
-					addComma = true;
-				}
-				if (false == addComma) body.append("0시간");
+				//boolean addComma = false;
+				//if (0 < data.getLateTime()) {
+				//	body.append("지각 " + data.getLateTime() + "시간");
+				//	addComma = true;
+				//}
+				//if (0 < data.getOuterTime()) {
+				//	if (addComma) body.append(" ,");
+				//	body.append("외출 " + data.getOuterTime() + "시간");
+				//	addComma = true;
+				//}
+				//if (0 < data.getEarlyLeaveTime()) {
+				//	if (addComma) body.append(" ,");
+				//	body.append("조퇴 " + data.getEarlyLeaveTime() + "시간");
+				//	addComma = true;
+				//}
+				//if (false == addComma) body.append("0시간");
+				body.append((data.getLateTime() + data.getOuterTime() + data.getEarlyLeaveTime()) + "시간");
 				body.append(" * 통상시급)</td>\r\n")
-					.append("			<td>" + data.getOvertimeAllowance02() + "</td>\r\n")
-					.append("		</tr>\r\n")
-					.append("		<tr>\r\n")
-					.append("			<td> 교통비 </td>\r\n")
-					.append("			<td> 야근 " + data.getTransportation() + "회 * 20,000</td>\r\n")
-					.append("			<td>" + data.getTransportationExpenses() + "</td>\r\n")
-					.append("		</tr>\r\n")
-					.append("		<tr>\r\n")
-					.append("			<td> 식대 </td>\r\n")
-					.append("			<td> 야근 " + data.getMeals() + "회 * 14,000</td>\r\n")
-					.append("			<td>" + data.getMealsExpenses() + "</td>\r\n")
+					.append("			<td>" + data.getAttribute09() + "</td>\r\n")
+					//.append("		</tr>\r\n")
+					//.append("		<tr>\r\n")
+					//.append("			<td> 교통비 </td>\r\n")
+					//.append("			<td> 야근 " + data.getTransportation() + "회 * 20,000</td>\r\n")
+					//.append("			<td>" + data.getTransportationExpenses() + "</td>\r\n")
+					//.append("		</tr>\r\n")
+					//.append("		<tr>\r\n")
+					//.append("			<td> 식대 </td>\r\n")
+					//.append("			<td> 야근 " + data.getMeals() + "회 * 14,000</td>\r\n")
+					//.append("			<td>" + data.getMealsExpenses() + "</td>\r\n")
 					.append("		</tr>\r\n");
 			}
 			body.append("	</tbody>\r\n")
