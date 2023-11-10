@@ -482,7 +482,7 @@ public class PayStubMailService {
 				.append("			<td> " + df_m1.format(Math.floor((data.getNtDaytime01() + data.getNtNighttime01())*10)/10) + "</td>\r\n")
 				.append("			<td> " + df_m1.format(Math.floor((data.getHolidaySatTime01() + data.getHolidaySunTime01())*80)/10) + "</td>\r\n")
 				.append("			<td colspan=\"2\"> " + 
-						("200".equals(data.getEmployeeType()) ? data.getAttribute20() :"")
+						("200".equals(data.getEmployeeType()) ? payFormat.format(data.getAttribute20()) :"")
 						+ "</td>\r\n")
 				.append("		</tr>\r\n")
 				.append("	</tbody>\r\n")
@@ -750,7 +750,7 @@ public class PayStubMailService {
 					.append("		<tr>\r\n")
 					.append("			<td> 야간수당1</td>\r\n")
 					.append("			<td> 야간근로시간 * 통상시급 * 2.0</td>\r\n")
-					.append("			<td>" + payFormat.format(data.getNightAllowance02()) + "</td>\r\n")
+					.append("			<td>" + payFormat.format(data.getNightAllowance01()) + "</td>\r\n")
 					.append("		</tr>\r\n")
 					.append("		<tr>\r\n")
 					.append("			<td> 휴일수당1</td>\r\n")
