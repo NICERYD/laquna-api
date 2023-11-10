@@ -481,7 +481,9 @@ public class PayStubMailService {
 				.append("			<td> " + df_m1.format(Math.floor((data.getOvertimeDaytime01())*10)/10) + "</td>\r\n")
 				.append("			<td> " + df_m1.format(Math.floor((data.getNtDaytime01() + data.getNtNighttime01())*10)/10) + "</td>\r\n")
 				.append("			<td> " + df_m1.format(Math.floor((data.getHolidaySatTime01() + data.getHolidaySunTime01())*80)/10) + "</td>\r\n")
-				.append("			<td colspan=\"2\"> " + data.getAttribute20() + "</td>\r\n")
+				.append("			<td colspan=\"2\"> " + 
+						("200".equals(data.getEmployeeType()) ? data.getAttribute20() :"")
+						+ "</td>\r\n")
 				.append("		</tr>\r\n")
 				.append("	</tbody>\r\n")
 				.append("</table> <!--지급내역/공제내역 테이블-->\r\n")
