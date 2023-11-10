@@ -612,10 +612,35 @@
 		  + IFNULL(hdt.AM_INCOMTAX,0) + IFNULL(hdt.AM_RESIDTAX,0) AS tax_sum
 		, IFNULL(hdt.DT_PAY,'00000000') AS dt_pay
 		, hdcs.yyyymm
+         -- 연장 시간
 		, CASE WHEN he.employee_type = '100' THEN IFNULL(hdmkt.overtime_day2H_cnt,0) + IFNULL(hdmkt.overtime_day4H3M_cnt,0)
 		    WHEN he.employee_type = '200' THEN IFNULL(hdmkt.overtime_daytime,0)
 		    ELSE 0
 		  END as overtime_daytime01 -- 연장시간01
+         -- 야간 시간
+         , IFNULL(hdmkt.night_daytime,0) AS nt_daytime01   -- 야간수당01 : 주간(시급) 시간
+         , CASE WHEN he.employee_type = '100' THEN IFNULL(hdmkt.ns01_day_cnt,0)
+                WHEN he.employee_type = '200' THEN IFNULL(hdmkt.night_nighttime,0)
+                ELSE 0
+           END AS  nt_nighttime01   -- 야간수당01 : 야간(연봉/시급) 시간
+         , CASE WHEN he.employee_type = '100' AND he.retire_date != '9999-12-31'
+                    THEN TRUNCATE(24*((DATEDIFF(he.retire_date, STR_TO_DATE(CONCAT(hdcs.yyyymm, '01'), '%Y%m%d'))+1)/30),0)
+               WHEN he.employee_type = '100' AND CONCAT(SUBSTRING(he.hire_date,1,4),SUBSTRING(he.hire_date,6,2)) = hdcs.yyyymm
+                    THEN TRUNCATE(24*((DATEDIFF(LAST_DAY(STR_TO_DATE(CONCAT(hdcs.yyyymm, '01'), '%Y%m%d')), he.hire_date)+1)/30),0)
+               WHEN he.employee_type = '100' AND he.retire_date = '9999-12-31' THEN 24
+               WHEN he.employee_type = '200' THEN 0
+               ELSE 0
+           END as nt_nighttime02 -- 야간수당02 시간
+         -- 휴일 시간
+         , CASE WHEN he.employee_type = '100' THEN IFNULL(hdmkt.holiday_saturday_day4H_cnt,0)/2 + IFNULL(hdmkt.holiday_saturday_day8H_cnt,0)
+                WHEN he.employee_type = '200' AND hdmkt.holiday_saturday != 0 THEN floor(hdmkt.holiday_saturday/8) + (hdmkt.holiday_saturday%8 * (1/8))
+                ELSE 0
+           END  as holiday_sat_time01 -- 휴일수당01 : 토요일 시간
+         , IFNULL(hdmkt.holiday_sunday_day4H_cnt,0)/2 + IFNULL(hdmkt.holiday_sunday_day8H_cnt,0) as holiday_sun_time01 -- 휴일수당01 : 일요일 시간
+         , CASE WHEN he.employee_type = '100' THEN 0
+                WHEN he.employee_type = '200' THEN 0
+                ELSE 0
+           END as holiday_time02 -- 휴일수당02 시간
 		, IFNULL(hdmkt.overtime_daytime, 0) overtime_daytime
 		, IFNULL(hdmkt.night_daytime, 0) night_daytime
 		, IFNULL(hdmkt.holiday_Saturday, 0) holiday_Saturday
