@@ -178,7 +178,7 @@ public class PayStubMailService {
 				List<String> address = new ArrayList<>();
 				List<String> ccAddress = null; //new ArrayList<>();
 
-				String subject = reportParamsDto.getYyyymm().substring(0, 4)+"년 "+reportParamsDto.getYyyymm().substring(4, 6)+"월 급여 명세서 입니다.";
+				String subject = reportParamsDto.getYyyymm().substring(0, 4)+"년 "+reportParamsDto.getYyyymm().substring(4, 6)+"월 급여 명세서 입니다";
 				String content = "<br>"
 					+ "* 본 보안 메일은 개인정보 보호를 위하여 암호화있습니다.<br>"
 					+ "* 암호화된 첨부파일은 인터넷이 연결된 환경에서 확인이 가능합니다.<br>"
@@ -189,7 +189,8 @@ public class PayStubMailService {
 				
 				address.add(data.getEmailAddress()); // real logic
 				//TODO:: 로컬 테스트 시 이메일 정보 변경로직 필요
-//				address.clear(); address.add("테슽");
+//				address.clear(); address.add("lhkyu@naver.com");
+//				attachmentName = data.getResidentRegistrationNumber()+".html";
 
 				// 메일전송
 				String errMsg = this.runJavaMailSender(
@@ -382,16 +383,6 @@ public class PayStubMailService {
 		return "";
 	}
 
-//	public ReportPayrollDto getPayStubData () throws Exception {
-//		ReportParamsDto reportParamsDto = new ReportParamsDto();
-//		reportParamsDto.setCompanyId(5);
-//		reportParamsDto.setEstId(999);
-//		reportParamsDto.setYyyymm("202306");
-//		reportParamsDto.setEmployeeNumber("D00001");
-//		ReportPayrollDto data = reportDao.findPayStubForMail(reportParamsDto);
-//		return data;
-//	}
-
 	/**
 	 * 첨부파일 내용 생성
 	 * @param data
@@ -416,7 +407,7 @@ public class PayStubMailService {
 				.append("	<tbody>\r\n")
 				.append("		<tr align=\"center\">\r\n")
 				.append("			<td style=\"font-size: 16px;font-family: 돋음, dotum;color: #444444;padding:10px;\"> <b> ")
-				.append(data.getYyyymm().substring(0,4)+"년 "+data.getYyyymm().substring(5,6))//yyyymm
+				.append(data.getYyyymm().substring(0,4)+"년 "+data.getYyyymm().substring(4,6))//yyyymm
 				.append("월 급여 명세서</b>\r\n")
 				.append("			</td>\r\n")
 				.append("		</tr>\r\n")
@@ -483,7 +474,7 @@ public class PayStubMailService {
 				.append("	</thead>\r\n")
 				.append("	<tbody>\r\n")
 				.append("		<tr>\r\n")
-				.append("			<td> " + data.getOvertimeDaytime() + "</td>\r\n")
+				.append("			<td> " + data.getOvertimeDaytime01() + "</td>\r\n")
 				.append("			<td> " + data.getNightDaytime() + "</td>\r\n")
 				.append("			<td> " + (data.getHolidaySaturday() + data.getHolidaySunday()) + "</td>\r\n")
 				.append("			<td colspan=\"2\"> " + data.getAttribute20() + "</td>\r\n")
@@ -705,69 +696,85 @@ public class PayStubMailService {
 				// employee_type -- 100 연봉제
 				body.append("		<tr>\r\n")
 					.append("			<td> 기본급</td>\r\n")
-					.append("			<td>통상시급 * " + data.getTotalTime() + "</td>\r\n")
-					.append("			<td>" + data.getBasicSalary() + "</td>\r\n")
+					.append("			<td>통상시급 * 209시간</td>\r\n")//data.getTotalTime()
+					.append("			<td>" + payFormat.format(data.getBasicSalary()) + "</td>\r\n")
 					.append("		</tr>\r\n")
 					.append("		<tr>\r\n")
 					.append("			<td> 연장수당1</td>\r\n")
-					.append("			<td> 연장근로일수(" + data.getOvertime01() + "일) * 20,000원</td>\r\n")
-					.append("			<td>" + data.getOvertimeAllowance01() + "</td>\r\n")
+					.append("			<td> 연차사용촉진제 시행</td>\r\n")//연장근로일수(" + data.getOvertime01() + "일) * 20,000원
+					.append("			<td>" + payFormat.format(data.getOvertimeAllowance01()) + "</td>\r\n")
 					.append("		</tr>\r\n")
 					.append("		<tr>\r\n")
 					.append("			<td> 연장수당2</td>\r\n")
-					.append("			<td> 포괄임금제(연장시간 * 통산시급 * 1.5)</td>\r\n")
-					.append("			<td>" + data.getOvertimeAllowance02() + "</td>\r\n")
+					.append("			<td> 포괄 임금제(연장시간 * 통상시급 * 1.5)</td>\r\n")
+					.append("			<td>" + payFormat.format(data.getOvertimeAllowance02()) + "</td>\r\n")
 					.append("		</tr>\r\n")
 					.append("		<tr>\r\n")
 					.append("			<td> 야간수당1</td>\r\n")
-					.append("			<td> 포괄임금제(야간근로일수 * 30,000원)</td>\r\n")
-					.append("			<td>" + data.getNightAllowance02() + "</td>\r\n")
+					.append("			<td> 야간근로일수 * 30,000원</td>\r\n")
+					.append("			<td>" + payFormat.format(data.getNightAllowance01()) + "</td>\r\n")
 					.append("		</tr>\r\n")
 					.append("		<tr>\r\n")
 					.append("			<td> 야간수당2</td>\r\n")
-					.append("			<td> 포괄임금제(야간시간 * 통산시급 * 1.5)</td>\r\n")
-					.append("			<td>" + data.getNightAllowance02() + "</td>\r\n")
+					.append("			<td> 포괄임금제(야간시간 * 통상시급 * 0.5)</td>\r\n")
+					.append("			<td>" + payFormat.format(data.getNightAllowance02()) + "</td>\r\n")
 					.append("		</tr>\r\n")
 					.append("		<tr>\r\n")
 					.append("			<td> 휴일수당1</td>\r\n")
-					.append("			<td> 휴일근로일수(" + data.getHoliday01() + "일 * 50,0000원(8시간기준)</td>\r\n")
-					.append("			<td>" + data.getHolidayAllowance01() + "</td>\r\n")
+					.append("			<td> 휴일근로일수 * 50,0000원(8시간기준)</td>\r\n")//data.getHoliday01()
+					.append("			<td>" + payFormat.format(data.getHolidayAllowance01()) + "</td>\r\n")
 					.append("		</tr>\r\n");
 			} else if ("200".equals(data.getEmployeeType())) {
 				// employee_type -- 200 시급제
 				body.append("		<tr>\r\n")
 					.append("			<td> 기본급</td>\r\n")
-					.append("			<td>통상시급 * " + data.getTotalTime() + "</td>\r\n")
-					.append("			<td>" + data.getBasicSalary() + "</td>\r\n")
+					.append("			<td>통상시급 * 209</td>\r\n")//data.getTotalTime()
+					.append("			<td>" + payFormat.format(data.getBasicSalary()) + "</td>\r\n")
 					.append("		</tr>\r\n")
 					.append("		<tr>\r\n")
 					.append("			<td> 연차수당</td>\r\n")
-					.append("			<td> 통상시급 * 근로시간(" + data.getAnnualLeaveUsed() + "시간) 연/월차 미사용시 8시간(반차 사용시 해당시간 차감)</td>\r\n")
-					.append("			<td>" + data.getAttribute01() + "</td>\r\n")
+					.append("			<td> 통상시급 * 근로시간 / 연,월차 미사용시 당월정산(반차사용시 해당시간 차감)</td>\r\n")//data.getAnnualLeaveUsed()
+					.append("			<td>" + payFormat.format(data.getAttribute01()) + "</td>\r\n")
+					.append("		</tr>\r\n")
+					.append("		<tr>\r\n")
+					.append("			<td> 연장수당1</td>\r\n")
+					.append("			<td> 연장근로시간 * 통상시급 * 1.5</td>\r\n")
+					.append("			<td>" + payFormat.format(data.getOvertimeAllowance01()) + "</td>\r\n")
+					.append("		</tr>\r\n")
+					.append("		<tr>\r\n")
+					.append("			<td> 야간수당1</td>\r\n")
+					.append("			<td> 야간근로시간 * 통상시급 * 2.0</td>\r\n")
+					.append("			<td>" + payFormat.format(data.getNightAllowance02()) + "</td>\r\n")
+					.append("		</tr>\r\n")
+					.append("		<tr>\r\n")
+					.append("			<td> 휴일수당1</td>\r\n")
+					.append("			<td> 휴일근로시간 * 통상시급 * 1.5</td>\r\n")
+					.append("			<td>" + payFormat.format(data.getHolidayAllowance01()) + "</td>\r\n")
 					.append("		</tr>\r\n")
 					.append("		<tr>\r\n")
 					.append("			<td> 기타수당</td>\r\n")
-					.append("			<td> 지각·외출·조퇴 사용시 공제 (");
-
-				//boolean addComma = false;
-				//if (0 < data.getLateTime()) {
-				//	body.append("지각 " + data.getLateTime() + "시간");
-				//	addComma = true;
-				//}
-				//if (0 < data.getOuterTime()) {
-				//	if (addComma) body.append(" ,");
-				//	body.append("외출 " + data.getOuterTime() + "시간");
-				//	addComma = true;
-				//}
-				//if (0 < data.getEarlyLeaveTime()) {
-				//	if (addComma) body.append(" ,");
-				//	body.append("조퇴 " + data.getEarlyLeaveTime() + "시간");
-				//	addComma = true;
-				//}
-				//if (false == addComma) body.append("0시간");
-				body.append((data.getLateTime() + data.getOuterTime() + data.getEarlyLeaveTime()) + "시간");
-				body.append(" * 통상시급)</td>\r\n")
-					.append("			<td>" + data.getAttribute09() + "</td>\r\n")
+					.append("			<td> 지각·외출·조퇴 사용시 공제 (사용시간 * 통상시급)</td>\r\n")
+					.append("			<td>" + payFormat.format(data.getAttribute09()) + "</td>\r\n")
+					.append("		</tr>\r\n");
+					//boolean addComma = false;
+					//if (0 < data.getLateTime()) {
+					//	body.append("지각 " + data.getLateTime() + "시간");
+					//	addComma = true;
+					//}
+					//if (0 < data.getOuterTime()) {
+					//	if (addComma) body.append(" ,");
+					//	body.append("외출 " + data.getOuterTime() + "시간");
+					//	addComma = true;
+					//}
+					//if (0 < data.getEarlyLeaveTime()) {
+					//	if (addComma) body.append(" ,");
+					//	body.append("조퇴 " + data.getEarlyLeaveTime() + "시간");
+					//	addComma = true;
+					//}
+					//if (false == addComma) body.append("0시간");
+					//body.append((data.getLateTime() + data.getOuterTime() + data.getEarlyLeaveTime()) + "시간");
+					//body.append(" * 통상시급)</td>\r\n")
+					//.append("			<td>" + data.getAttribute09() + "</td>\r\n")
 					//.append("		</tr>\r\n")
 					//.append("		<tr>\r\n")
 					//.append("			<td> 교통비 </td>\r\n")
@@ -778,7 +785,7 @@ public class PayStubMailService {
 					//.append("			<td> 식대 </td>\r\n")
 					//.append("			<td> 야근 " + data.getMeals() + "회 * 14,000</td>\r\n")
 					//.append("			<td>" + data.getMealsExpenses() + "</td>\r\n")
-					.append("		</tr>\r\n");
+					//.append("		</tr>\r\n");
 			}
 			body.append("	</tbody>\r\n")
 				.append("</table> <!--하단글-->\r\n")

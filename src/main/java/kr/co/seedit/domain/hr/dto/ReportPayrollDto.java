@@ -64,6 +64,7 @@ public class ReportPayrollDto {
     private String residentRegistrationNumber;
     private int totalTime;
 
+    private int overtimeDaytime01;
 	private int overtimeDaytime;
 	private int nightDaytime;
 	private int holidaySaturday;

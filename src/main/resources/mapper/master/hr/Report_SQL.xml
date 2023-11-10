@@ -612,6 +612,10 @@
 		  + IFNULL(hdt.AM_INCOMTAX,0) + IFNULL(hdt.AM_RESIDTAX,0) AS tax_sum
 		, IFNULL(hdt.DT_PAY,'00000000') AS dt_pay
 		, hdcs.yyyymm
+		, CASE WHEN he.employee_type = '100' THEN IFNULL(hdmkt.overtime_day2H_cnt,0) + IFNULL(hdmkt.overtime_day4H3M_cnt,0)
+		    WHEN he.employee_type = '200' THEN IFNULL(hdmkt.overtime_daytime,0)
+		    ELSE 0
+		  END as overtime_daytime01 -- 연장시간01
 		, IFNULL(hdmkt.overtime_daytime, 0) overtime_daytime
 		, IFNULL(hdmkt.night_daytime, 0) night_daytime
 		, IFNULL(hdmkt.holiday_Saturday, 0) holiday_Saturday
