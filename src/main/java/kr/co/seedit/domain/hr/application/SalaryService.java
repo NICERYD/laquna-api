@@ -385,7 +385,7 @@ public class SalaryService {
                         OutlistADT.add(outAdtExcelDto);
                     }
                 }
-                logger.info("outAdtExcelDto : {}", OutlistADT.toString());
+                logger.info("outAdtExcelDto : {},  adtExcel02 : {}", OutlistADT.toString(), adtExcel02.toString());
 
 
                 for (ADTExcelDto item : OutlistADT) {
@@ -1393,56 +1393,20 @@ public class SalaryService {
                         }
                     }
                     // 기타수당 - 외출
+System.out.println("adtDataDto.getEmployeeNumber="+adtDataDto.getEmployeeNumber()+" OutTime="+adtDataDto.getOutTime() +" WorkStatus=" + adtDataDto.getWorkStatus() + " " + adtDataDto.toString());
                     if (adtDataDto.getOutTime() != null && !adtDataDto.getOutTime().equals("")) {
-                        LocalDateTime OutStartDateTime = LocalDateTime.parse(adtDataDto.getOutStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        LocalDateTime OutEndDateTime = LocalDateTime.parse(adtDataDto.getOutEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        Duration duration = null;
-                        if (adtDataDto.getWorkStatus().equals("야간")) {
-                        } else {
+                    	// 야간을 제외한 이유는 모름.
+                        //if (adtDataDto.getWorkStatus().equals("야간")) {
+                        //} else {
                             // 점심시간 제외 12:30~13:30
                             // 점심시간 앞뒤 30분 제외.
                             // 12:00 ~13:30 급여차감x
                             // 12:30 ~ 14:00 급여차감x
-                            if (!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(12, 30)) && !OutStartDateTime.toLocalTime().isAfter(LocalTime.of(13, 30))
-                                    && !OutEndDateTime.toLocalTime().isBefore(LocalTime.of(12, 30)) && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(13, 30))) {
-                                System.out.println("제외");
-                            } else if ((!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30))) && (!OutEndDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)))) {
-                                System.out.println("9:00\t11:00");
-                                duration = Duration.between(OutStartDateTime, OutEndDateTime);
-                            } else if ((!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(13, 30))) && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)))) {
-                                System.out.println("14:00\t15:00");
-                                duration = Duration.between(OutStartDateTime, OutEndDateTime);
-                            } else if ((!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(12, 30))) && (!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(13, 30)))
-                                    && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)))) {
-                                System.out.println("12:40\t14:00");
-                                duration = Duration.between(OutStartDateTime.with(LocalTime.of(13, 30)), OutEndDateTime);
-                            } else if ((!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)))
-                                    && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(12, 30))) && (!OutEndDateTime.toLocalTime().isAfter(LocalTime.of(13, 30)))) {
-                                System.out.println("10:00\t12:50");
-                                duration = Duration.between(OutStartDateTime, OutEndDateTime.with(LocalTime.of(12, 00)));
-                            } else if ((!OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30))) && (!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)))) {
-                                System.out.println("9:00\t15:00");
-                                duration = Duration.between(OutStartDateTime, OutEndDateTime);
-                                duration = duration.minus(Duration.ofHours(1));
-                            }
-                            boolean intime = false;
-                            if (((!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(12, 00)) && !OutStartDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)))
-                                    && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(13, 30)))
-                                    || (!OutStartDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)) && !OutStartDateTime.toLocalTime().isAfter(LocalTime.of(14, 00))
-                                    && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(14, 00)))) {
-                                intime = true;
-                            }
-                            if ((!OutEndDateTime.toLocalTime().isBefore(LocalTime.of(12, 00)) && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(12, 30)))
-                                    || !OutEndDateTime.toLocalTime().isBefore(LocalTime.of(13, 30)) && !OutEndDateTime.toLocalTime().isAfter(LocalTime.of(14, 00))) {
-                                intime = true;
-                            }
-                            if (intime) {
-                                duration = duration.minus(Duration.ofMinutes(30));
-                            }
-                        }
-                        double minutes = duration.toMinutes() % 60;
-                        rtOuterUsed = rtOuterUsed + duration.toHours() + ((minutes > 30) ? 1.0 : (minutes <= 0) ? 0.0 : 0.5);
-//                        String dayOfMonth = adtDataDto.getWorkDate().substring(8);
+                    	if ("D18011".equals(adtDataDto.getEmployeeNumber()) || "D18011".equals(adtDataDto.getEmployeeId())) {
+                    		System.out.println("박경운 "+adtDataDto.getWorkStatus() + " " + adtDataDto.toString());
+                    	}
+                        	rtOuterUsed = getOutTime(adtDataDto.getOutStartDate(), adtDataDto.getOutEndDate());
+                        //}
                         if (rtOuterUsed > 0) {
                             DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
                             DateFormat outputFormat = new SimpleDateFormat("M/d");
@@ -1652,6 +1616,50 @@ public class SalaryService {
         // test
         return isLunchTimeIncluded;
     }
+
+    /**
+     * 범위안에 해당되는 분을 리턴한다.
+     * @param start
+     * @param end
+     * @param range_s
+     * @param range_e
+     * @return
+     */
+	static long getTimeInRange(LocalDateTime start, LocalDateTime end, LocalDateTime range_s, LocalDateTime range_e) {
+
+		Long rst = 0L;
+
+		LocalDateTime from = (null == range_s || true == start.isAfter(range_s) ? start : range_s);
+		LocalDateTime to = (null == range_e || true == end.isBefore(range_e) ? end : range_e);
+
+		if (from.isBefore(to)) {
+			rst = Duration.between(from, to).toMinutes();
+		}
+
+		return rst;
+	}
+
+	/**
+	 * DH 식 외출 시간 계산 함수
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	static Double getOutTime(String start, String end) {
+
+		LocalDateTime OutStartDateTime = LocalDateTime.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime OutEndDateTime = LocalDateTime.parse(end, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+		Long outTime1 = getTimeInRange(OutStartDateTime, OutEndDateTime, null, OutStartDateTime.with(LocalTime.of(12, 00)));
+		Long gapTime1 = getTimeInRange(OutStartDateTime, OutEndDateTime, OutStartDateTime.with(LocalTime.of(12, 00)), OutStartDateTime.with(LocalTime.of(12, 30)));
+		Long gapTime2 = getTimeInRange(OutStartDateTime, OutEndDateTime, OutStartDateTime.with(LocalTime.of(13, 30)), OutStartDateTime.with(LocalTime.of(14, 00)));
+		Long outTime2 = getTimeInRange(OutStartDateTime, OutEndDateTime, OutStartDateTime.with(LocalTime.of(14, 00)), null);
+		Long outTime = (outTime1 + outTime2 + (gapTime1 + gapTime2 > 30 ? gapTime1 + gapTime2 - 30 : 0)); 
+		Double rst = 0.5 * Math.ceil(1.0*outTime/30);
+
+		//System.out.printf(" %3d+%3d+%3d+%3d = %4d (%2d:%2d)", outTime1, gapTime1, gapTime2, outTime2, outTime, outTime/60, outTime%60);
+		return rst;
+	}
 
     public static BigDecimal calcNonPay(Integer nonPaycnt, String basicSalary, String overtimeAllowance02, String
             nightAllowance02, String holidayAllowance02) {
