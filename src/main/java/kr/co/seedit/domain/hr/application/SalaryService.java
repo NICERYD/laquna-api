@@ -385,7 +385,7 @@ public class SalaryService {
                         OutlistADT.add(outAdtExcelDto);
                     }
                 }
-                logger.info("outAdtExcelDto : {},  adtExcel02 : {}", OutlistADT.toString(), adtExcel02.toString());
+                logger.info("outAdtExcelDto : {}", OutlistADT.toString());
 
 
                 for (ADTExcelDto item : OutlistADT) {
@@ -1393,20 +1393,17 @@ public class SalaryService {
                         }
                     }
                     // 기타수당 - 외출
-System.out.println("adtDataDto.getEmployeeNumber="+adtDataDto.getEmployeeNumber()+" OutTime="+adtDataDto.getOutTime() +" WorkStatus=" + adtDataDto.getWorkStatus() + " " + adtDataDto.toString());
                     if (adtDataDto.getOutTime() != null && !adtDataDto.getOutTime().equals("")) {
-                    	// 야간을 제외한 이유는 모름.
-                        //if (adtDataDto.getWorkStatus().equals("야간")) {
-                        //} else {
+                    	Double addOutTime = 0.0;
+                        if (adtDataDto.getWorkStatus().equals("야간")) {
+                        } else {
                             // 점심시간 제외 12:30~13:30
                             // 점심시간 앞뒤 30분 제외.
                             // 12:00 ~13:30 급여차감x
                             // 12:30 ~ 14:00 급여차감x
-                    	if ("D18011".equals(adtDataDto.getEmployeeNumber()) || "D18011".equals(adtDataDto.getEmployeeId())) {
-                    		System.out.println("박경운 "+adtDataDto.getWorkStatus() + " " + adtDataDto.toString());
-                    	}
-                        	rtOuterUsed = getOutTime(adtDataDto.getOutStartDate(), adtDataDto.getOutEndDate());
-                        //}
+                        	addOutTime = getOutTime(adtDataDto.getOutStartDate(), adtDataDto.getOutEndDate());
+                        }
+                        rtOuterUsed = rtOuterUsed + addOutTime;
                         if (rtOuterUsed > 0) {
                             DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
                             DateFormat outputFormat = new SimpleDateFormat("M/d");
@@ -1647,17 +1644,17 @@ System.out.println("adtDataDto.getEmployeeNumber="+adtDataDto.getEmployeeNumber(
 	 */
 	static Double getOutTime(String start, String end) {
 
-		LocalDateTime OutStartDateTime = LocalDateTime.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        LocalDateTime OutEndDateTime = LocalDateTime.parse(end, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+		LocalDateTime sTime = LocalDateTime.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime eTime = LocalDateTime.parse(end, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-		Long outTime1 = getTimeInRange(OutStartDateTime, OutEndDateTime, null, OutStartDateTime.with(LocalTime.of(12, 00)));
-		Long gapTime1 = getTimeInRange(OutStartDateTime, OutEndDateTime, OutStartDateTime.with(LocalTime.of(12, 00)), OutStartDateTime.with(LocalTime.of(12, 30)));
-		Long gapTime2 = getTimeInRange(OutStartDateTime, OutEndDateTime, OutStartDateTime.with(LocalTime.of(13, 30)), OutStartDateTime.with(LocalTime.of(14, 00)));
-		Long outTime2 = getTimeInRange(OutStartDateTime, OutEndDateTime, OutStartDateTime.with(LocalTime.of(14, 00)), null);
+		Long outTime1 = getTimeInRange(sTime, eTime, null, sTime.with(LocalTime.of(12, 00)));
+		Long gapTime1 = getTimeInRange(sTime, eTime, sTime.with(LocalTime.of(12, 00)), sTime.with(LocalTime.of(12, 30)));
+		Long gapTime2 = getTimeInRange(sTime, eTime, sTime.with(LocalTime.of(13, 30)), sTime.with(LocalTime.of(14, 00)));
+		Long outTime2 = getTimeInRange(sTime, eTime, sTime.with(LocalTime.of(14, 00)), null);
 		Long outTime = (outTime1 + outTime2 + (gapTime1 + gapTime2 > 30 ? gapTime1 + gapTime2 - 30 : 0)); 
 		Double rst = 0.5 * Math.ceil(1.0*outTime/30);
 
-		//System.out.printf(" %3d+%3d+%3d+%3d = %4d (%2d:%2d)", outTime1, gapTime1, gapTime2, outTime2, outTime, outTime/60, outTime%60);
+		logger.error(" %3d+%3d+%3d+%3d = %4d (%2d:%2d)", outTime1, gapTime1, gapTime2, outTime2, outTime, outTime/60, outTime%60);
 		return rst;
 	}
 

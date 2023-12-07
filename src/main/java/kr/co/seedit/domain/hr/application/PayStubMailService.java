@@ -760,7 +760,7 @@ public class PayStubMailService {
 					.append("		<tr>\r\n")
 					.append("			<td> 기타수당</td>\r\n")
 					.append("			<td> 지각·외출·조퇴 사용시 공제 (사용시간 * 통상시급)</td>\r\n")
-					.append("			<td>" + payFormat.format(data.getAttribute09()) + "</td>\r\n")
+					.append("			<td>" + payFormat.format(data.getOtherAllowances()) + "</td>\r\n")
 					.append("		</tr>\r\n");
 					//boolean addComma = false;
 					//if (0 < data.getLateTime()) {
