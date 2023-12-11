@@ -784,6 +784,12 @@ public class SalaryService {
                         LocalDateTime workStartTime = LocalDateTime.parse(adtDataDto.getWorkStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         LocalDateTime workEndTime = LocalDateTime.parse(adtDataDto.getWorkEndDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                         String dataWeek = adtDataDto.getDateWeek();
+
+                        // 8시반 이전 출근 제외
+                        if (workStartTime.toLocalTime().isBefore(LocalTime.of(8, 30))) {
+                        	workStartTime = workStartTime.with(LocalTime.of(8, 30));
+                        }
+
                         // 10:30분 이전 출근
                         boolean startyn = (workStartTime.toLocalTime().isBefore(LocalTime.of(10, 30)) || workStartTime.toLocalTime().equals(LocalTime.of(10, 30)));
                         // 17:30분 이후 퇴근
