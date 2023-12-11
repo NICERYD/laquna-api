@@ -337,10 +337,6 @@ public class Payroll6InPageService {
         if (null != data.getAttribute01() && data.getEmployeeType().equals("200")) {
             sheet.getRow(curRow + 12).getCell(curCol + 3).setCellValue(data.getAttribute01());
         }
-        //연봉제 연차수당
-        if (0 != data.getAttribute01() && data.getEmployeeType().equals("100")) {
-            sheet.getRow(curRow + 12).getCell(curCol + 3).setCellValue(data.getAttribute01());
-        }
 
         //연차정산
         if (null != data.getAnnualLeaveCalc()) {
@@ -404,11 +400,12 @@ public class Payroll6InPageService {
             sheet.getRow(curRow + 18).getCell(curCol + 3).setCellValue(data.getAttribute16());
         }
         //연봉제 무급처리 금액
-        if (0 != data.getAttribute01() && data.getEmployeeType().equals("100")) {
+//        if (0 != data.getAttribute01() && data.getEmployeeType().equals("100")) {
         	sheet.getRow(curRow + 19).getCell(curCol).setCellValue("무급");
             sheet.getRow(curRow + 19).getCell(curCol + 1).setCellValue(data.getNonPayDay());
             sheet.getRow(curRow + 19).getCell(curCol + 2).setCellValue(data.getNonPayCnt());
-        }
+            sheet.getRow(curRow + 19).getCell(curCol + 3).setCellValue(data.getAttribute01());
+//        }
         //보조금
         //교통비
         if (0 != data.getAttribute11() && null != data.getTranspotation()) {

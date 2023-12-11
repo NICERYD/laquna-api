@@ -841,32 +841,32 @@ public class SalaryService {
                             }
                         }
                     }
-                    // 무급처리 count
-                    if (adtDataDto.getWorkStatus().equals("무급")) {
-                        nonPayCnt++;
-
-                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
-                        DateFormat outputFormat = new SimpleDateFormat("M/d");
-                        DateFormat outputFormat2 = new SimpleDateFormat("d");
-                        String dayOfMonth = "";
-                        try {
-                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        if (nonPayDay.isEmpty()) {
-                            nonPayDay = adtDataDto.getWorkDate();
-                            try {
-                                // 입력 문자열을 Date 객체로 파싱
-                                Date date = inputFormat.parse(nonPayDay);
-                                nonPayDay = outputFormat.format(date);
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            nonPayDay = nonPayDay + "," + dayOfMonth;
-                        }
-                    }
+//                    // 무급처리 count
+//                    if (adtDataDto.getWorkStatus().equals("무급")) {
+//                        nonPayCnt++;
+//
+//                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+//                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+//                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+//                        String dayOfMonth = "";
+//                        try {
+//                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+//                        } catch (ParseException e) {
+//                            e.printStackTrace();
+//                        }
+//                        if (nonPayDay.isEmpty()) {
+//                            nonPayDay = adtDataDto.getWorkDate();
+//                            try {
+//                                // 입력 문자열을 Date 객체로 파싱
+//                                Date date = inputFormat.parse(nonPayDay);
+//                                nonPayDay = outputFormat.format(date);
+//                            } catch (ParseException e) {
+//                                e.printStackTrace();
+//                            }
+//                        } else {
+//                            nonPayDay = nonPayDay + "," + dayOfMonth;
+//                        }
+//                    }
 
                     // 연차/반차 count
                     // 연차수당 - 연차
@@ -965,11 +965,11 @@ public class SalaryService {
                     }
 
                 }
-                // 무급처리
-                // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
-                if (!(nonPayCnt == 0)) {
-                    annualAllowance = calcNonPay(nonPayCnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
-                }
+//                // 무급처리
+//                // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
+//                if (!(nonPayCnt == 0)) {
+//                    annualAllowance = calcNonPay(nonPayCnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
+//                }
                 // 연봉제 중도/입사 퇴사자 총시간 조정
                 if (!midStatus.equals("000")) {
                     rtTotalTime = Math.floor(209.0/30.0*diff);
@@ -1501,6 +1501,53 @@ public class SalaryService {
                 if (rtOuterUsed != 0) {
                     otherAmount = otherAmount.add(hourlyPay.multiply(BigDecimal.valueOf(rtOuterUsed * -1))).setScale(0, RoundingMode.CEILING);
                     OuterAmount = OuterAmount.add(hourlyPay.multiply(BigDecimal.valueOf(rtOuterUsed * -1))).setScale(0, RoundingMode.CEILING);
+                }
+            }
+
+            // 2023-12-11 DH(김다은) 요청으로 무급 전체 처리로 수정
+            {
+                List<ADTDataDto> adtDataDtos = salaryDao.selectADTData(requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
+                workcnt = 0;
+                paidHoliday = 0;
+                for (ADTDataDto adtDataDto : adtDataDtos) {
+
+                	// 무급처리 count
+                    if (adtDataDto.getWorkStatus().equals("무급")) {
+                        nonPayCnt++;
+
+                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+                        String dayOfMonth = "";
+                        try {
+                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        if (nonPayDay.isEmpty()) {
+                            nonPayDay = adtDataDto.getWorkDate();
+                            try {
+                                // 입력 문자열을 Date 객체로 파싱
+                                Date date = inputFormat.parse(nonPayDay);
+                                nonPayDay = outputFormat.format(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            nonPayDay = nonPayDay + "," + dayOfMonth;
+                        }
+                    }
+                }
+                // 무급처리
+                // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
+                if (!(nonPayCnt == 0)) {
+                	try {
+						annualAllowance = calcNonPay(nonPayCnt,
+								null == basicSalaryDto.getBasicSalary()         ? "0" : basicSalaryDto.getBasicSalary() ,
+								null == basicSalaryDto.getOvertimeAllowance02() ? "0" : basicSalaryDto.getOvertimeAllowance02(),
+								null == basicSalaryDto.getNightAllowance02()    ? "0" : basicSalaryDto.getNightAllowance02(),
+								null == basicSalaryDto.getHolidayAllowance02()  ? "0" : basicSalaryDto.getHolidayAllowance02());
+                	} catch (NullPointerException e) { ; }
                 }
             }
 
