@@ -1468,10 +1468,10 @@ public class SalaryService {
                 // 연차수당 - 해당월입사
                 // 2023.10.11 김다은 중도입사/퇴사 연차 없음
                 // 마이너스 금액은 그대로 표기
-                if (!midStatus.equals("000") && (annualAllowance.compareTo(BigDecimal.ZERO) == 1)  ) {
+                if (!midStatus.equals("000") && (annualAllowance.compareTo(BigDecimal.ZERO) == 1)) {
                     annualAllowance = BigDecimal.ZERO;
                 }
-                if (!midStatus.equals("000") && (halfAllowance.compareTo(BigDecimal.ZERO) == 1)  ) {
+                if (!midStatus.equals("000") && (halfAllowance.compareTo(BigDecimal.ZERO) == 1)) {
                     halfAllowance = BigDecimal.ZERO;
                 }
 
@@ -1757,7 +1757,8 @@ public class SalaryService {
      * @return
      */
     public static Boolean checkMidHire(String yyyymm, LocalDate hireDate) {
-        if (hireDate.getMonthValue() == Integer.parseInt(yyyymm.substring(4, 6))) {
+        if (hireDate.getYear() == Integer.parseInt(yyyymm.substring(0, 4))
+                && hireDate.getMonthValue() == Integer.parseInt(yyyymm.substring(4, 6))) {
             return Boolean.TRUE;
         } else {
             return Boolean.FALSE;
@@ -1771,7 +1772,8 @@ public class SalaryService {
      * @return
      */
     public static Boolean checkMidRetire(String yyyymm, LocalDate retireDate) {
-        if (retireDate.getMonthValue() == Integer.parseInt(yyyymm.substring(4, 6))) {
+        if (retireDate.getYear() == Integer.parseInt(yyyymm.substring(0, 4))
+                && retireDate.getMonthValue() == Integer.parseInt(yyyymm.substring(4, 6))) {
             return Boolean.TRUE;
         } else {
             return Boolean.FALSE;
