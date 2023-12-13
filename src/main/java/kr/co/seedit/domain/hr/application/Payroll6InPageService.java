@@ -401,10 +401,10 @@ public class Payroll6InPageService {
         }
         //연봉제 무급처리 금액
 //        if (0 != data.getAttribute01() && data.getEmployeeType().equals("100")) {
-        	sheet.getRow(curRow + 19).getCell(curCol).setCellValue("무급");
+//        	sheet.getRow(curRow + 19).getCell(curCol).setCellValue("무급");
             sheet.getRow(curRow + 19).getCell(curCol + 1).setCellValue(data.getNonPayDay());
             sheet.getRow(curRow + 19).getCell(curCol + 2).setCellValue(data.getNonPayCnt());
-            sheet.getRow(curRow + 19).getCell(curCol + 3).setCellValue(data.getAttribute01());
+//            sheet.getRow(curRow + 19).getCell(curCol + 3).setCellValue(data.getNonPayCnt() data.get);
 //        }
         //보조금
         //교통비

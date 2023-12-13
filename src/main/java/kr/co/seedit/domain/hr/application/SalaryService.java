@@ -495,14 +495,13 @@ public class SalaryService {
         Integer rtNS01DayCnt;        // 야간1 일자
 
 
-
         Integer rtHolidaySaturdayDay4HCnt; //토요 4H
         Integer rtHolidaySaturdayDay8HCnt;//토요 8H
         Double rtNSNightTimeUsed;      // 야간1 시간(야간조)
         Integer rtHolidaySunday4HCnt;   //일요 4H
         Integer rtHolidaySunday8HCnt;   //일요 8H
 //        Double rtNightShift02;          // 야간2 일수
-        Integer rtNSHoliDayCnt=0;        // 공휴일 야간일자 cnt
+        Integer rtNSHoliDayCnt = 0;        // 공휴일 야간일자 cnt
 
         Double rtHolidaySaturdayUsed;     // 휴일1 (토요일)
         Double rtHolidaySundayUsed;       // 휴일1 (일요일)
@@ -647,24 +646,26 @@ public class SalaryService {
 
             // 00. 해당월 입사/퇴직자 처리 댜상:연봉제, 시급제 && 별정직, 경비
             YearMonth yearMonth = YearMonth.parse(requestDto.getYyyymm(), DateTimeFormatter.ofPattern("yyyyMM"));
+            int lastDay = yearMonth.lengthOfMonth();
+            requestDto.getYyyymm();
             String midStatus = "000";
-            Calendar calendar = Calendar.getInstance();
-            try {
-                calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse(basicSalaryDto.getRetireDate()));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            int firstDayOfMonth = calendar.getActualMinimum(Calendar.DAY_OF_MONTH);
-            int lastDayOfMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
             // 해당 월(YYYYMM) 기준 중도 입사/퇴사 날짜계산
             long diff;
             // 중도 입사/퇴사 체크. 000:해당없음, 001:중도입사, 002:중도퇴사
-            if (!(calendar.get(Calendar.DAY_OF_MONTH) == firstDayOfMonth) && basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
-                diff = ChronoUnit.DAYS.between(hireDate, yearMonth.atEndOfMonth()) + 1;
+            if (checkMidHire(requestDto.getYyyymm(), hireDate)) {
+                if (!(hireDate.getDayOfMonth() == 1)) {
+                    diff = ChronoUnit.DAYS.between(hireDate, yearMonth.atEndOfMonth()) + 1;
+                } else {
+                    diff = 0;
+                }
                 midStatus = "001";
-            } else if (!(calendar.get(Calendar.DAY_OF_MONTH) == lastDayOfMonth) && basicSalaryDto.getRetireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
-                diff = ChronoUnit.DAYS.between(yearMonth.atDay(1), retireDate) + 1;
+            } else if (checkMidRetire(requestDto.getYyyymm(), retireDate)) {
+                if (!(retireDate.getDayOfMonth() == lastDay)) {
+                    diff = ChronoUnit.DAYS.between(yearMonth.atDay(1), retireDate) + 1;
+                } else {
+                    diff = 0;
+                }
                 midStatus = "002";
             } else {
                 diff = 0;
@@ -672,7 +673,7 @@ public class SalaryService {
             // 각 항목 금액(기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 근무일 로 각 항목 금액으로 표기
             if ((basicSalaryDto.getEmployeeType().equals("100")
                     || (basicSalaryDto.getEmployeeType().equals("200") && basicSalaryDto.getDutyType().equals("201")))
-                    && !midStatus.equals("000")) {
+                    && (!midStatus.equals("000") && diff != 0L)) {
                 BigDecimal totalAmount;
                 BigDecimal basicSalary = basicSalaryDto.getBasicSalary() != null ? new BigDecimal(basicSalaryDto.getBasicSalary()) : BigDecimal.ZERO;
                 BigDecimal overtimeAllowance = basicSalaryDto.getOvertimeAllowance02() != null ? new BigDecimal(basicSalaryDto.getOvertimeAllowance02()) : BigDecimal.ZERO;
@@ -700,7 +701,7 @@ public class SalaryService {
                         .orElse(BigDecimal.ZERO);
                 // 연봉제 퇴사자.입사자 급여 계산시 ERP 책정임금등록에 입력한 기본급 , 연장2, 야간2 금액에 /30 * 일한 일 수 로 계산하지만
                 // 해당값이 ERP 책정임금등록 탭의 합계액/30 * 일한 일수 보다 작거나 크면(같이않다면) 책정임금등록의 /30 * 일한 일수(해당값은 소수점 첫쨰자리에서 올림으로 한다.) 로 금액을 맞춘다
-                if ((totalAmount.compareTo(basicAmount.add(overtimeAllowance02).add(nightAllowance02).add(holidayAllowance02))) != 0 ) {
+                if ((totalAmount.compareTo(basicAmount.add(overtimeAllowance02).add(nightAllowance02).add(holidayAllowance02))) != 0) {
                     basicAmount = basicAmount.add(totalAmount.subtract(basicAmount.add(overtimeAllowance02).add(nightAllowance02).add(holidayAllowance02)));
                 }
             }
@@ -787,7 +788,7 @@ public class SalaryService {
 
                         // 8시반 이전 출근 제외
                         if (workStartTime.toLocalTime().isBefore(LocalTime.of(8, 30))) {
-                        	workStartTime = workStartTime.with(LocalTime.of(8, 30));
+                            workStartTime = workStartTime.with(LocalTime.of(8, 30));
                         }
 
                         // 10:30분 이전 출근
@@ -822,7 +823,7 @@ public class SalaryService {
                                     rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + 8.0;
                                     holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
                                     rtHolidaySaturdayDay8HCnt++;
-                                } else if (dataWeek.equals("7") || (adtDataDto.getWorkStatus().contains("공휴일") && !Arrays.asList("추석", "설날").contains(adtDataDto.getDescription())) ) {
+                                } else if (dataWeek.equals("7") || (adtDataDto.getWorkStatus().contains("공휴일") && !Arrays.asList("추석", "설날").contains(adtDataDto.getDescription()))) {
                                     rtHolidaySundayUsed = rtHolidaySundayUsed + 8.0;
                                     holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount.multiply(BigDecimal.valueOf(2)));
                                     rtHolidaySunday8HCnt++;
@@ -833,7 +834,7 @@ public class SalaryService {
                                     rtHolidaySaturdayUsed = rtHolidaySaturdayUsed + 4.0;
                                     holidayAllowanceSat = holidayAllowanceSat.add(holidayBaseAmount);
                                     rtHolidaySaturdayDay4HCnt++;
-                                } else if (dataWeek.equals("7") || ( adtDataDto.getWorkStatus().contains("공휴일") && !Arrays.asList("추석", "설날").contains(adtDataDto.getDescription())) ) {
+                                } else if (dataWeek.equals("7") || (adtDataDto.getWorkStatus().contains("공휴일") && !Arrays.asList("추석", "설날").contains(adtDataDto.getDescription()))) {
                                     rtHolidaySundayUsed = rtHolidaySundayUsed + 4.0;
                                     holidayAllowanceSun = holidayAllowanceSun.add(holidayBaseAmount);
                                     rtHolidaySunday4HCnt++;
@@ -894,7 +895,8 @@ public class SalaryService {
                             rtAnnualLeaveUsedDay = rtAnnualLeaveUsedDay + "," + dayOfMonth;
                         }
                     }
-                    if (Arrays.asList("오전반차", "오후반차", "오전반차_정상", "오후반차_정상").contains(adtDataDto.getWorkStatus())) {
+//                    if (Arrays.asList("오전반차", "오후반차", "오전반차_정상", "오후반차_정상").contains(adtDataDto.getWorkStatus())
+                    if (adtDataDto.getWorkStatus().contains("오후반차")) {
                         rtHalfLeaveCnt++;
 
                         DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -971,8 +973,8 @@ public class SalaryService {
 //                    annualAllowance = calcNonPay(nonPayCnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
 //                }
                 // 연봉제 중도/입사 퇴사자 총시간 조정
-                if (!midStatus.equals("000")) {
-                    rtTotalTime = Math.floor(209.0/30.0*diff);
+                if (!midStatus.equals("000") && diff != 0L) {
+                    rtTotalTime = Math.floor(209.0 / 30.0 * diff);
                 }
                 // 01-01. 임원
             } else if (basicSalaryDto.getEmployeeType().equals("100")
@@ -1400,14 +1402,14 @@ public class SalaryService {
                     }
                     // 기타수당 - 외출
                     if (adtDataDto.getOutTime() != null && !adtDataDto.getOutTime().equals("")) {
-                    	Double addOutTime = 0.0;
+                        Double addOutTime = 0.0;
                         if (adtDataDto.getWorkStatus().equals("야간")) {
                         } else {
                             // 점심시간 제외 12:30~13:30
                             // 점심시간 앞뒤 30분 제외.
                             // 12:00 ~13:30 급여차감x
                             // 12:30 ~ 14:00 급여차감x
-                        	addOutTime = getOutTime(adtDataDto.getOutStartDate(), adtDataDto.getOutEndDate());
+                            addOutTime = getOutTime(adtDataDto.getOutStartDate(), adtDataDto.getOutEndDate());
                         }
                         rtOuterUsed = rtOuterUsed + addOutTime;
                         if (rtOuterUsed > 0) {
@@ -1442,15 +1444,20 @@ public class SalaryService {
                 // 기본급 퇴직여부
                 // Y "000": 계약서 상의 시급 × 209H
                 // N "001", "002": 일할 계산 시 "(실근무일+주휴수당)×8H" 로 계산
-                if (midStatus.equals("000")) {
+                if (midStatus.equals("000") || diff == 0) {
                     basicAmount = basicAmount.add(hourlyPay.multiply(BigDecimal.valueOf(209)));
                 } else {
                     basicAmount = hourlyPay.multiply(BigDecimal.valueOf((workcnt + paidHoliday) * 8L));
                     rtTotalTime = (double) ((workcnt + paidHoliday) * 8);
                 }
                 // 연차수당
-                annualAllowance = annualAllowance.add(hourlyPay.multiply(BigDecimal.valueOf(8))).setScale(0, RoundingMode.CEILING);
-                // 연차수당 - 연차
+                // 한달 1개 연차 생성. 단 중도 입/퇴사자 제외
+                if (!midStatus.equals("000")) {
+                    annualAllowance = BigDecimal.ZERO;
+                } else {
+                    annualAllowance = annualAllowance.add(hourlyPay.multiply(BigDecimal.valueOf(8))).setScale(0, RoundingMode.CEILING);
+                }
+                // 연차 계산
                 if (rtAnnualLeaveUsed != 0) {
                     annualAllowance = annualAllowance.subtract(hourlyPay.multiply(BigDecimal.valueOf(rtAnnualLeaveUsed * 8))).setScale(0, RoundingMode.CEILING);
                 }
@@ -1460,11 +1467,15 @@ public class SalaryService {
                 }
                 // 연차수당 - 해당월입사
                 // 2023.10.11 김다은 중도입사/퇴사 연차 없음
-                if (basicSalaryDto.getHireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())
-                        || basicSalaryDto.getRetireDate().substring(0, 7).replace("-", "").equals(requestDto.getYyyymm())) {
+                // 마이너스 금액은 그대로 표기
+                if (!midStatus.equals("000") && (annualAllowance.compareTo(BigDecimal.ZERO) == 1)  ) {
                     annualAllowance = BigDecimal.ZERO;
+                }
+                if (!midStatus.equals("000") && (halfAllowance.compareTo(BigDecimal.ZERO) == 1)  ) {
                     halfAllowance = BigDecimal.ZERO;
                 }
+
+
                 // 야간조 야간수당, 교통비, 식대
                 if (nightCnt != 0) {
                     transportationAmount = BigDecimal.valueOf(20000).multiply(BigDecimal.valueOf(nightCnt)).setScale(0, RoundingMode.CEILING);
@@ -1511,7 +1522,7 @@ public class SalaryService {
                 paidHoliday = 0;
                 for (ADTDataDto adtDataDto : adtDataDtos) {
 
-                	// 무급처리 count
+                    // 무급처리 count
                     if (adtDataDto.getWorkStatus().equals("무급")) {
                         nonPayCnt++;
 
@@ -1541,13 +1552,15 @@ public class SalaryService {
                 // 무급처리
                 // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
                 if (!(nonPayCnt == 0)) {
-                	try {
-						annualAllowance = calcNonPay(nonPayCnt,
-								null == basicSalaryDto.getBasicSalary()         ? "0" : basicSalaryDto.getBasicSalary() ,
-								null == basicSalaryDto.getOvertimeAllowance02() ? "0" : basicSalaryDto.getOvertimeAllowance02(),
-								null == basicSalaryDto.getNightAllowance02()    ? "0" : basicSalaryDto.getNightAllowance02(),
-								null == basicSalaryDto.getHolidayAllowance02()  ? "0" : basicSalaryDto.getHolidayAllowance02());
-                	} catch (NullPointerException e) { ; }
+                    try {
+                        annualAllowance = calcNonPay(nonPayCnt,
+                                null == basicSalaryDto.getBasicSalary() ? "0" : basicSalaryDto.getBasicSalary(),
+                                null == basicSalaryDto.getOvertimeAllowance02() ? "0" : basicSalaryDto.getOvertimeAllowance02(),
+                                null == basicSalaryDto.getNightAllowance02() ? "0" : basicSalaryDto.getNightAllowance02(),
+                                null == basicSalaryDto.getHolidayAllowance02() ? "0" : basicSalaryDto.getHolidayAllowance02());
+                    } catch (NullPointerException e) {
+                        ;
+                    }
                 }
             }
 
@@ -1589,7 +1602,7 @@ public class SalaryService {
 
             monthlyKeunTaeDto.setTotalTime(rtTotalTime);
             monthlyKeunTaeDto.setNS01DayCnt(rtNS01DayCnt);
-            monthlyKeunTaeDto.setNightTeamPlus((double)nightTeamPlus*8);
+            monthlyKeunTaeDto.setNightTeamPlus((double) nightTeamPlus * 8);
             monthlyKeunTaeDto.setNSHoliDayCnt(rtNSHoliDayCnt);
             monthlyKeunTaeDto.setNonPayCnt(nonPayCnt);
             monthlyKeunTaeDto.setNonPayDay(nonPayDay);
@@ -1669,47 +1682,49 @@ public class SalaryService {
 
     /**
      * 범위안에 해당되는 분을 리턴한다.
+     *
      * @param start
      * @param end
      * @param range_s
      * @param range_e
      * @return
      */
-	static long getTimeInRange(LocalDateTime start, LocalDateTime end, LocalDateTime range_s, LocalDateTime range_e) {
+    static long getTimeInRange(LocalDateTime start, LocalDateTime end, LocalDateTime range_s, LocalDateTime range_e) {
 
-		Long rst = 0L;
+        Long rst = 0L;
 
-		LocalDateTime from = (null == range_s || true == start.isAfter(range_s) ? start : range_s);
-		LocalDateTime to = (null == range_e || true == end.isBefore(range_e) ? end : range_e);
+        LocalDateTime from = (null == range_s || true == start.isAfter(range_s) ? start : range_s);
+        LocalDateTime to = (null == range_e || true == end.isBefore(range_e) ? end : range_e);
 
-		if (from.isBefore(to)) {
-			rst = Duration.between(from, to).toMinutes();
-		}
+        if (from.isBefore(to)) {
+            rst = Duration.between(from, to).toMinutes();
+        }
 
-		return rst;
-	}
+        return rst;
+    }
 
-	/**
-	 * DH 식 외출 시간 계산 함수
-	 * @param start
-	 * @param end
-	 * @return
-	 */
-	static Double getOutTime(String start, String end) {
+    /**
+     * DH 식 외출 시간 계산 함수
+     *
+     * @param start
+     * @param end
+     * @return
+     */
+    static Double getOutTime(String start, String end) {
 
-		LocalDateTime sTime = LocalDateTime.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime sTime = LocalDateTime.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime eTime = LocalDateTime.parse(end, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-		Long outTime1 = getTimeInRange(sTime, eTime, null, sTime.with(LocalTime.of(12, 00)));
-		Long gapTime1 = getTimeInRange(sTime, eTime, sTime.with(LocalTime.of(12, 00)), sTime.with(LocalTime.of(12, 30)));
-		Long gapTime2 = getTimeInRange(sTime, eTime, sTime.with(LocalTime.of(13, 30)), sTime.with(LocalTime.of(14, 00)));
-		Long outTime2 = getTimeInRange(sTime, eTime, sTime.with(LocalTime.of(14, 00)), null);
-		Long outTime = (outTime1 + outTime2 + (gapTime1 + gapTime2 > 30 ? gapTime1 + gapTime2 - 30 : 0)); 
-		Double rst = 0.5 * Math.ceil(1.0*outTime/30);
+        Long outTime1 = getTimeInRange(sTime, eTime, null, sTime.with(LocalTime.of(12, 00)));
+        Long gapTime1 = getTimeInRange(sTime, eTime, sTime.with(LocalTime.of(12, 00)), sTime.with(LocalTime.of(12, 30)));
+        Long gapTime2 = getTimeInRange(sTime, eTime, sTime.with(LocalTime.of(13, 30)), sTime.with(LocalTime.of(14, 00)));
+        Long outTime2 = getTimeInRange(sTime, eTime, sTime.with(LocalTime.of(14, 00)), null);
+        Long outTime = (outTime1 + outTime2 + (gapTime1 + gapTime2 > 30 ? gapTime1 + gapTime2 - 30 : 0));
+        Double rst = 0.5 * Math.ceil(1.0 * outTime / 30);
 
-		logger.error(" %3d+%3d+%3d+%3d = %4d (%2d:%2d)", outTime1, gapTime1, gapTime2, outTime2, outTime, outTime/60, outTime%60);
-		return rst;
-	}
+        logger.error(" %3d+%3d+%3d+%3d = %4d (%2d:%2d)", outTime1, gapTime1, gapTime2, outTime2, outTime, outTime / 60, outTime % 60);
+        return rst;
+    }
 
     public static BigDecimal calcNonPay(Integer nonPaycnt, String basicSalary, String overtimeAllowance02, String
             nightAllowance02, String holidayAllowance02) {
@@ -1733,5 +1748,33 @@ public class SalaryService {
 
     public static boolean isBetween(LocalDateTime targetTime, LocalDateTime startTime, LocalDateTime endTime) {
         return targetTime.isAfter(startTime) && targetTime.isBefore(endTime);
+    }
+
+    /**
+     * 중도입사 체크
+     *
+     * @param hireDate
+     * @return
+     */
+    public static Boolean checkMidHire(String yyyymm, LocalDate hireDate) {
+        if (hireDate.getMonthValue() == Integer.parseInt(yyyymm.substring(4, 6))) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    /**
+     * 중도퇴사 체크
+     *
+     * @param retireDate
+     * @return
+     */
+    public static Boolean checkMidRetire(String yyyymm, LocalDate retireDate) {
+        if (retireDate.getMonthValue() == Integer.parseInt(yyyymm.substring(4, 6))) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
     }
 }
