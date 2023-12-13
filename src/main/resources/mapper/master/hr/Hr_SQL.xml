@@ -884,9 +884,9 @@
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '100'
-          AND he.employee_number in (
-            'D22741'
-            )
+--           AND he.employee_number in (
+--             'D22741'
+--             )
 --           AND fbe.est_id = 2
         UNION ALL
         SELECT he.employee_id
@@ -969,7 +969,7 @@
                                AND he.attribute1 = hb.yyyymm
         WHERE he.company_id = #{companyId}
           AND he.attribute1 = #{yyyymm}
-          AND  1=2
+--           AND  1=2
           AND (fcd03.defined_cd IN ('100', '910')
                 or he.employee_number IN (SELECT fcd.defined_cd
                                           FROM   fnd_code fc
