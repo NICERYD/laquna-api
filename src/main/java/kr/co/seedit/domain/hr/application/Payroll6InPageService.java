@@ -153,7 +153,8 @@ public class Payroll6InPageService {
                     + data.getAttribute16()
                     + data.getAttribute11()
                     + data.getAttribute12()
-                    + data.getAttribute23());
+                    + data.getAttribute23()
+                    + data.getAttribute25());
 
             setValuePayrollTableForm(sheet, data, no, curRow, curCol, styleLightGreen, styleLemonChiffon);
 
@@ -400,12 +401,12 @@ public class Payroll6InPageService {
             sheet.getRow(curRow + 18).getCell(curCol + 3).setCellValue(data.getAttribute16());
         }
         //연봉제 무급처리 금액
-//        if (0 != data.getAttribute01() && data.getEmployeeType().equals("100")) {
-//        	sheet.getRow(curRow + 19).getCell(curCol).setCellValue("무급");
+        if (!data.getNonPayDay().equals("0") && data.getEmployeeType().equals("100")) {
+        	sheet.getRow(curRow + 19).getCell(curCol).setCellValue("무급휴가");
             sheet.getRow(curRow + 19).getCell(curCol + 1).setCellValue(data.getNonPayDay());
             sheet.getRow(curRow + 19).getCell(curCol + 2).setCellValue(data.getNonPayCnt());
-//            sheet.getRow(curRow + 19).getCell(curCol + 3).setCellValue(data.getNonPayCnt() data.get);
-//        }
+            sheet.getRow(curRow + 19).getCell(curCol + 3).setCellValue(data.getAttribute25());
+        }
         //보조금
         //교통비
         if (0 != data.getAttribute11() && null != data.getTranspotation()) {

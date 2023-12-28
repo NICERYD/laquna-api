@@ -57,5 +57,6 @@ public class BasicSalaryDto {
     private String definedName;
     private String salarySum;
     private String sort;
+    private String nonPayAmount;
 
 }

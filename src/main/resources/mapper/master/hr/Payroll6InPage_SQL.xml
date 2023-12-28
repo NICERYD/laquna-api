@@ -157,6 +157,7 @@
          , IFNULL(hdmkt.holiday_sunday_day8H_cnt, 0) as holiday_sunday_day8H_cnt	-- 일요8H
          , IFNULL(hdmkt.non_pay_cnt, 0) as non_pay_cnt	-- 무급횟수
          , IFNULL(hdmkt.non_pay_day,'')  as non_pay_day	-- 무급일자
+         , IFNULL(hdcs.attribute25,0) as attribute25 -- 무급금액
       FROM  hr_dh_calc_salary hdcs
       INNER JOIN hr_dh_monthly_keun_tae hdmkt
       ON hdcs.company_id = hdmkt.company_id

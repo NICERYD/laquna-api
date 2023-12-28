@@ -2103,7 +2103,8 @@ public class ReportService {
                     + e.getAttribute16()
                     + e.getAttribute11()
                     + e.getAttribute12()
-                    + e.getAttribute23());
+                    + e.getAttribute23()
+                    + e.getAttribute25());
             
             testSum += e.getTotalAmt();
 

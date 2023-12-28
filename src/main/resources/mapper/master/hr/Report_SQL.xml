@@ -105,14 +105,14 @@
 		, IFNULL(hdcs.attribute21,0) + IFNULL(hdcs.attribute22,0) AS holiday_allowance01
         , IFNULL(hdcs.attribute07,0) AS holiday_allowance02
         , IFNULL(hdcs.attribute08,0) AS position_allowance
-        , IFNULL(hdcs.attribute09,0)+ifnull(hdcs.attribute16,0) AS other_allowances
+        , IFNULL(hdcs.attribute09,0)+ifnull(hdcs.attribute16,0)+ifnull(hdcs.attribute25,0) AS other_allowances
         , IFNULL(hdcs.attribute10,0) AS subsidies
         , IFNULL(hdcs.attribute11,0) AS transportation_expenses
         , IFNULL(hdcs.attribute12,0) AS meals_expenses
         , 0 AS bonus_amount
         , IFNULL(hdcs.basic_salary,0) + ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0)  + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
 		  + ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute21,0) + IFNULL(hdcs.attribute22,0) + IFNULL(hdcs.attribute07,0)
-		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0)+ifnull(hdcs.attribute16,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
+		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0)+ifnull(hdcs.attribute16,0) + ifnull(hdcs.attribute25,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0)
 		  + IFNULL(hdcs.attribute12,0)	AS salary_sum
 		, IFNULL(hdt.AM_DEDUCT01,0) AS national_pension
 		, IFNULL(hdt.AM_DEDUCT02,0) AS health_insurance
@@ -310,14 +310,14 @@
 		, sum(IFNULL(hdcs.attribute21,0)) + sum(IFNULL(hdcs.attribute22,0)) AS holiday_allowance01
 		, sum(IFNULL(hdcs.attribute07,0)) AS holiday_allowance02
 		, sum(IFNULL(hdcs.attribute08,0)) AS position_allowance
-		, sum(IFNULL(hdcs.attribute09,0))+sum(ifnull(hdcs.attribute16,0)) AS other_allowances
+		, sum(IFNULL(hdcs.attribute09,0))+sum(ifnull(hdcs.attribute16,0))+sum(ifnull(hdcs.attribute25,0)) AS other_allowances
 		, sum(IFNULL(hdcs.attribute10,0)) AS subsidies
 		, sum(IFNULL(hdcs.attribute11,0)) AS transportation_expenses
 		, sum(IFNULL(hdcs.attribute12,0)) AS meals_expenses
 		, 0 AS bonus_amount
 		, sum(IFNULL(hdcs.basic_salary,0)) + sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(ifnull(hdcs.attribute23,0)) + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0))
 			+ sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) + sum(IFNULL(hdcs.attribute05,0)) + sum(IFNULL(hdcs.attribute21,0)) + sum(IFNULL(hdcs.attribute22,0)) + sum(IFNULL(hdcs.attribute07,0))
-			+ sum(IFNULL(hdcs.attribute08,0)) + sum(IFNULL(hdcs.attribute09,0)) + sum(ifnull(hdcs.attribute16,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0))
+			+ sum(IFNULL(hdcs.attribute08,0)) + sum(IFNULL(hdcs.attribute09,0)) + sum(ifnull(hdcs.attribute16,0)) +  + sum(ifnull(hdcs.attribute25,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0))
 			+ sum(IFNULL(hdcs.attribute12,0))  AS salary_sum
 		, sum(IFNULL(hdt.AM_DEDUCT01,0)) AS national_pension
 		, sum(IFNULL(hdt.AM_DEDUCT02,0)) AS health_insurance
@@ -584,14 +584,14 @@
 		, IFNULL(hdcs.attribute21,0) + IFNULL(hdcs.attribute22,0) AS holiday_allowance01
         , IFNULL(hdcs.attribute07,0) AS holiday_allowance02
         , IFNULL(hdcs.attribute08,0) AS position_allowance
-        , IFNULL(hdcs.attribute09,0)+ifnull(hdcs.attribute16,0) AS other_allowances
+        , IFNULL(hdcs.attribute09,0)+ifnull(hdcs.attribute16,0)+ifnull(hdcs.attribute25,0) AS other_allowances
         , IFNULL(hdcs.attribute10,0) AS subsidies
         , IFNULL(hdcs.attribute11,0) AS transportation_expenses
         , IFNULL(hdcs.attribute12,0) AS meals_expenses
         , 0 AS bonus_amount
         , IFNULL(hdcs.basic_salary,0) + ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0) + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
 		  + ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute21,0) + IFNULL(hdcs.attribute22,0) + IFNULL(hdcs.attribute07,0)
-		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) +ifnull(hdcs.attribute16,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0) 
+		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) +ifnull(hdcs.attribute16,0)+ifnull(hdcs.attribute25,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0)
 		  + IFNULL(hdcs.attribute12,0) 	AS salary_sum
 		, IFNULL(hdt.AM_DEDUCT01,0) AS national_pension
 		, IFNULL(hdt.AM_DEDUCT02,0) AS health_insurance

@@ -176,5 +176,8 @@ public class Payroll6InPageDto implements Serializable {
 
 	private Integer nonPayCnt ; // 무급횟수
 	private String nonPayDay ; // 무급일자
+
+	@Builder.Default
+	private Double attribute25 = 0d; // 무급금액
 	
 }

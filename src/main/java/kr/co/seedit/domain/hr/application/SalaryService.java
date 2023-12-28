@@ -529,6 +529,7 @@ public class SalaryService {
 
         Integer nonPayCnt = 0;
         String nonPayDay;              // 무급일자
+        BigDecimal nonPayAmount = BigDecimal.ZERO;
 
 
         // 기준코드값
@@ -643,6 +644,7 @@ public class SalaryService {
             // 무급 count 변수
             nonPayCnt = 0;
             nonPayDay = "";
+            nonPayAmount = BigDecimal.ZERO;
 
             // 00. 해당월 입사/퇴직자 처리 댜상:연봉제, 시급제 && 별정직, 경비
             YearMonth yearMonth = YearMonth.parse(requestDto.getYyyymm(), DateTimeFormatter.ofPattern("yyyyMM"));
@@ -842,32 +844,34 @@ public class SalaryService {
                             }
                         }
                     }
-//                    // 무급처리 count
-//                    if (adtDataDto.getWorkStatus().equals("무급")) {
-//                        nonPayCnt++;
-//
-//                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
-//                        DateFormat outputFormat = new SimpleDateFormat("M/d");
-//                        DateFormat outputFormat2 = new SimpleDateFormat("d");
-//                        String dayOfMonth = "";
-//                        try {
-//                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
-//                        } catch (ParseException e) {
-//                            e.printStackTrace();
-//                        }
-//                        if (nonPayDay.isEmpty()) {
-//                            nonPayDay = adtDataDto.getWorkDate();
-//                            try {
-//                                // 입력 문자열을 Date 객체로 파싱
-//                                Date date = inputFormat.parse(nonPayDay);
-//                                nonPayDay = outputFormat.format(date);
-//                            } catch (ParseException e) {
-//                                e.printStackTrace();
-//                            }
-//                        } else {
-//                            nonPayDay = nonPayDay + "," + dayOfMonth;
-//                        }
-//                    }
+                    // 무급처리 count
+                    if (adtDataDto.getWorkStatus().equals("무급")) {
+                        nonPayCnt++;
+
+                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+                        String dayOfMonth = "";
+                        try {
+                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        if (nonPayDay.isEmpty()) {
+                            nonPayDay = adtDataDto.getWorkDate();
+                            try {
+                                // 입력 문자열을 Date 객체로 파싱
+                                Date date = inputFormat.parse(nonPayDay);
+                                nonPayDay = outputFormat.format(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            String dayOfMonthAsString = String.valueOf(dayOfMonth);
+                            StringBuilder nonPayDayBuilder = new StringBuilder(nonPayDay);
+                            nonPayDay = nonPayDayBuilder.append(",").append(dayOfMonthAsString).toString();
+                        }
+                    }
 
                     // 연차/반차 count
                     // 연차수당 - 연차
@@ -967,11 +971,11 @@ public class SalaryService {
                     }
 
                 }
-//                // 무급처리
-//                // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
-//                if (!(nonPayCnt == 0)) {
-//                    annualAllowance = calcNonPay(nonPayCnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
-//                }
+                // 무급처리
+                // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
+                if (!(nonPayCnt == 0)) {
+                    nonPayAmount = calcNonPay(nonPayCnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
+                }
                 // 연봉제 중도/입사 퇴사자 총시간 조정
                 if (!midStatus.equals("000") && diff != 0L) {
                     rtTotalTime = Math.floor(209.0 / 30.0 * diff);
@@ -1500,7 +1504,7 @@ public class SalaryService {
                     holidayAllowanceSun = holidayAllowanceSun.add(BigDecimal.valueOf(rtHolidaySundayUsed).multiply(hourlyPay).multiply(BigDecimal.valueOf(1.5)));
                 }
 
-                // 기타수당
+                // 기타수당1
                 if (rtLateUsed != 0) {
                     otherAmount = otherAmount.add(hourlyPay.multiply(BigDecimal.valueOf(rtLateUsed * -1))).setScale(0, RoundingMode.CEILING);
                     lateAmount = lateAmount.add(hourlyPay.multiply(BigDecimal.valueOf(rtLateUsed * -1))).setScale(0, RoundingMode.CEILING);
@@ -1516,53 +1520,53 @@ public class SalaryService {
             }
 
             // 2023-12-11 DH(김다은) 요청으로 무급 전체 처리로 수정
-            {
-                List<ADTDataDto> adtDataDtos = salaryDao.selectADTData(requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
-                workcnt = 0;
-                paidHoliday = 0;
-                for (ADTDataDto adtDataDto : adtDataDtos) {
-
-                    // 무급처리 count
-                    if (adtDataDto.getWorkStatus().equals("무급")) {
-                        nonPayCnt++;
-
-                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
-                        DateFormat outputFormat = new SimpleDateFormat("M/d");
-                        DateFormat outputFormat2 = new SimpleDateFormat("d");
-                        String dayOfMonth = "";
-                        try {
-                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        if (nonPayDay.isEmpty()) {
-                            nonPayDay = adtDataDto.getWorkDate();
-                            try {
-                                // 입력 문자열을 Date 객체로 파싱
-                                Date date = inputFormat.parse(nonPayDay);
-                                nonPayDay = outputFormat.format(date);
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            nonPayDay = nonPayDay + "," + dayOfMonth;
-                        }
-                    }
-                }
-                // 무급처리
-                // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
-                if (!(nonPayCnt == 0)) {
-                    try {
-                        annualAllowance = calcNonPay(nonPayCnt,
-                                null == basicSalaryDto.getBasicSalary() ? "0" : basicSalaryDto.getBasicSalary(),
-                                null == basicSalaryDto.getOvertimeAllowance02() ? "0" : basicSalaryDto.getOvertimeAllowance02(),
-                                null == basicSalaryDto.getNightAllowance02() ? "0" : basicSalaryDto.getNightAllowance02(),
-                                null == basicSalaryDto.getHolidayAllowance02() ? "0" : basicSalaryDto.getHolidayAllowance02());
-                    } catch (NullPointerException e) {
-                        ;
-                    }
-                }
-            }
+//            {
+//                List<ADTDataDto> adtDataDtos = salaryDao.selectADTData(requestDto.getCompanyId(), requestDto.getYyyymm(), basicSalaryDto.getEmployeeId());
+//                workcnt = 0;
+//                paidHoliday = 0;
+//                for (ADTDataDto adtDataDto : adtDataDtos) {
+//
+//                    // 무급처리 count
+//                    if (adtDataDto.getWorkStatus().equals("무급")) {
+//                        nonPayCnt++;
+//
+//                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+//                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+//                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+//                        String dayOfMonth = "";
+//                        try {
+//                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+//                        } catch (ParseException e) {
+//                            e.printStackTrace();
+//                        }
+//                        if (nonPayDay.isEmpty()) {
+//                            nonPayDay = adtDataDto.getWorkDate();
+//                            try {
+//                                // 입력 문자열을 Date 객체로 파싱
+//                                Date date = inputFormat.parse(nonPayDay);
+//                                nonPayDay = outputFormat.format(date);
+//                            } catch (ParseException e) {
+//                                e.printStackTrace();
+//                            }
+//                        } else {
+//                            nonPayDay = nonPayDay + "," + dayOfMonth;
+//                        }
+//                    }
+//                }
+//                // 무급처리
+//                // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
+//                if (!(nonPayCnt == 0)) {
+//                    try {
+//                        annualAllowance = calcNonPay(nonPayCnt,
+//                                null == basicSalaryDto.getBasicSalary() ? "0" : basicSalaryDto.getBasicSalary(),
+//                                null == basicSalaryDto.getOvertimeAllowance02() ? "0" : basicSalaryDto.getOvertimeAllowance02(),
+//                                null == basicSalaryDto.getNightAllowance02() ? "0" : basicSalaryDto.getNightAllowance02(),
+//                                null == basicSalaryDto.getHolidayAllowance02() ? "0" : basicSalaryDto.getHolidayAllowance02());
+//                    } catch (NullPointerException e) {
+//                        ;
+//                    }
+//                }
+//            }
 
             monthlyKeunTaeDto.setAnnualLeaveUsed(rtAnnualLeaveUsed);
             monthlyKeunTaeDto.setAnnualLeaveUsedDay(rtAnnualLeaveUsedDay);
@@ -1652,6 +1656,8 @@ public class SalaryService {
                 basicSalaryDto.setTransportationExpenses(transportationAmount.toString());
             if (!mealsAmount.equals(BigDecimal.ZERO))
                 basicSalaryDto.setMealsExpenses(mealsAmount.toString());
+            if (!nonPayAmount.equals(BigDecimal.ZERO))
+                basicSalaryDto.setNonPayAmount(nonPayAmount.toString());
 
             monthlyKeunTaeDtos.add(monthlyKeunTaeDto);
             resultData.add(basicSalaryDto);
