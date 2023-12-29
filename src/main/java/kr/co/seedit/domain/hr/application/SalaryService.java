@@ -972,9 +972,10 @@ public class SalaryService {
 
                 }
                 // 무급처리
-                // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
-                if (!(nonPayCnt == 0)) {
-                    nonPayAmount = calcNonPay(nonPayCnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
+                // 2023.12.29 시급 * 무급일자
+                String hourlyPayStr = basicSalaryDto.getHourlyPay(); // ensure basicSalaryDto is not null
+                if (hourlyPayStr != null && nonPayCnt != 0) {
+                    nonPayAmount = BigDecimal.valueOf(Integer.parseInt(hourlyPayStr) * nonPayCnt);
                 }
                 // 연봉제 중도/입사 퇴사자 총시간 조정
                 if (!midStatus.equals("000") && diff != 0L) {
@@ -1444,6 +1445,35 @@ public class SalaryService {
                     if (adtDataDto.getInStatus().equals("결근")) {
                         rtAbsence++;
                     }
+
+                    // 무급처리 count
+                    if (adtDataDto.getWorkStatus().equals("무급")) {
+                        nonPayCnt++;
+
+                        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        DateFormat outputFormat = new SimpleDateFormat("M/d");
+                        DateFormat outputFormat2 = new SimpleDateFormat("d");
+                        String dayOfMonth = "";
+                        try {
+                            dayOfMonth = outputFormat2.format(inputFormat.parse(adtDataDto.getWorkDate()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        if (nonPayDay.isEmpty()) {
+                            nonPayDay = adtDataDto.getWorkDate();
+                            try {
+                                // 입력 문자열을 Date 객체로 파싱
+                                Date date = inputFormat.parse(nonPayDay);
+                                nonPayDay = outputFormat.format(date);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            String dayOfMonthAsString = String.valueOf(dayOfMonth);
+                            StringBuilder nonPayDayBuilder = new StringBuilder(nonPayDay);
+                            nonPayDay = nonPayDayBuilder.append(",").append(dayOfMonthAsString).toString();
+                        }
+                    }
                 }
                 // 기본급 퇴직여부
                 // Y "000": 계약서 상의 시급 × 209H
@@ -1516,6 +1546,11 @@ public class SalaryService {
                 if (rtOuterUsed != 0) {
                     otherAmount = otherAmount.add(hourlyPay.multiply(BigDecimal.valueOf(rtOuterUsed * -1))).setScale(0, RoundingMode.CEILING);
                     OuterAmount = OuterAmount.add(hourlyPay.multiply(BigDecimal.valueOf(rtOuterUsed * -1))).setScale(0, RoundingMode.CEILING);
+                }
+                // 무급계산
+                if (!(nonPayCnt == 0)) {
+                    nonPayAmount = BigDecimal.valueOf(Double.parseDouble(basicSalaryDto.getHourlyPay()) * 8 * nonPayCnt);
+                    otherAmount = otherAmount.add(nonPayAmount);
                 }
             }
 

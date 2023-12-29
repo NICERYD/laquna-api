@@ -406,6 +406,11 @@ public class Payroll6InPageService {
             sheet.getRow(curRow + 19).getCell(curCol + 1).setCellValue(data.getNonPayDay());
             sheet.getRow(curRow + 19).getCell(curCol + 2).setCellValue(data.getNonPayCnt());
             sheet.getRow(curRow + 19).getCell(curCol + 3).setCellValue(data.getAttribute25());
+        } else if (!data.getNonPayDay().equals("0") && data.getEmployeeType().equals("200")) {
+            sheet.getRow(curRow + 19).getCell(curCol).setCellValue("무급휴가");
+            sheet.getRow(curRow + 19).getCell(curCol + 1).setCellValue(data.getNonPayDay());
+            sheet.getRow(curRow + 19).getCell(curCol + 2).setCellValue(data.getNonPayCnt());
+            sheet.getRow(curRow + 19).getCell(curCol + 3).setCellValue(data.getAttribute25());
         }
         //보조금
         //교통비
