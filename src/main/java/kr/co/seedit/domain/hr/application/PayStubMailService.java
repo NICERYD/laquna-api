@@ -747,7 +747,7 @@ public class PayStubMailService {
                     .append("		<tr>\r\n")
                     .append("			<td> 연차수당</td>\r\n")
                     .append("			<td> 통상시급 * 근로시간 / 연,월차 미사용시 당월정산(반차사용시 해당시간 차감)</td>\r\n")//data.getAnnualLeaveUsed()
-                    .append("			<td>" + payFormat.format(data.getAttribute01()) + "</td>\r\n")
+                    .append("			<td>" + payFormat.format(data.getAnnualAllowance()) + "</td>\r\n")
                     .append("		</tr>\r\n")
                     .append("		<tr>\r\n")
                     .append("			<td> 연장수당1</td>\r\n")
