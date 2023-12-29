@@ -107,14 +107,14 @@
          -- 반차
          , IFNULL(hdmkt.half_leave_used_day,'') as half_leave_used_day -- 반차사용일자
          , IFNULL(hdmkt.half_leave_used,0) as half_leave_used -- 반차사용
-        , IFNULL(hdmkt.half_leave_cnt,0) as half_leave_cnt -- 반차사용
+#         , IFNULL(hdmkt.half_leave_cnt,0) as half_leave_cnt -- 반차사용
          , IFNULL(hdcs.attribute15,0) as attribute15 -- 반차수당
 --          , IFNULL(hdmkt.half_leave_cnt,0) as half_leave_cnt -- 반차횟수(개인급여)
 --         , CASE hdmkt.half_leave_cnt WHEN NULL THEN '' WHEN 0 THEN ''
 --             ELSE CONCAT(hdmkt.half_leave_cnt, '회')
 --             END as half_leave_cnt -- 반차사용
         , CASE WHEN NULL THEN '' WHEN 0 THEN ''
-               WHEN he.employee_type = '100' THEN
+               WHEN (he.employee_type = '100' OR he.duty_type = '201')  THEN
                  CASE hdmkt.half_leave_cnt WHEN NULL THEN '' WHEN 0 THEN '' ELSE CONCAT(hdmkt.half_leave_cnt, '회') END
                WHEN he.employee_type = '200' THEN
                  CASE half_leave_used WHEN NULL THEN '' WHEN 0 THEN '' ELSE format(half_leave_used,2) END
