@@ -900,7 +900,7 @@ public class SalaryService {
                         }
                     }
 //                    if (Arrays.asList("오전반차", "오후반차", "오전반차_정상", "오후반차_정상").contains(adtDataDto.getWorkStatus())
-                    if (adtDataDto.getWorkStatus().contains("오후반차")) {
+                    if (adtDataDto.getWorkStatus().contains("반차")) {
                         rtHalfLeaveCnt++;
 
                         DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
