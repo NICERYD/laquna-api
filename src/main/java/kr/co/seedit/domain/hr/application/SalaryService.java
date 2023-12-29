@@ -972,10 +972,9 @@ public class SalaryService {
 
                 }
                 // 무급처리
-                // 2023.12.29 시급 * 무급일자
-                String hourlyPayStr = basicSalaryDto.getHourlyPay(); // ensure basicSalaryDto is not null
-                if (hourlyPayStr != null && nonPayCnt != 0) {
-                    nonPayAmount = BigDecimal.valueOf(Integer.parseInt(hourlyPayStr) * nonPayCnt);
+                // 책정임금등록의 (기본급/연장수당2/야간수당2/휴일수당2) / 30일 * 무급휴가일 (소숫점 첫째자리 ROUNDUP)
+                if (!(nonPayCnt == 0)) {
+                    nonPayAmount = calcNonPay(nonPayCnt, basicSalaryDto.getBasicSalary(), basicSalaryDto.getOvertimeAllowance02(), basicSalaryDto.getNightAllowance02(), basicSalaryDto.getHolidayAllowance02());
                 }
                 // 연봉제 중도/입사 퇴사자 총시간 조정
                 if (!midStatus.equals("000") && diff != 0L) {
@@ -1549,8 +1548,7 @@ public class SalaryService {
                 }
                 // 무급계산
                 if (!(nonPayCnt == 0)) {
-                    nonPayAmount = BigDecimal.valueOf(Double.parseDouble(basicSalaryDto.getHourlyPay()) * 8 * nonPayCnt);
-                    otherAmount = otherAmount.add(nonPayAmount);
+                    nonPayAmount = BigDecimal.valueOf(Double.parseDouble(basicSalaryDto.getHourlyPay()) * 8 * nonPayCnt).multiply(BigDecimal.valueOf(-1));
                 }
             }
 
