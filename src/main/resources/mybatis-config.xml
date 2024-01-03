@@ -6,7 +6,7 @@
         <setting name="useColumnLabel" value="true" />
         <setting name="useGeneratedKeys" value="false" />
         <setting name="mapUnderscoreToCamelCase" value="true" />
-        <setting name="defaultStatementTimeout" value="60000" />
+        <setting name="defaultStatementTimeout" value="180000" />
         <setting name="mapUnderscoreToCamelCase" value="true" />
         <setting name="jdbcTypeForNull" value="NULL"/>
     </settings>
