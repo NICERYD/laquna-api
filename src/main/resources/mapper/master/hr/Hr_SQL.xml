@@ -133,25 +133,25 @@
 		, CASE WHEN IFNULL(fcd06.defined_cd, '99999') = '201' THEN 1 ELSE 0 END as check_special
         , he.employee_type
         , hdcs.basic_salary
-        , ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0) AS annual_allowance
-        , hdcs.attribute02 AS overtime_allowance01
-        , hdcs.attribute03 AS overtime_allowance02
-        , ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) AS night_allowance01
-        , hdcs.attribute05 AS night_allowance02
+        , ROUND(ifnull(hdcs.attribute01,0))+ROUND(ifnull(hdcs.attribute15,0))+ROUND(ifnull(hdcs.attribute23,0)) AS annual_allowance
+        , ROUND(ifnull(hdcs.attribute02,0)) AS overtime_allowance01
+        , ROUND(ifnull(hdcs.attribute03,0)) AS overtime_allowance02
+        , ROUND(ifnull(hdcs.attribute04,0))+ ROUND(ifnull(hdcs.attribute18,0)) AS night_allowance01
+        , ROUND(ifnull(hdcs.attribute05,0)) AS night_allowance02
 --         , hdcs.attribute06 AS holiday_allowance01
-        , IFNULL(hdcs.attribute21,0) + IFNULL(hdcs.attribute22,0) AS holiday_allowance01
-        , hdcs.attribute07 AS holiday_allowance02
-        , hdcs.attribute08 AS position_allowance
-        , hdcs.attribute09 AS otherAllowance01
-        , hdcs.attribute16  + IFNULL(hdcs.attribute25,0) AS otherAllowance02
-        , hdcs.attribute10 AS subsidies
-        , hdcs.attribute11 AS transportation_expenses
-        , hdcs.attribute12 AS meals_expenses
-        , IFNULL(hb.bonus_amount,0) AS bonus_amount
-        , IFNULL(hdcs.basic_salary,0) + (ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0)) + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
-              + (ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0)) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute21,0) + IFNULL(hdcs.attribute22,0) + IFNULL(hdcs.attribute07,0)
-              + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0) + ifnull(hdcs.attribute16,0)+ ifnull(hdcs.attribute25,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0)
-              + IFNULL(hdcs.attribute12,0) AS salary_sum
+        , ROUND(IFNULL(hdcs.attribute21,0)) + ROUND(IFNULL(hdcs.attribute22,0)) AS holiday_allowance01
+        , ROUND(ifnull(hdcs.attribute07,0)) AS holiday_allowance02
+        , ROUND(ifnull(hdcs.attribute08,0)) AS position_allowance
+        , ROUND(ifnull(hdcs.attribute09,0)) AS otherAllowance01
+        , ROUND(ifnull(hdcs.attribute16,0))  + ROUND(IFNULL(hdcs.attribute25,0)) AS otherAllowance02
+        , ROUND(ifnull(hdcs.attribute10,0)) AS subsidies
+        , ROUND(ifnull(hdcs.attribute11,0)) AS transportation_expenses
+        , ROUND(ifnull(hdcs.attribute12,0)) AS meals_expenses
+        , ROUND(IFNULL(hb.bonus_amount,0)) AS bonus_amount
+        , ROUND(IFNULL(hdcs.basic_salary,0)) + (ROUND(ifnull(hdcs.attribute01,0))+ROUND(ifnull(hdcs.attribute15,0))+ROUND(ifnull(hdcs.attribute23,0))) + ROUND(IFNULL(hdcs.attribute02,0)) + ROUND(IFNULL(hdcs.attribute03,0))
+              + (ROUND(ifnull(hdcs.attribute04,0)) + ROUND(ifnull(hdcs.attribute18,0))) + ROUND(IFNULL(hdcs.attribute05,0)) + ROUND(IFNULL(hdcs.attribute21,0)) + ROUND(IFNULL(hdcs.attribute22,0)) + ROUND(IFNULL(hdcs.attribute07,0))
+              + ROUND(IFNULL(hdcs.attribute08,0)) + ROUND(IFNULL(hdcs.attribute09,0)) + ROUND(ifnull(hdcs.attribute16,0)) + ROUND(ifnull(hdcs.attribute25,0)) + ROUND(IFNULL(hdcs.attribute10,0)) + ROUND(IFNULL(hdcs.attribute11,0))
+              + ROUND(IFNULL(hdcs.attribute12,0)) AS salary_sum
         FROM   hr_dh_calc_salary hdcs
         INNER JOIN hr_employee he
         ON hdcs.company_id  = he.company_id
@@ -216,27 +216,27 @@
         , 0 as check_first
 		, 0 as check_special
         , "" as employee_type
-        , sum(IFNULL(hdcs.basic_salary,0)) as basic_salary
-        , sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(ifnull(hdcs.attribute23,0)) AS annual_allowance
-        , sum(IFNULL(hdcs.attribute02,0)) AS overtime_allowance01
-        , sum(IFNULL(hdcs.attribute03,0)) AS overtime_allowance02
-        , sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) AS night_allowance01
-        , sum(IFNULL(hdcs.attribute05,0)) AS night_allowance02
+        , ROUND(sum(IFNULL(hdcs.basic_salary,0))) as basic_salary
+        , ROUND(sum(ifnull(hdcs.attribute01,0))) + ROUND(sum(ifnull(hdcs.attribute15,0))) + ROUND(sum(ifnull(hdcs.attribute23,0))) AS annual_allowance
+        , ROUND(sum(IFNULL(hdcs.attribute02,0))) AS overtime_allowance01
+        , ROUND(sum(IFNULL(hdcs.attribute03,0))) AS overtime_allowance02
+        , ROUND(sum(ifnull(hdcs.attribute04,0))) + sum(ifnull(hdcs.attribute18,0)) AS night_allowance01
+        , ROUND(sum(IFNULL(hdcs.attribute05,0))) AS night_allowance02
         -- , sum(hdcs.attribute06) AS holiday_allowance01
-        , sum(ifnull(hdcs.attribute21,0)) + sum(ifnull(hdcs.attribute22,0)) AS holiday_allowance01
-        , sum(IFNULL(hdcs.attribute07,0)) AS holiday_allowance02
-        , sum(IFNULL(hdcs.attribute08,0)) AS position_allowance
-        , sum(IFNULL(hdcs.attribute09,0)) AS otherAllowance01
-        , sum(IFNULL(hdcs.attribute16,0)) + sum(IFNULL(hdcs.attribute25,0)) AS otherAllowance02
-        , sum(IFNULL(hdcs.attribute10,0)) AS subsidies
-        , sum(IFNULL(hdcs.attribute11,0)) AS transportation_expenses
-        , sum(IFNULL(hdcs.attribute12,0)) AS meals_expenses
-        , sum(IFNULL(hb.bonus_amount,0)) AS bonus_amount
-        , sum(IFNULL(hdcs.basic_salary,0)) + sum(ifnull(hdcs.attribute01,0)) + sum(ifnull(hdcs.attribute15,0)) + sum(ifnull(hdcs.attribute23,0)) 
-        + sum(IFNULL(hdcs.attribute02,0)) + sum(IFNULL(hdcs.attribute03,0)) + sum(ifnull(hdcs.attribute04,0)) + sum(ifnull(hdcs.attribute18,0)) 
-        + sum(IFNULL(hdcs.attribute05,0)) + sum(ifnull(hdcs.attribute21,0)) + sum(ifnull(hdcs.attribute22,0)) + sum(IFNULL(hdcs.attribute07,0)) + sum(IFNULL(hdcs.attribute08,0))
-        + sum(IFNULL(hdcs.attribute09,0)) + sum(IFNULL(hdcs.attribute16,0)) + sum(IFNULL(hdcs.attribute25,0)) + sum(IFNULL(hdcs.attribute10,0)) + sum(IFNULL(hdcs.attribute11,0))
-        + sum(IFNULL(hdcs.attribute12,0)) AS salary_sum
+        , ROUND(sum(ifnull(hdcs.attribute21,0))) + ROUND(sum(ifnull(hdcs.attribute22,0))) AS holiday_allowance01
+        , ROUND(sum(IFNULL(hdcs.attribute07,0))) AS holiday_allowance02
+        , ROUND(sum(IFNULL(hdcs.attribute08,0))) AS position_allowance
+        , ROUND(sum(IFNULL(hdcs.attribute09,0))) AS otherAllowance01
+        , ROUND(sum(IFNULL(hdcs.attribute16,0))) + ROUND(sum(IFNULL(hdcs.attribute25,0))) AS otherAllowance02
+        , ROUND(sum(IFNULL(hdcs.attribute10,0))) AS subsidies
+        , ROUND(sum(IFNULL(hdcs.attribute11,0))) AS transportation_expenses
+        , ROUND(sum(IFNULL(hdcs.attribute12,0))) AS meals_expenses
+        , ROUND(sum(IFNULL(hb.bonus_amount,0)) )AS bonus_amount
+        , ROUND(sum(IFNULL(hdcs.basic_salary,0))) + ROUND(sum(ifnull(hdcs.attribute01,0))) + ROUND(sum(ifnull(hdcs.attribute15,0))) + ROUND(sum(ifnull(hdcs.attribute23,0)))
+        + ROUND(sum(IFNULL(hdcs.attribute02,0))) + ROUND(sum(IFNULL(hdcs.attribute03,0))) + ROUND(sum(ifnull(hdcs.attribute04,0))) + ROUND(sum(ifnull(hdcs.attribute18,0)))
+        + ROUND(sum(IFNULL(hdcs.attribute05,0))) + ROUND(sum(ifnull(hdcs.attribute21,0))) + ROUND(sum(ifnull(hdcs.attribute22,0))) + ROUND(sum(IFNULL(hdcs.attribute07,0))) + ROUND(sum(IFNULL(hdcs.attribute08,0)))
+        + ROUND(sum(IFNULL(hdcs.attribute09,0))) + ROUND(sum(IFNULL(hdcs.attribute16,0))) + ROUND(sum(IFNULL(hdcs.attribute25,0))) + ROUND(sum(IFNULL(hdcs.attribute10,0))) + ROUND(sum(IFNULL(hdcs.attribute11,0)))
+        + ROUND(sum(IFNULL(hdcs.attribute12,0))) AS salary_sum
         FROM   hr_dh_calc_salary hdcs
         INNER JOIN hr_employee he
         ON hdcs.company_id  = he.company_id
@@ -885,7 +885,7 @@
           AND he.attribute1 = #{yyyymm}
 --           AND he.employee_type  = '100'
 --           AND he.employee_number in (
---             'D17703'
+--             'D23511'
 --             )
 --           AND fbe.est_id = 2
         UNION ALL

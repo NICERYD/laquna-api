@@ -804,7 +804,7 @@ public class SalaryService {
                             duration = duration.minus(Duration.ofHours(1));
                         }
                         // 저녁시간 제외
-                        if (!workStartTime.toLocalTime().isBefore(LocalTime.of(13, 30)) && !workEndTime.toLocalTime().isBefore(LocalTime.of(15, 30))) {
+                        if (!workStartTime.toLocalTime().isBefore(LocalTime.of(17, 30)) && !workEndTime.toLocalTime().isBefore(LocalTime.of(18, 00))) {
                             duration = duration.minus(Duration.ofMinutes(30));
                         }
 
@@ -1165,7 +1165,7 @@ public class SalaryService {
                             rtHalfLeaveUseDay = rtHalfLeaveUseDay + "," + dayOfMonth;
                         }
                     } else if (adtDataDto.getWorkStatus().contains("오후반차")) {
-                        if (!workEndDateTime.isAfter(workEndDateTime.with(LocalTime.of(13, 00)))) {
+                        if (!workEndDateTime.isAfter(workEndDateTime.with(LocalTime.of(13, 30)))) {
                             rtHalfLeaverUsed = rtHalfLeaverUsed + 4.0;
                         } else {
                             Duration duration = Duration.between(workEndDateTime, workEndDateTime.with(LocalTime.of(17, 30)));
