@@ -95,42 +95,42 @@
         , he.employee_type
         , he.hire_date
         , IF(he.retire_date != '9999-12-31', he.retire_date, null)
-        , IFNULL(hdcs.basic_salary,0) AS basic_salary
-		, ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0) AS annual_allowance
-        , IFNULL(hdcs.attribute02,0) AS overtime_allowance01
-        , IFNULL(hdcs.attribute03,0) AS overtime_allowance02
-		, ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) AS night_allowance01
-        , IFNULL(hdcs.attribute05,0) AS night_allowance02
+        , ROUND(IFNULL(hdcs.basic_salary,0)) AS basic_salary
+		, ROUND(ifnull(hdcs.attribute01,0))+ROUND(ifnull(hdcs.attribute15,0))+ROUND(ifnull(hdcs.attribute23,0)) AS annual_allowance
+        , ROUND(IFNULL(hdcs.attribute02,0)) AS overtime_allowance01
+        , ROUND(IFNULL(hdcs.attribute03,0)) AS overtime_allowance02
+		, ROUND(ifnull(hdcs.attribute04,0)) + ifnull(hdcs.attribute18,0) AS night_allowance01
+        , ROUND(IFNULL(hdcs.attribute05,0)) AS night_allowance02
 --         , IFNULL(hdcs.attribute06,0) AS holiday_allowance01
-		, IFNULL(hdcs.attribute21,0) + IFNULL(hdcs.attribute22,0) AS holiday_allowance01
-        , IFNULL(hdcs.attribute07,0) AS holiday_allowance02
-        , IFNULL(hdcs.attribute08,0) AS position_allowance
-        , IFNULL(hdcs.attribute09,0)+ifnull(hdcs.attribute16,0)+ifnull(hdcs.attribute25,0) AS other_allowances
-        , IFNULL(hdcs.attribute10,0) AS subsidies
-        , IFNULL(hdcs.attribute11,0) AS transportation_expenses
-        , IFNULL(hdcs.attribute12,0) AS meals_expenses
+		, ROUND(IFNULL(hdcs.attribute21,0)) + ROUND(IFNULL(hdcs.attribute22,0)) AS holiday_allowance01
+        , ROUND(IFNULL(hdcs.attribute07,0)) AS holiday_allowance02
+        , ROUND(IFNULL(hdcs.attribute08,0)) AS position_allowance
+        , ROUND(IFNULL(hdcs.attribute09,0))+ROUND(ifnull(hdcs.attribute16,0))+ROUND(ifnull(hdcs.attribute25,0)) AS other_allowances
+        , ROUND(IFNULL(hdcs.attribute10,0)) AS subsidies
+        , ROUND(IFNULL(hdcs.attribute11,0)) AS transportation_expenses
+        , ROUND(IFNULL(hdcs.attribute12,0)) AS meals_expenses
         , 0 AS bonus_amount
-        , IFNULL(hdcs.basic_salary,0) + ifnull(hdcs.attribute01,0)+ifnull(hdcs.attribute15,0)+ifnull(hdcs.attribute23,0)  + IFNULL(hdcs.attribute02,0) + IFNULL(hdcs.attribute03,0)
-		  + ifnull(hdcs.attribute04,0) + ifnull(hdcs.attribute18,0) + IFNULL(hdcs.attribute05,0) + IFNULL(hdcs.attribute21,0) + IFNULL(hdcs.attribute22,0) + IFNULL(hdcs.attribute07,0)
-		  + IFNULL(hdcs.attribute08,0) + IFNULL(hdcs.attribute09,0)+ifnull(hdcs.attribute16,0) + ifnull(hdcs.attribute25,0) + IFNULL(hdcs.attribute10,0) + IFNULL(hdcs.attribute11,0)
-		  + IFNULL(hdcs.attribute12,0)	AS salary_sum
-		, IFNULL(hdt.AM_DEDUCT01,0) AS national_pension
-		, IFNULL(hdt.AM_DEDUCT02,0) AS health_insurance
-		, IFNULL(hdt.AM_DEDUCT03,0) AS care_insurance
-		, IFNULL(hdt.AM_DEDUCT04,0) AS employment_insurance
-		, IFNULL(hdt.AM_DEDUCT05,0) AS advance
-		, IFNULL(hdt.AM_DEDUCT06,0) AS other_tax
-		, IFNULL(hdt.AM_DEDUCT07,0) AS gyeongjobi
-		, IFNULL(hdt.AM_DEDUCT08,0) + IFNULL(hdt.AM_DEDUCT09,0) AS yearend
-		, IFNULL(hdt.AM_DEDUCT10,0) AS health_insurance_settlement
-		, IFNULL(hdt.AM_DEDUCT11,0) AS care_insurance_settlement
-		, IFNULL(hdt.AM_DEDUCT12,0) AS holiday_tax
-		, IFNULL(hdt.AM_INCOMTAX,0) AS incomtax
-		, IFNULL(hdt.AM_RESIDTAX,0) AS residtax
-		, IFNULL(hdt.AM_DEDUCT01,0) + IFNULL(hdt.AM_DEDUCT02,0) + IFNULL(hdt.AM_DEDUCT03,0) + IFNULL(hdt.AM_DEDUCT04,0)
-		  + IFNULL(hdt.AM_DEDUCT05,0) + IFNULL(hdt.AM_DEDUCT06,0) + IFNULL(hdt.AM_DEDUCT07,0) + IFNULL(hdt.AM_DEDUCT08,0) 
-		  + IFNULL(hdt.AM_DEDUCT09,0) + IFNULL(hdt.AM_DEDUCT10,0) + IFNULL(hdt.AM_DEDUCT11,0) + IFNULL(hdt.AM_DEDUCT12,0)
-		  + IFNULL(hdt.AM_INCOMTAX,0) + IFNULL(hdt.AM_RESIDTAX,0) AS tax_sum
+        , ROUND(IFNULL(hdcs.basic_salary,0)) + ROUND(ifnull(hdcs.attribute01,0))+ROUND(ifnull(hdcs.attribute15,0))+ROUND(ifnull(hdcs.attribute23,0))  + ROUND(IFNULL(hdcs.attribute02,0)) + ROUND(IFNULL(hdcs.attribute03,0))
+		  + ROUND(ifnull(hdcs.attribute04,0)) + ROUND(ifnull(hdcs.attribute18,0)) + ROUND(IFNULL(hdcs.attribute05,0)) + ROUND(IFNULL(hdcs.attribute21,0)) + ROUND(IFNULL(hdcs.attribute22,0)) + ROUND(IFNULL(hdcs.attribute07,0))
+		  + ROUND(IFNULL(hdcs.attribute08,0)) + ROUND(IFNULL(hdcs.attribute09,0))+ROUND(ifnull(hdcs.attribute16,0)) + ROUND(ifnull(hdcs.attribute25,0)) + ROUND(IFNULL(hdcs.attribute10,0))+ ROUND(IFNULL(hdcs.attribute11,0))
+		  + ROUND(IFNULL(hdcs.attribute12,0))	AS salary_sum
+		, ROUND(IFNULL(hdt.AM_DEDUCT01,0)) AS national_pension
+		, ROUND(IFNULL(hdt.AM_DEDUCT02,0)) AS health_insurance
+		, ROUND(IFNULL(hdt.AM_DEDUCT03,0)) AS care_insurance
+		, ROUND(IFNULL(hdt.AM_DEDUCT04,0)) AS employment_insurance
+		, ROUND(IFNULL(hdt.AM_DEDUCT05,0)) AS advance
+		, ROUND(IFNULL(hdt.AM_DEDUCT06,0)) AS other_tax
+		, ROUND(IFNULL(hdt.AM_DEDUCT07,0)) AS gyeongjobi
+		, ROUND(IFNULL(hdt.AM_DEDUCT08,0)) + ROUND(IFNULL(hdt.AM_DEDUCT09,0)) AS yearend
+		, ROUND(IFNULL(hdt.AM_DEDUCT10,0)) AS health_insurance_settlement
+		, ROUND(IFNULL(hdt.AM_DEDUCT11,0)) AS care_insurance_settlement
+		, ROUND(IFNULL(hdt.AM_DEDUCT12,0)) AS holiday_tax
+		, ROUND(IFNULL(hdt.AM_INCOMTAX,0)) AS incomtax
+		, ROUND(IFNULL(hdt.AM_RESIDTAX,0)) AS residtax
+		, ROUND(IFNULL(hdt.AM_DEDUCT01,0)) + ROUND(IFNULL(hdt.AM_DEDUCT02,0)) + ROUND(IFNULL(hdt.AM_DEDUCT03,0)) + ROUND(IFNULL(hdt.AM_DEDUCT04,0))
+		  + ROUND(IFNULL(hdt.AM_DEDUCT05,0)) + ROUND(IFNULL(hdt.AM_DEDUCT06,0)) + ROUND(IFNULL(hdt.AM_DEDUCT07,0)) + ROUND(IFNULL(hdt.AM_DEDUCT08,0))
+		  + ROUND(IFNULL(hdt.AM_DEDUCT09,0)) + ROUND(IFNULL(hdt.AM_DEDUCT10,0)) + ROUND(IFNULL(hdt.AM_DEDUCT11,0)) + ROUND(IFNULL(hdt.AM_DEDUCT12,0))
+		  + ROUND(IFNULL(hdt.AM_INCOMTAX,0)) + ROUND(IFNULL(hdt.AM_RESIDTAX,0)) AS tax_sum
 		, IFNULL(hdt.DT_PAY,'00000000') AS dt_pay
         FROM   hr_dh_calc_salary hdcs
         INNER JOIN fnd_business_est fbe
@@ -220,24 +220,24 @@
 	, 0 AS transportation_expenses
 	, 0 AS meals_expenses
 	, 0 AS bonus_amount
-	, IFNULL(hb.bonus_amount,0)  AS salary_sum
-	, IFNULL(hdt.AM_DEDUCT01,0) AS national_pension
-	, IFNULL(hdt.AM_DEDUCT02,0) AS health_insurance
-	, IFNULL(hdt.AM_DEDUCT03,0) AS care_insurance
-	, IFNULL(hdt.AM_DEDUCT04,0) AS employment_insurance
-	, IFNULL(hdt.AM_DEDUCT05,0) AS advance
-	, IFNULL(hdt.AM_DEDUCT06,0) AS other_tax
-	, IFNULL(hdt.AM_DEDUCT07,0) AS gyeongjobi
-	, IFNULL(hdt.AM_DEDUCT08,0) + IFNULL(hdt.AM_DEDUCT09,0) AS yearend
-	, IFNULL(hdt.AM_DEDUCT10,0) AS health_insurance_settlement
-	, IFNULL(hdt.AM_DEDUCT11,0) AS care_insurance_settlement
-	, IFNULL(hdt.AM_DEDUCT12,0) AS holiday_tax
-	, IFNULL(hdt.AM_INCOMTAX,0) AS incomtax
-	, IFNULL(hdt.AM_RESIDTAX,0) AS residtax
-	, IFNULL(hdt.AM_DEDUCT01,0) + IFNULL(hdt.AM_DEDUCT02,0) + IFNULL(hdt.AM_DEDUCT03,0) + IFNULL(hdt.AM_DEDUCT04,0)
-	+ IFNULL(hdt.AM_DEDUCT05,0) + IFNULL(hdt.AM_DEDUCT06,0) + IFNULL(hdt.AM_DEDUCT07,0) + IFNULL(hdt.AM_DEDUCT08,0)
-	+ IFNULL(hdt.AM_DEDUCT09,0) + IFNULL(hdt.AM_DEDUCT10,0) + IFNULL(hdt.AM_DEDUCT11,0) + IFNULL(hdt.AM_DEDUCT12,0)
-	+ IFNULL(hdt.AM_INCOMTAX,0) + IFNULL(hdt.AM_RESIDTAX,0) AS tax_sum
+	, ROUND(IFNULL(hb.bonus_amount,0))  AS salary_sum
+	, ROUND(IFNULL(hdt.AM_DEDUCT01,0)) AS national_pension
+	, ROUND(IFNULL(hdt.AM_DEDUCT02,0)) AS health_insurance
+	, ROUND(IFNULL(hdt.AM_DEDUCT03,0)) AS care_insurance
+	, ROUND(IFNULL(hdt.AM_DEDUCT04,0)) AS employment_insurance
+	, ROUND(IFNULL(hdt.AM_DEDUCT05,0)) AS advance
+	, ROUND(IFNULL(hdt.AM_DEDUCT06,0)) AS other_tax
+	, ROUND(IFNULL(hdt.AM_DEDUCT07,0)) AS gyeongjobi
+	, ROUND(IFNULL(hdt.AM_DEDUCT08,0)) + ROUND(IFNULL(hdt.AM_DEDUCT09,0)) AS yearend
+	, ROUND(IFNULL(hdt.AM_DEDUCT10,0)) AS health_insurance_settlement
+	, ROUND(IFNULL(hdt.AM_DEDUCT11,0)) AS care_insurance_settlement
+	, ROUND(IFNULL(hdt.AM_DEDUCT12,0)) AS holiday_tax
+	, ROUND(IFNULL(hdt.AM_INCOMTAX,0)) AS incomtax
+	, ROUND(IFNULL(hdt.AM_RESIDTAX,0)) AS residtax
+	, ROUND(IFNULL(hdt.AM_DEDUCT01,0)) + ROUND(IFNULL(hdt.AM_DEDUCT02,0)) + ROUND(IFNULL(hdt.AM_DEDUCT03,0)) + ROUND(IFNULL(hdt.AM_DEDUCT04,0))
+	+ ROUND(IFNULL(hdt.AM_DEDUCT05,0)) + ROUND(IFNULL(hdt.AM_DEDUCT06,0)) + ROUND(IFNULL(hdt.AM_DEDUCT07,0)) + ROUND(IFNULL(hdt.AM_DEDUCT08,0))
+	+ ROUND(IFNULL(hdt.AM_DEDUCT09,0)) + ROUND(IFNULL(hdt.AM_DEDUCT10,0)) + ROUND(IFNULL(hdt.AM_DEDUCT11,0)) + ROUND(IFNULL(hdt.AM_DEDUCT12,0))
+	+ ROUND(IFNULL(hdt.AM_INCOMTAX,0)) + ROUND(IFNULL(hdt.AM_RESIDTAX,0)) AS tax_sum
 	, IFNULL(hdt.DT_PAY,'00000000') AS dt_pay
 	FROM   hr_bonus hb
 	INNER JOIN fnd_business_est fbe
